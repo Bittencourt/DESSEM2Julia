@@ -2,4 +2,11 @@
 set -euo pipefail
 
 echo "Running Julia tests before commit..."
-julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
+
+# On Windows Git Bash, invoking julia via WindowsApps can fail with Permission denied.
+# Prefer running via PowerShell when available.
+if command -v powershell.exe >/dev/null 2>&1; then
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "julia --project=. -e \"using Pkg; Pkg.instantiate(); Pkg.test()\""
+else
+	julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
+fi

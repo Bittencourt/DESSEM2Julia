@@ -5,3 +5,5 @@ using DESSEM2Julia
     @test greet() == "Hello, world! 👋"
     @test greet("Julia") == "Hello, Julia! 👋"
 end
+
+include("convert_tests.jl")
