@@ -1,6 +1,6 @@
 # DESSEM2Julia
 
-A starter Julia package environment. Replace this with your actual project description.
+Convert DESSEM input files (.DAT and related text files) into structured Julia objects and persist them in JLD2 format.
 
 ## Quickstart
 
@@ -11,7 +11,23 @@ Pkg.activate(".")
 Pkg.instantiate()
 Pkg.test()
 
+## Roadmap and docs
+
+- Tasks and phases: `TASKS.md`
+- Architecture: `docs/architecture.md`
+- File formats coverage: `docs/file_formats.md`
+
+## Contributing
+
+Tests run in CI on pushes/PRs. To run tests locally before committing, enable the pre-commit hook:
+
+PowerShell:
+
+./scripts/setup-hooks.ps1
+
+Then commit as usual; the hook will run `Pkg.test()`.
+
 ## Development
 
-- Main module: src/DESSEM2Julia.jl
-- Tests: test/runtests.jl
+- Main module: `src/DESSEM2Julia.jl`
+- Tests: `test/runtests.jl`

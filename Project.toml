@@ -3,8 +3,12 @@ uuid = "5b3a2f8f-9ef8-4a52-9f7b-2a6d29f86e1c"
 authors = ["Pedro"]
 version = "0.1.0"
 
+[deps]
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+
 [compat]
 julia = "1.6"
+JLD2 = "0.4, 0.5"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
