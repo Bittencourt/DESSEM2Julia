@@ -1,0 +1,14 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Keep Windows scripts with CRLF if needed
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Mark common binary types
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary

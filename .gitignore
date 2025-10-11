@@ -1,0 +1,13 @@
+# Julia
+*.jl.cov
+*.jl.mem
+
+# VS Code
+.vscode/
+
+# Environments
+Manifest.toml
+
+# OS
+.DS_Store
+Thumbs.db

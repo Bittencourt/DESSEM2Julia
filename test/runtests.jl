@@ -1,0 +1,7 @@
+using Test
+using DESSEM2Julia
+
+@testset "DESSEM2Julia.greet" begin
+    @test greet() == "Hello, world! 👋"
+    @test greet("Julia") == "Hello, Julia! 👋"
+end

@@ -1,0 +1,13 @@
+name = "DESSEM2Julia"
+uuid = "5b3a2f8f-9ef8-4a52-9f7b-2a6d29f86e1c"
+authors = ["Pedro"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
