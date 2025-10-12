@@ -111,6 +111,158 @@ Base.@kwdef struct ThermalRegistry
 end
 
 # ============================================================================
+# General Data File (ENTDADOS.XXX) Types
+# ============================================================================
+
+"""
+    TMRecord
+
+Time discretization record from ENTDADOS.XXX.
+
+# Fields
+- `day::Int`: Calendar day number
+- `hour::Int`: Hour (0-23)
+- `half_hour::Int`: Half-hour flag (0 or 1)
+- `duration::Float64`: Period duration in hours (≥ 0.5, default 1.0)
+- `network_flag::Int`: Network modeling flag (0=no network, 1=network no losses, 2=network with losses)
+- `load_level::String`: Load level name (e.g., "LEVE", "MEDIA", "PESADA")
+"""
+Base.@kwdef struct TMRecord
+    day::Int
+    hour::Int
+    half_hour::Int = 0
+    duration::Float64 = 1.0
+    network_flag::Int
+    load_level::String = ""
+end
+
+"""
+    SISTRecord
+
+Subsystem definition record from ENTDADOS.XXX.
+
+# Fields
+- `subsystem_num::Int`: Subsystem number (1-99)
+- `subsystem_code::String`: Subsystem mnemonic (2 characters)
+- `status::Int`: Status flag (default 0)
+- `subsystem_name::String`: Subsystem name (10 characters max)
+"""
+Base.@kwdef struct SISTRecord
+    subsystem_num::Int
+    subsystem_code::String
+    status::Int = 0
+    subsystem_name::String = ""
+end
+
+"""
+    UHRecord
+
+Hydroelectric plant configuration record from ENTDADOS.XXX.
+
+# Fields
+- `plant_num::Int`: Plant number (1-320)
+- `plant_name::String`: Plant name (12 characters max)
+- `status::Int`: Plant status (0=existing, 1=under construction, default 0)
+- `subsystem::Int`: Subsystem number per SIST records
+- `initial_volume_pct::Float64`: Initial volume as % useful (0-100)
+- `volume_unit::Int`: Volume unit flag (1=hm³, 2=% useful, default 2)
+- `min_volume::Union{Float64, Nothing}`: Minimum volume
+- `max_volume::Union{Float64, Nothing}`: Maximum volume
+- `initial_volume_abs::Union{Float64, Nothing}`: Initial volume (absolute)
+- `spillway_crest::Union{Float64, Nothing}`: Spillway crest volume
+- `diversion_crest::Union{Float64, Nothing}`: Diversion crest volume
+"""
+Base.@kwdef struct UHRecord
+    plant_num::Int
+    plant_name::String
+    status::Int = 0
+    subsystem::Int
+    initial_volume_pct::Float64
+    volume_unit::Int = 2
+    min_volume::Union{Float64, Nothing} = nothing
+    max_volume::Union{Float64, Nothing} = nothing
+    initial_volume_abs::Union{Float64, Nothing} = nothing
+    spillway_crest::Union{Float64, Nothing} = nothing
+    diversion_crest::Union{Float64, Nothing} = nothing
+end
+
+"""
+    UTRecord
+
+Thermal plant configuration record from ENTDADOS.XXX.
+
+# Fields
+- `plant_num::Int`: Plant number (1-999)
+- `plant_name::String`: Plant name (12 characters max)
+- `status::Int`: Plant status (0=existing, 1=under construction, default 0)
+- `subsystem::Int`: Subsystem number per SIST records
+- `start_day::Int`: Start day for operation
+- `start_hour::Int`: Start hour (0-23)
+- `start_half::Int`: Start half-hour (0 or 1)
+- `end_marker::String`: End marker ("F" for final)
+- `min_generation::Float64`: Minimum generation in MW (≥ 0, default 0.0)
+- `max_generation::Float64`: Maximum generation/capacity in MW (> 0)
+"""
+Base.@kwdef struct UTRecord
+    plant_num::Int
+    plant_name::String
+    status::Int = 0
+    subsystem::Int
+    start_day::Int
+    start_hour::Int
+    start_half::Int
+    end_marker::String
+    min_generation::Float64 = 0.0
+    max_generation::Float64
+end
+
+"""
+    DPRecord
+
+Demand data record from ENTDADOS.XXX.
+
+# Fields
+- `subsystem::Int`: Subsystem number per SIST records
+- `start_day::Int`: Initial day
+- `start_hour::Int`: Initial hour (0-23, default 0)
+- `start_half::Int`: Initial half-hour (0 or 1, default 0)
+- `end_day::Union{Int, String}`: Final day or "F" for final
+- `end_hour::Int`: Final hour (0-23, default 0)
+- `end_half::Int`: Final half-hour (0 or 1, default 0)
+- `demand::Float64`: Demand in MW (≥ 0)
+"""
+Base.@kwdef struct DPRecord
+    subsystem::Int
+    start_day::Int
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String}
+    end_hour::Int = 0
+    end_half::Int = 0
+    demand::Float64
+end
+
+"""
+    GeneralData
+
+Container for all general data from ENTDADOS.XXX.
+
+# Fields
+- `time_periods::Vector{TMRecord}`: Time discretization records
+- `subsystems::Vector{SISTRecord}`: Subsystem definitions
+- `hydro_plants::Vector{UHRecord}`: Hydroelectric plant configurations
+- `thermal_plants::Vector{UTRecord}`: Thermal plant configurations
+- `demands::Vector{DPRecord}`: Demand data by subsystem and period
+"""
+Base.@kwdef struct GeneralData
+    time_periods::Vector{TMRecord} = TMRecord[]
+    subsystems::Vector{SISTRecord} = SISTRecord[]
+    hydro_plants::Vector{UHRecord} = UHRecord[]
+    thermal_plants::Vector{UTRecord} = UTRecord[]
+    demands::Vector{DPRecord} = DPRecord[]
+end
+
+# ============================================================================
 # Main Container Type
 # ============================================================================
 

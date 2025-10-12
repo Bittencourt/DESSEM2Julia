@@ -11,6 +11,9 @@ Manifest.toml
 # Documentation source files
 *.pdf
 
+# Sample DESSEM data files (large datasets for testing)
+docs/Sample/
+
 # Development/debugging scripts
 scripts/test_*.jl
 scripts/investigate_*.jl
