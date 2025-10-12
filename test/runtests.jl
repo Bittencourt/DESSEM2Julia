@@ -7,3 +7,5 @@ using DESSEM2Julia
 end
 
 include("convert_tests.jl")
+include("parser/common_tests.jl")
+include("termdat_tests.jl")

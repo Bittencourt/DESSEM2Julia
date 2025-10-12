@@ -8,6 +8,14 @@
 # Environments
 Manifest.toml
 
+# Documentation source files
+*.pdf
+
+# Development/debugging scripts
+scripts/test_*.jl
+scripts/investigate_*.jl
+scripts/debug_*.jl
+
 # OS
 .DS_Store
 Thumbs.db
