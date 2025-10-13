@@ -17,43 +17,80 @@ DESSEM is a hydrothermal dispatch optimization model for short-term operational 
 DESSEM2Julia/
 ├── src/
 │   ├── DESSEM2Julia.jl      # Main module, exports
-│   ├── types.jl              # Core data structures
+│   ├── types.jl              # Legacy data structures
+│   ├── models/
+│   │   └── core_types.jl     # Core type system (40+ types) ⭐ NEW
 │   ├── io.jl                 # JLD2 save/load
 │   ├── api.jl                # Public API (convert_inputs)
 │   └── parser/
 │       ├── common.jl         # Shared parsing utilities
 │       ├── registry.jl       # Parser dispatcher
-│       ├── hidr.jl           # HIDR.DAT parser (planned)
-│       ├── term.jl           # TERM.DAT parser (planned)
-│       ├── entdados.jl       # ENTDADOS.XXX parser (planned)
-│       └── ...               # Additional file parsers
+│       ├── dessemarq.jl      # dessem.arq parser ✅ (68/68 tests)
+│       ├── termdat.jl        # TERMDAT.DAT parser ✅ (110/110 tests)
+│       ├── entdados.jl       # ENTDADOS.DAT parser ✅ (2331/2334 tests)
+│       └── ...               # Additional file parsers (planned)
 ├── test/
 │   ├── runtests.jl           # Test suite entry
 │   ├── convert_tests.jl      # Integration tests
-│   └── parser/               # Parser-specific tests (planned)
+│   ├── core_types_test.jl    # Core type system tests ⭐ NEW
+│   ├── dessemarq_tests.jl    # dessem.arq tests ✅
+│   ├── termdat_tests.jl      # TERMDAT.DAT tests ✅
+│   ├── entdados_tests.jl     # ENTDADOS.DAT tests ✅
+│   └── parser/               # Parser-specific tests
 └── docs/
     ├── dessem-complete-specs.md  # Format specifications
     ├── file_formats.md           # Coverage tracking
+    ├── type_system.md            # Type system guide ⭐ NEW
+    ├── session5_summary.md       # Session 5 completion ⭐ NEW
     └── architecture.md           # This file
 ```
 
 ## Core Components
 
-### Type System (`src/types.jl`)
+### Type System (`src/models/core_types.jl`) ⭐ NEW
 
-**`DessemData`** - Top-level container
+**Comprehensive data model covering all 32 DESSEM files (Session 5 complete)**
+
+**`DessemCase`** - Top-level unified container
+- `case_name::String` - Case identification
+- `case_title::String` - Study title
+- `base_directory::String` - Base directory path
+- `file_registry::FileRegistry` - Master file index (from dessem.arq)
+- `time_discretization::TimeDiscretization` - Time period definitions
+- `power_system::PowerSystem` - Electrical system configuration
+- `hydro_system::HydroSystem` - Hydroelectric generation
+- `thermal_system::ThermalSystem` - Thermal generation
+- `renewable_system::RenewableSystem` - Renewable generation
+- `network_system::NetworkSystem` - Transmission network
+- `operational_constraints::OperationalConstraints` - All constraints
+- `decomp_cuts::DecompCut` - Future cost function cuts
+- `execution_options::ExecutionOptions` - Solver configuration
+- `metadata::Dict{String, Any}` - Additional metadata
+
+**Type Coverage (15/32 files complete, 47%)**:
+- ✅ `TimeDiscretization` → `TimePeriod` (ENTDADOS.DAT - TM)
+- ✅ `PowerSystem` → `Subsystem`, `LoadDemand`, `PowerReserve`
+- ✅ `HydroSystem` → `HydroPlant`, `HydroReservoir`, `HydroOperation`
+- ✅ `ThermalSystem` → `ThermalPlant`, `ThermalUnit`, `ThermalOperation`
+- ✅ `RenewableSystem` → `WindPlant`, `SolarPlant`
+- ✅ `NetworkSystem` → `ElectricBus`, `TransmissionLine`
+- ✅ `OperationalConstraints` → `RampConstraint`, `LPPConstraint`, `TableConstraint`
+- ✅ `DecompCut` → `FCFCut`
+- ✅ `ExecutionOptions` - Solver and modeling config
+- ✅ `FileRegistry` - dessem.arq file mapping
+
+See `docs/type_system.md` for complete documentation.
+
+### Legacy Types (`src/types.jl`)
+
+**`DessemData`** - Original container (being phased out)
 - `files::Dict{String, Any}` - Parsed file objects keyed by normalized filename
 - `metadata::Dict{String, Any}` - Input directory, timestamp, version info
 
-**Planned Domain Types** (to be implemented):
-- `HydroPlant` - Hydroelectric plant characteristics (from HIDR.DAT)
-- `ThermalPlant` - Thermal plant characteristics (from TERM.DAT)
-- `TimeDiscretization` - Study periods (from ENTDADOS.XXX TM records)
-- `Subsystem` - Electrical market regions (from ENTDADOS.XXX SIST records)
-- `Demand` - Load data by subsystem and period (from ENTDADOS.XXX DP records)
-- `HydroConstraint` - Operational limits (from OPERUH.XXX)
-- `ThermalOperation` - Unit commitment data (from OPERUT.XXX)
-- ... and others as needed
+**Domain Types** (being migrated to core_types.jl):
+- `ThermalRegistry` - Thermal plant data (TERMDAT.DAT)
+- `GeneralData` - Time periods, subsystems, demands (ENTDADOS.DAT)
+- Will be replaced by core type system
 
 ### Parser Infrastructure (`src/parser/`)
 

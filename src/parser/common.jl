@@ -147,9 +147,9 @@ function is_comment_line(s::AbstractString; comment_chars=["*", "C", "&"])
     stripped = lstrip(s)
     isempty(stripped) && return false
     
-    # Check if line starts with comment char followed by space/tab or is just the char
+    # Check if line starts with any comment character
     for ch in comment_chars
-        if stripped == ch || startswith(stripped, ch * " ") || startswith(stripped, ch * "\t")
+        if startswith(stripped, ch)
             return true
         end
     end

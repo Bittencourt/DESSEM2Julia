@@ -14,10 +14,16 @@ Manifest.toml
 # Sample DESSEM data files (large datasets for testing)
 docs/Sample/
 
-# Development/debugging scripts
+# Development/debugging scripts in scripts/ directory
 scripts/test_*.jl
 scripts/investigate_*.jl
 scripts/debug_*.jl
+scripts/scratch_*.jl
+
+# Temporary/scratch example files in examples/ directory
+# Note: examples/test_operuh_parse.jl is intentionally tracked as a reference example
+examples/scratch_*.jl
+examples/temp_*.jl
 
 # OS
 .DS_Store

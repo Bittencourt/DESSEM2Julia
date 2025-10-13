@@ -263,6 +263,198 @@ Base.@kwdef struct GeneralData
 end
 
 # ============================================================================
+# Hydro Operational Constraints (OPERUH.DAT) Types
+# ============================================================================
+
+"""
+    HydroConstraintREST
+
+Hydro constraint definition record from OPERUH.DAT.
+
+# Fields
+- `constraint_id::Int`: Unique constraint identifier
+- `type_flag::String`: Constraint type (L=limit, V=variation)
+- `variable_code::String`: Variable being constrained (RHQ=flow, RHV=volume, etc.)
+- `initial_value::Union{Float64, Nothing}`: Initial value for variation constraints
+"""
+Base.@kwdef struct HydroConstraintREST
+    constraint_id::Int
+    type_flag::String
+    variable_code::String
+    initial_value::Union{Float64, Nothing} = nothing
+end
+
+"""
+    HydroConstraintELEM
+
+Hydro constraint element (plant participation) record from OPERUH.DAT.
+
+# Fields
+- `constraint_id::Int`: Constraint identifier (links to REST record)
+- `plant_num::Int`: Hydroelectric plant number
+- `plant_name::String`: Plant name
+- `variable_code::Int`: Variable code (1-65, see documentation)
+- `participation_factor::Float64`: Plant's participation factor in constraint
+"""
+Base.@kwdef struct HydroConstraintELEM
+    constraint_id::Int
+    plant_num::Int
+    plant_name::String
+    variable_code::Int
+    participation_factor::Float64
+end
+
+"""
+    HydroConstraintLIM
+
+Hydro operational limits record from OPERUH.DAT.
+
+# Fields
+- `constraint_id::Int`: Constraint identifier (links to REST record)
+- `start_day::String`: Initial day (I=initial, F=final, or day number)
+- `start_hour::Union{Int, Nothing}`: Initial hour (0-23)
+- `start_half::Union{Int, Nothing}`: Initial half-hour (0-1)
+- `end_day::String`: Final day (F=final or day number)
+- `end_hour::Union{Int, Nothing}`: Final hour (0-23)
+- `end_half::Union{Int, Nothing}`: Final half-hour (0-1)
+- `lower_limit::Union{Float64, Nothing}`: Lower bound
+- `upper_limit::Union{Float64, Nothing}`: Upper bound
+"""
+Base.@kwdef struct HydroConstraintLIM
+    constraint_id::Int
+    start_day::String
+    start_hour::Union{Int, Nothing} = nothing
+    start_half::Union{Int, Nothing} = nothing
+    end_day::String
+    end_hour::Union{Int, Nothing} = nothing
+    end_half::Union{Int, Nothing} = nothing
+    lower_limit::Union{Float64, Nothing} = nothing
+    upper_limit::Union{Float64, Nothing} = nothing
+end
+
+"""
+    HydroConstraintVAR
+
+Hydro variation/ramp constraint record from OPERUH.DAT.
+
+# Fields
+- `constraint_id::Int`: Constraint identifier
+- `start_day::String`: Initial day
+- `start_hour::Union{Int, Nothing}`: Initial hour (0-23)
+- `start_half::Union{Int, Nothing}`: Initial half-hour (0-1)
+- `end_day::String`: Final day
+- `end_hour::Union{Int, Nothing}`: Final hour (0-23)
+- `end_half::Union{Int, Nothing}`: Final half-hour (0-1)
+- `lower_ramp::Union{Float64, Nothing}`: Lower ramp limit
+- `upper_ramp::Union{Float64, Nothing}`: Upper ramp limit
+"""
+Base.@kwdef struct HydroConstraintVAR
+    constraint_id::Int
+    start_day::String
+    start_hour::Union{Int, Nothing} = nothing
+    start_half::Union{Int, Nothing} = nothing
+    end_day::String
+    end_hour::Union{Int, Nothing} = nothing
+    end_half::Union{Int, Nothing} = nothing
+    lower_ramp::Union{Float64, Nothing} = nothing
+    upper_ramp::Union{Float64, Nothing} = nothing
+end
+
+"""
+    OperuhData
+
+Container for all OPERUH.DAT hydro operational constraints.
+
+# Fields
+- `rest_records::Vector{HydroConstraintREST}`: Constraint definitions
+- `elem_records::Vector{HydroConstraintELEM}`: Plant participation in constraints
+- `lim_records::Vector{HydroConstraintLIM}`: Operational limits
+- `var_records::Vector{HydroConstraintVAR}`: Variation/ramp constraints
+"""
+Base.@kwdef struct OperuhData
+    rest_records::Vector{HydroConstraintREST} = HydroConstraintREST[]
+    elem_records::Vector{HydroConstraintELEM} = HydroConstraintELEM[]
+    lim_records::Vector{HydroConstraintLIM} = HydroConstraintLIM[]
+    var_records::Vector{HydroConstraintVAR} = HydroConstraintVAR[]
+end
+
+# ============================================================================
+# OPERUT.DAT - Thermal Operational Data  
+# ============================================================================
+
+"""
+Thermal unit initial conditions from OPERUT INIT block.
+
+Fields (actual format from CCEE sample):
+- `plant_num::Int`: Plant number (columns 1-3)
+- `plant_name::String`: Plant name (columns 5-16)
+- `unit_num::Int`: Unit number (columns 18-20)
+- `status::Int`: Initial status (0=off, 1=on) (column 22)
+- `initial_generation::Float64`: Initial generation MW (columns 24-35)
+- `hours_in_state::Int`: Hours in current state (columns 37-41)
+- `mh_flag::Int`: MH flag (column 43)
+- `ad_flag::Int`: A/D flag (column 45)
+- `t_flag::Int`: T flag (column 47)
+- `inflexible_limit::Float64`: Inflexible generation limit MW (columns 49-60)
+"""
+Base.@kwdef struct INITRecord
+    plant_num::Int
+    plant_name::String
+    unit_num::Int
+    status::Int
+    initial_generation::Float64
+    hours_in_state::Int
+    mh_flag::Int = 0
+    ad_flag::Int = 0
+    t_flag::Int = 0
+    inflexible_limit::Float64 = 0.0
+end
+
+"""
+Thermal unit operating parameters from OPERUT OPER block.
+
+Fields (actual format from CCEE sample):
+- `plant_num::Int`: Plant number (columns 1-3)
+- `plant_name::String`: Plant name (columns 5-16)
+- `unit_num::Int`: Unit number (columns 18-19)
+- `start_day::Int`: Start day (columns 21-22)
+- `start_hour::Int`: Start hour (columns 24-25)
+- `start_half::Int`: Start half-hour (column 27)
+- `end_day::Union{Int,String}`: End day or "F" for final (columns 29-30)
+- `end_hour::Int`: End hour (columns 32-33, optional)
+- `end_half::Int`: End half-hour (column 35, optional)
+- `min_generation::Union{Float64,Nothing}`: Minimum generation MW (columns 37-47, optional)
+- `max_generation::Union{Float64,Nothing}`: Maximum generation MW (columns 48-58, optional)
+- `operating_cost::Float64`: Operating cost R\$/MWh (columns 59-70)
+"""
+Base.@kwdef struct OPERRecord
+    plant_num::Int
+    plant_name::String
+    unit_num::Int
+    start_day::Int
+    start_hour::Int
+    start_half::Int
+    end_day::Union{Int,String}  # "F" for final
+    end_hour::Int = 0
+    end_half::Int = 0
+    min_generation::Union{Float64,Nothing} = nothing
+    max_generation::Union{Float64,Nothing} = nothing
+    operating_cost::Float64
+end
+
+"""
+Container for OPERUT.DAT parsed data.
+
+Fields:
+- `init_records::Vector{INITRecord}`: Unit initial conditions
+- `oper_records::Vector{OPERRecord}`: Operating costs and limits
+"""
+Base.@kwdef struct OperutData
+    init_records::Vector{INITRecord} = INITRecord[]
+    oper_records::Vector{OPERRecord} = OPERRecord[]
+end
+
+# ============================================================================
 # Main Container Type
 # ============================================================================
 
