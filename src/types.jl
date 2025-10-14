@@ -263,6 +263,78 @@ Base.@kwdef struct GeneralData
 end
 
 # ============================================================================
+# DADVAZ.DAT - Natural Inflow Data
+# ============================================================================
+
+"""
+    DadvazHeader
+
+Metadata extracted from DADVAZ.DAT header.
+
+# Fields
+- `plant_count::Int`: Number of hydro plants listed in the file
+- `plant_numbers::Vector{Int}`: Ordered list of plant identifiers
+- `study_start::DateTime`: Study start instant (local time)
+- `initial_day_code::Int`: Initial weekday code (1=Saturday ... 7=Friday)
+- `fcf_week_index::Int`: Future cost function week index (1-6)
+- `study_weeks::Int`: Number of study weeks (excluding simulation period)
+- `simulation_flag::Int`: Simulation flag (0=no simulation, 1=with simulation)
+"""
+Base.@kwdef struct DadvazHeader
+    plant_count::Int
+    plant_numbers::Vector{Int}
+    study_start::DateTime
+    initial_day_code::Int
+    fcf_week_index::Int
+    study_weeks::Int
+    simulation_flag::Int
+end
+
+"""
+    DadvazInflowRecord
+
+Natural inflow time-slice for a hydro plant.
+
+# Fields
+- `plant_num::Int`: Plant identifier (per hydro registry)
+- `plant_name::String`: Plant name (12-character field)
+- `inflow_type::Int`: Inflow type (1=incremental, 2=total, 3=regularized)
+- `start_day::Union{Int, String}`: Initial day or "I" for study start
+- `start_hour::Union{Int, Nothing}`: Initial hour (0-23) if provided
+- `start_half_hour::Union{Int, Nothing}`: Initial half-hour (0 or 1)
+- `end_day::Union{Int, String}`: Final day or "F" for study end
+- `end_hour::Union{Int, Nothing}`: Final hour (0-23) if provided
+- `end_half_hour::Union{Int, Nothing}`: Final half-hour (0 or 1)
+- `flow_m3s::Float64`: Natural inflow value in cubic meters per second
+"""
+Base.@kwdef struct DadvazInflowRecord
+    plant_num::Int
+    plant_name::String
+    inflow_type::Int
+    start_day::Union{Int, String}
+    start_hour::Union{Int, Nothing} = nothing
+    start_half_hour::Union{Int, Nothing} = nothing
+    end_day::Union{Int, String}
+    end_hour::Union{Int, Nothing} = nothing
+    end_half_hour::Union{Int, Nothing} = nothing
+    flow_m3s::Float64
+end
+
+"""
+    DadvazData
+
+Container for all natural inflow information parsed from DADVAZ.DAT.
+
+# Fields
+- `header::DadvazHeader`: File-level metadata
+- `records::Vector{DadvazInflowRecord}`: All inflow slices grouped by plant
+"""
+Base.@kwdef struct DadvazData
+    header::DadvazHeader
+    records::Vector{DadvazInflowRecord} = DadvazInflowRecord[]
+end
+
+# ============================================================================
 # Hydro Operational Constraints (OPERUH.DAT) Types
 # ============================================================================
 

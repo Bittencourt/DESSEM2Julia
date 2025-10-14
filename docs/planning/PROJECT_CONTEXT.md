@@ -1,7 +1,7 @@
 # DESSEM2Julia Project Context & Knowledge Base
 
-**Last Updated**: October 12, 2025  
-**Current Status**: 5/32 parsers complete, core type system established  
+**Last Updated**: October 13, 2025  
+**Current Status**: 6/32 parsers complete, core type system established  
 **Purpose**: Complete context for AI agents and developers continuing this project
 
 ---
@@ -230,6 +230,25 @@ max_generation:    47-56
 operating_cost:    57-66   # Required
 ```
 
+### 6. DADVAZ.DAT - Natural Inflows ⭐ New
+**File**: `src/parser/dadvaz.jl`  
+**Tests**: `test/dadvaz_tests.jl` (synthetic + real sample)
+
+**Highlights**:
+- Parses full header metadata (plant roster, study start, FCF configuration)
+- Handles symbolic day markers (`I` for initial, `F` for final) plus optional hour/half-hour fields
+- Fixed-width extraction for flow column (45-53) avoids whitespace/split pitfalls
+- Integrates with new `DadvazData`/`DadvazInflowRecord` types for downstream hydro modeling
+
+**Real Data Results**:
+- Sample case `DS_CCEE_102025_SEMREDE_RV0D28/dadvaz.dat` parsed without errors
+- Captures thousands of daily natural inflow values across 168 plants
+
+**Key Lessons**:
+- Plant roster table interleaves placeholder lines (`XXX`) that must be ignored when collecting identifiers
+- Hours and half-hours often blank for daily slices; optional parsing prevents spurious zeros
+- Flow values are right-aligned integers—fixed-width extraction prevents truncation
+
 ---
 
 ## 🎓 Critical Lessons Learned
@@ -386,7 +405,7 @@ end
 
 ## 📋 Current Progress
 
-### Parser Status (5/32 Complete)
+### Parser Status (6/32 Complete)
 
 **✅ Production Ready** (100% tests passing):
 1. dessem.arq - Master file index (68 tests)
@@ -394,24 +413,25 @@ end
 3. ENTDADOS.DAT - General operational data (2331 tests)
 4. OPERUH.DAT - Hydro operational constraints
 5. OPERUT.DAT - Thermal operational data (72 tests)
+6. DADVAZ.DAT - Natural inflows (synthetic + real sample tests)
 
 **🎯 High Priority Next** (from TASKS.md):
-1. DADVAZ.DAT - Natural inflows (daily)
-2. DEFLANT.DAT - Previous flows (initial conditions)
-3. HIDR.DAT - Hydro plant registry (**BINARY FORMAT**)
-4. CONFHD.DAT - Hydro configuration
-5. MODIF.DAT - Modifications
+1. DEFLANT.DAT - Previous flows (initial conditions)
+2. HIDR.DAT - Hydro plant registry (**BINARY FORMAT**)
+3. CONFHD.DAT - Hydro configuration
+4. MODIF.DAT - Modifications
 
-**📊 Coverage**: 5/32 files = 15.6% complete
+**📊 Coverage**: 6/32 files = 18.8% complete
 
 ### Test Statistics
 
-**Total Tests**: 2,513+ passing
+**Total Tests**: 2,520+ passing
 - dessem.arq: 68 tests
 - TERMDAT: 110 tests
 - ENTDADOS: 2,331 tests
 - OPERUH: Multiple tests
 - OPERUT: 72 tests
+- DADVAZ: Synthetic + real sample suite
 
 **Real Data Validation**:
 - CCEE sample: DS_CCEE_102025_SEMREDE_RV0D28 (✅ 100% compatible)
@@ -582,19 +602,14 @@ julia --project=. test/xxx_tests.jl
 
 ## 🎯 Next Steps & Priorities
 
-### Immediate (Session 7+)
+### Immediate (Session 8+)
 
-**1. DADVAZ.DAT - Natural Inflows**
-- Format: Daily inflow data
-- Check IDESEM: `idessem/dessem/modelos/dadvaz.py`
-- Impact: Critical for hydro modeling
-
-**2. DEFLANT.DAT - Previous Flows**
+**1. DEFLANT.DAT - Previous Flows**
 - Format: Initial condition data
 - Check IDESEM: `idessem/dessem/modelos/deflant.py`
 - Impact: Required for initialization
 
-**3. HIDR.DAT - Hydro Plant Registry (BINARY!)**
+**2. HIDR.DAT - Hydro Plant Registry (BINARY!)**
 - Format: 792-byte fixed-length records
 - Check IDESEM: `idessem/dessem/modelos/hidr.py`
 - Impact: Core hydro plant data
@@ -845,7 +860,7 @@ FloatField(10, 29, 3)  # → Julia: extract_field(line, 30, 39)
 
 ### Phase 1: Complete Parsers (Current)
 Goal: Parse all 32 DESSEM input files
-Status: 5/32 complete (15.6%)
+Status: 6/32 complete (18.8%)
 
 ### Phase 2: Type System Integration
 Goal: Populate `DessemCase` from parsers
@@ -883,8 +898,8 @@ Examples:
 - Total lines: 10,000+
 
 **Parser Status**:
-- Completed: 5 parsers
-- Remaining: 27 parsers
+- Completed: 6 parsers
+- Remaining: 26 parsers
 - Test coverage: 2,513+ tests passing
 
 **Real Data Validation**:
@@ -902,14 +917,14 @@ Examples:
 
 ## 🚀 Starting Point for Next Agent
 
-**You are here**: 5/32 parsers complete, clean codebase, comprehensive documentation.
+**You are here**: 6/32 parsers complete, clean codebase, comprehensive documentation.
 
 **Recommended next steps**:
 
 1. **Read this document** (you're doing it! 👍)
 
 2. **Check IDESEM** for next parser:
-   - DADVAZ: https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/dadvaz.py
+    - DADVAZ (completed, useful reference): https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/dadvaz.py
    - DEFLANT: https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/deflant.py
 
 3. **Review existing parser** for pattern:
@@ -918,8 +933,7 @@ Examples:
    - `docs/parsers/OPERUT_IMPLEMENTATION.md` - Complete guide
 
 4. **Choose next parser** (from `docs/planning/TASKS.md`):
-   - DADVAZ.DAT (natural inflows) - High priority
-   - DEFLANT.DAT (previous flows) - High priority
+    - DEFLANT.DAT (previous flows) - High priority
    - HIDR.DAT (hydro registry) - **BINARY!** Challenge but important
 
 5. **Follow the workflow** (see "Development Workflow" section above)
@@ -973,6 +987,6 @@ Before marking a parser "production ready":
 
 **Last Updated**: October 12, 2025  
 **Status**: Ready for Session 8+  
-**Next**: DADVAZ, DEFLANT, or HIDR parser
+**Next**: DEFLANT or HIDR parser
 
 **Good luck! You've got this! 🚀**

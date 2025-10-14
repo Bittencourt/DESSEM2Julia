@@ -78,8 +78,10 @@ Then commit as usual; the hook will run `Pkg.test()`.
   - Common utilities: `src/parser/common.jl`
   - Registry system: `src/parser/registry.jl`
   - Master file index: `src/parser/dessemarq.jl` ✅ (68/68 tests passing)
-  - TERMDAT parser: `src/parser/termdat.jl` ✅ (110 tests passing)
-  - ENTDADOS parser: `src/parser/entdados.jl` ✅ (2331/2334 tests passing)
+  - TERMDAT parser: `src/parser/termdat.jl` ✅ (110/110 tests passing)
+  - ENTDADOS parser: `src/parser/entdados.jl` ✅ (2335/2335 tests passing)
+  - OPERUT parser: `src/parser/operut.jl` ✅ (62/62 tests passing)
+  - DADVAZ parser: `src/parser/dadvaz.jl` ✅ (13/13 tests passing)
 - JLD2 I/O: `src/io.jl`
 - Public API: `src/api.jl`
 - Tests: `test/runtests.jl`, `test/*_tests.jl`
@@ -105,11 +107,26 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### ✅ ENTDADOS.DAT Parser - Production Ready
 - Parses general operational data (TM, SIST, UH, UT, DP records)
-- **2331/2334 tests passing** (99.9%)
+- **2335/2335 tests passing** (100%)
 - Successfully parses all real CCEE data:
   - 73 time periods
   - 5 subsystems
   - 168 hydro plants
   - 116 thermal plants
   - 293 demand records
-- 3 failing tests are malformed validation tests (not production issues)
+
+### ✅ OPERUT.DAT Parser - Production Ready
+- Parses thermal unit operational data (INIT, OPER records)
+- **62/62 tests passing** (100%)
+- Successfully parses real CCEE production data:
+  - 387 thermal units (47 ON, 340 OFF states)
+  - 422 operational constraint records
+  - Fixed-width column format based on IDESEM reference
+
+### ✅ DADVAZ.DAT Parser - Production Ready ⭐ NEW
+- Parses natural inflow data and metadata
+- **13/13 tests passing** (100%)
+- Successfully parses real CCEE data:
+  - Header metadata (plant roster, study start, FCF configuration)
+  - Daily inflow slices for 168 hydro plants
+  - Handles symbolic period markers ("I"/"F") and optional hours

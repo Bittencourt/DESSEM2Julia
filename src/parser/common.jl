@@ -146,13 +146,28 @@ is_comment_line("CADUSIT ...")          # => false (not a comment)
 function is_comment_line(s::AbstractString; comment_chars=["*", "C", "&"])
     stripped = lstrip(s)
     isempty(stripped) && return false
-    
-    # Check if line starts with any comment character
+
+    first_char = stripped[1]
+
     for ch in comment_chars
-        if startswith(stripped, ch)
+        isempty(ch) && continue
+        comment_char = ch[1]
+
+        if comment_char == 'C'
+            if first_char == 'C'
+                if length(stripped) == 1
+                    return true
+                end
+                next_char = stripped[2]
+                if isspace(next_char)
+                    return true
+                end
+            end
+        elseif first_char == comment_char
             return true
         end
     end
+
     return false
 end
 

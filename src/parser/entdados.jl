@@ -195,9 +195,9 @@ function parse_ut(line::AbstractString, filename::AbstractString, line_num::Int)
         FieldSpec(:plant_name, 10, 21, String),
         FieldSpec(:status, 24, 24, Int),
         FieldSpec(:subsystem, 26, 26, Int),
-        FieldSpec(:start_day, 28, 29, Int),
-        FieldSpec(:start_hour, 32, 32, Int),
-        FieldSpec(:start_half, 34, 34, Int),
+    FieldSpec(:start_day, 28, 29, Int),
+    FieldSpec(:start_hour, 31, 32, Int),
+    FieldSpec(:start_half, 34, 34, Int),
         FieldSpec(:end_marker, 37, 37, String),
         FieldSpec(:min_generation, 47, 56, Float64),  # First numeric field - minimum generation (right-aligned, 10 chars)
         FieldSpec(:max_generation, 58, 67, Float64),  # Second numeric field - maximum generation (right-aligned, 10 chars)
@@ -258,7 +258,7 @@ function parse_dp(line::AbstractString, filename::AbstractString, line_num::Int)
     
     # Parse start time
     start_day = parse_int(strip(extract_field(line, 9, 10)))
-    start_hour = parse_int(strip(extract_field(line, 13, 13)), allow_blank=true)
+    start_hour = parse_int(strip(extract_field(line, 12, 13)), allow_blank=true)
     start_half = parse_int(strip(extract_field(line, 15, 15)), allow_blank=true)
     
     # Parse end time

@@ -6,7 +6,9 @@ export ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB
 export GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord
 export OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR
 export OperutData, INITRecord, OPERRecord
+export DadvazData, DadvazHeader, DadvazInflowRecord
 export parse_termdat, parse_entdados, parse_operuh, parse_operut, parse_init_record, parse_oper_record
+export parse_dadvaz
 export DessemArq, parse_dessemarq
 
 # Core type system (comprehensive data model)
@@ -21,7 +23,7 @@ export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
 export ExecutionOptions
 
-include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord
+include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord, DadvazData, DadvazHeader, DadvazInflowRecord
 include("models/core_types.jl"); using .CoreTypes
 include("io.jl"); using .IO
 include("parser/common.jl"); using .ParserCommon
@@ -29,6 +31,7 @@ include("parser/termdat.jl"); using .TermdatParser: parse_termdat, parse_cadusit
 include("parser/entdados.jl"); using .EntdadosParser: parse_entdados
 include("parser/operuh.jl"); using .OperuhParser: parse_operuh
 include("parser/operut.jl"); using .OperutParser: parse_operut, parse_init_record, parse_oper_record
+include("parser/dadvaz.jl"); using .DadvazParser: parse_dadvaz
 include("parser/dessemarq.jl"); using .DessemArqParser: DessemArq, parse_dessemarq
 include("parser/registry.jl"); using .ParserRegistry
 include("api.jl"); using .API: convert_inputs

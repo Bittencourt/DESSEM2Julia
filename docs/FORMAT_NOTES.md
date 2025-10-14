@@ -93,6 +93,39 @@ The following record types were found in sample files but not yet implemented:
 
 These are correctly skipped with warnings - parser continues successfully.
 
+## DADVAZ.DAT - Natural Inflows
+
+### Summary
+Parser implemented in Session 7 reads both header metadata and daily inflow slices from CCEE sample files.
+
+**Test Results:**
+- ✅ Synthetic fixtures covering header + two records
+- ✅ Real CCEE dataset (`DS_CCEE_102025_SEMREDE_RV0D28/dadvaz.dat`)
+
+### Header Format Observations
+
+| Field | Documentation | Actual Sample Format | Notes |
+|-------|---------------|---------------------|-------|
+| Plant roster | Follows `NUMERO DAS USINAS` | Includes numeric lines interleaved with `XXX` placeholders | Ignore `XXX` lines and gather integers only |
+| Study start | Hour/Day/Month/Year rows | Matches spec exactly | Need to skip placeholder line `XX  XX  XX  XXXX` |
+| Study parameters | `Dia inic ...` line | Matches spec | Values right-aligned, whitespace separated |
+
+### Record Format Differences
+
+| Column | Documentation | Actual Sample Format | Notes |
+|--------|---------------|---------------------|-------|
+| 25-26 (start day) | Numeric day | May be `I` (initial) | Treat `I` as symbolic marker |
+| 33-34 (end day) | Numeric day | Often `F` (final) | Accept literal `F` |
+| 28-29 / 36-37 (hours) | Optional integers | Frequently blank for daily slices | Use optional parsing |
+| 45-53 (flow) | F9.0 | Integer, right-aligned | Fixed-width extraction required |
+
+### Parser Strategy
+
+- Skip comment lines and blank placeholders before inflow data starts
+- Use fixed-width extraction for all fields
+- Convert `I`/`F` markers into string tokens while keeping numeric days as `Int`
+- Flow values parsed with `parse_float` to support decimal forms when present
+
 ## HIDR.DAT - Hydroelectric Plant Registry
 
 ### Format Discovery

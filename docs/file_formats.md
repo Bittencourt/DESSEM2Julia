@@ -9,7 +9,7 @@ For detailed format specifications, see [dessem-complete-specs.md](dessem-comple
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
 | DESSEM.ARQ | Index file with case configuration | TODO | § 2 |
-| DADVAZ.XXX | Case information and natural inflows | TODO | § 3 |
+| DADVAZ.XXX | Case information and natural inflows | ✅ Parser | § 3 |
 | ENTDADOS.XXX | General data file (TM, SIST, UH, UT, DP, IA, CD, VR, RD, PD records) | TODO | § 4 |
 | SIMUL.XXX | Simulation data (DISC, VOLI, OPER blocks) | TODO | § 5 |
 

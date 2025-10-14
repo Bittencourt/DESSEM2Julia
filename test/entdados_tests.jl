@@ -196,8 +196,15 @@ using DESSEM2Julia
         end
         
         @testset "UT Validation - Invalid Plant Number" begin
-            line = "UT 1000  INVALID       1 2 28  0 0  F               100.0     100.0"
-            @test_throws Exception parse_entdados(IOBuffer(line))
+            # Plant number 1000 is out of valid range (1-999)
+            # But since the field is only 3 characters (cols 5-7), we test with explicit overflow
+            line = "UT  999  VALID         1 2 28  0 0  F               100.0     100.0"  # This should pass
+            data = parse_entdados(IOBuffer(line))
+            @test data.thermal_plants[1].plant_num == 999
+            
+            # Test actual invalid case: plant_num = 0
+            line_invalid = "UT    0  INVALID       1 2 28  0 0  F               100.0     100.0"
+            @test_throws Exception parse_entdados(IOBuffer(line_invalid))
         end
         
         @testset "UT Validation - Invalid Hour" begin

@@ -4,6 +4,40 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### October 13, 2025 - Session 7: DADVAZ Parser Implementation ✅
+
+**Achievement**: Added natural inflow parser covering DADVAZ.DAT header metadata and daily flow records
+
+**Implemented**:
+
+1. **DADVAZ.DAT Parser** (`src/parser/dadvaz.jl` - 200+ lines including helpers):
+   - Parses header metadata (plant count, plant roster, study start instant, FCF week configuration)
+   - Handles numeric and symbolic period markers ("I"/"F") with optional hour/half-hour fields
+   - Produces strongly typed `DadvazData` container (new structs in `src/types.jl`)
+   - Based on IDESEM layout (LiteralField(12,4), FloatField(9,44), etc.)
+
+2. **Core Type Additions** (`src/types.jl`):
+   - `DadvazHeader`, `DadvazInflowRecord`, and `DadvazData` structs wired into public API
+   - Captures flow metadata for integration with `HydroSystem.natural_inflows`
+
+3. **Test Coverage** (`test/dadvaz_tests.jl`):
+   - Synthetic round-trip test validating header parsing and inflow extraction
+   - Real-world validation against CCEE sample (`docs/Sample/DS_CCEE_102025_SEMREDE_RV0D28/dadvaz.dat`)
+
+**Key Discoveries**:
+- Plant roster table may include placeholder lines (`XXX`) that must be ignored when collecting plant numbers
+- Day markers use letters (`I`, `F`) when aligned with study boundaries; hours/halves often blank for daily flows
+- Flow column (cols 45-53) is right-aligned integer with optional padding — fixed-width extraction required
+
+**Tests**:
+- `julia --project=. -e 'using Pkg; Pkg.test()'`
+  - `DADVAZ Parser` synthetic tests ✅
+  - Real sample validation ✅
+
+**Status**: Natural inflow ingestion complete and ready for integration with hydro system modeling ✅
+
+---
+
 ### October 12, 2025 - Session 6: OPERUT Parser Implementation ✅
 
 **Achievement**: Completed thermal operational data parser using IDESEM reference implementation
@@ -71,7 +105,7 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 **Next Steps**:
 1. ~~Implement OPERUT parser~~ ✅ COMPLETE
-2. Implement remaining high-priority parsers (DADVAZ, DEFLANT)
+2. Implement remaining high-priority parsers (DEFLANT, HIDR)
 3. Update parsers to populate new core types
 4. Add filtering helpers and DataFrame exports
 
@@ -425,7 +459,16 @@ These are test artifacts, not parser bugs. All real-world formatted data parses 
       - Real data: 422 OPER records from CCEE sample
       - All field positions verified against idessem reference
       - Handles truncated plant names correctly (12-char limit)
-  - [ ] DADVAZ.XXX - Case information and inflows
+   - [x] **DADVAZ.DAT** - Natural inflows ✅ **COMPLETED**
+      - **Parser Implementation:**
+         - Parses header metadata (plant roster, study start, FCF configuration)
+         - Handles symbolic day markers ("I"/"F") and optional hour/half-hour fields
+         - Fixed-width extraction for flow column (cols 45-53) per IDESEM specification
+         - **Test Coverage:** `test/dadvaz_tests.jl` (synthetic + real sample) ✅
+            - Validates header parsing and inflow record extraction
+            - Real CCEE dataset (`DS_CCEE_102025_SEMREDE_RV0D28`) parsed without errors
+      - **Production Status:** READY ✅
+         - Natural inflows now available via `DadvazData` for `HydroSystem.natural_inflows`
   - [x] **OPERUH.DAT** - Hydro operational constraints ✅ **COMPLETED**
     - Parser implemented in Session 4 (details in previous sessions)
 
@@ -464,21 +507,22 @@ See docs/file_formats.md for complete file list and priority order.
 - ✅ **OPERUH.DAT parser** (Session 4 - hydraulic constraints)
   - OPERUH REST/ELEM/LIM/VAR records
   - Constraint-based data model
-- ✅ **OPERUT.DAT parser** (72/72 tests passing - 100% complete) ⭐ NEW
+- ✅ **OPERUT.DAT parser** (72/72 tests passing - 100% complete)
   - Fixed-width column format based on IDESEM reference
   - INIT block: 387 records (47 ON, 340 OFF units)
   - OPER block: 422 operational constraint records
   - All real CCEE production data parsing successfully
   - Handles truncated plant names (12-char limit)
   - Special "F" (final) end_day handling
+- ✅ **DADVAZ.DAT parser** (new) ⭐
+   - Parses header metadata plus daily natural inflow slices
+   - Supports symbolic period markers and optional hours
+   - Validated on synthetic fixtures and real CCEE dataset
 
 **In Progress:**
 - 🎯 **Phase 1 - Parser Implementation** (Next Priority):
-  1. Implement parsers for core files using new type system:
+  1. Implement parsers for remaining core files using new type system:
      - [ ] hidr.dat → HydroPlant (CADUSIH records)
-     - [ ] operuh.dat → HydroOperation (hydraulic constraints)
-     - [ ] operut.dat → ThermalOperation (thermal constraints)
-     - [ ] dadvaz.dat → natural_inflows (flow time series)
      - [ ] deflant.dat → previous_outflows (outflow time series)
      - [ ] renovaveis.dat → WindPlant, SolarPlant (renewable forecasts)
      - [ ] dessopc.dat → ExecutionOptions (solver config)
@@ -493,14 +537,12 @@ See docs/file_formats.md for complete file list and priority order.
      - [ ] Integration tests with real CCEE data
   
 **Major Progress This Session:**
-- ✅ Resolved 92 real-data failures by empirically determining correct UT field positions
-- ✅ Fixed zero generation value handling (validation + defaults)
-- ✅ All real CCEE production data now parsing successfully
-- ✅ Discovered documentation errors in column specifications
+- ✅ Implemented DADVAZ.DAT parser with full header + record coverage
+- ✅ Added DADVAZ data structures to core type system and public API
+- ✅ Established regression tests (synthetic + CCEE sample) for natural inflows
 
 **Immediate Next Steps:**
 1. **Implement remaining high-priority parsers**:
-   - [ ] DADVAZ.DAT - Natural inflows (time series data)
    - [ ] DEFLANT.DAT - Previous outflows (time series data)
    - [ ] HIDR.DAT - Hydroelectric plant registry (BINARY - 792 bytes per plant, deferred)
 2. **Refactor existing parsers** to use new core types:
