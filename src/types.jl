@@ -461,7 +461,7 @@ Fields (actual format from CCEE sample):
 - `plant_num::Int`: Plant number (columns 1-3)
 - `plant_name::String`: Plant name (columns 5-16)
 - `unit_num::Int`: Unit number (columns 18-20)
-- `status::Int`: Initial status (0=off, 1=on) (column 22)
+- `initial_status::Int`: Initial status (0=off, 1=on) (column 22)
 - `initial_generation::Float64`: Initial generation MW (columns 24-35)
 - `hours_in_state::Int`: Hours in current state (columns 37-41)
 - `mh_flag::Int`: MH flag (column 43)
@@ -473,7 +473,7 @@ Base.@kwdef struct INITRecord
     plant_num::Int
     plant_name::String
     unit_num::Int
-    status::Int
+    initial_status::Int
     initial_generation::Float64
     hours_in_state::Int
     mh_flag::Int = 0

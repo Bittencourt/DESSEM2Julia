@@ -84,7 +84,7 @@ function parse_init_record(line::AbstractString)
         plant_num=plant_num,
         plant_name=plant_name,
         unit_num=unit_num,
-        status=status,
+        initial_status=status,
         initial_generation=initial_gen,
         hours_in_state=hours,
         mh_flag=something(mh_flag, 0),

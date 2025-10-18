@@ -283,7 +283,7 @@ data = parse_operut("path/to/operut.rv0")
 
 # Access INIT records
 println("Total units: ", length(data.init_records))
-units_on = filter(r -> r.status == 1, data.init_records)
+units_on = filter(r -> r.initial_status == 1, data.init_records)
 println("Units ON: ", length(units_on))
 
 # Access OPER records
@@ -312,7 +312,7 @@ println("Average cost: ", sum(costs) / length(costs), " R\$/MWh")
    - Join with thermal unit data from TERMDAT
 
 3. **Filtering Helpers**:
-   - `get_active_units(data)` - only units with status=1
+    - `get_active_units(data)` - only units with initial_status=1
    - `get_plant_operations(data, plant_num)` - all records for one plant
    - `get_time_slice(data, start_day, end_day)` - records in time window
 

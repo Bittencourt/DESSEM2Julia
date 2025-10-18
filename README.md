@@ -77,7 +77,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - Parser infrastructure: `src/parser/`
   - Common utilities: `src/parser/common.jl`
   - Registry system: `src/parser/registry.jl`
-  - Master file index: `src/parser/dessemarq.jl` ✅ (68/68 tests passing)
+  - Master file index: `src/parser/dessemarq.jl` ✅ (68/68 tests passing, ordered registry via `DessemFileRecord`)
   - TERMDAT parser: `src/parser/termdat.jl` ✅ (110/110 tests passing)
   - ENTDADOS parser: `src/parser/entdados.jl` ✅ (2335/2335 tests passing)
   - OPERUT parser: `src/parser/operut.jl` ✅ (62/62 tests passing)
@@ -99,6 +99,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - Master file index parser (file registry/manifest)
 - **68/68 tests passing** (100%)
 - Maps all 32 DESSEM input files dynamically
+- Ordered `files` registry exposes every entry as `DessemFileRecord` for iteration
 
 ### ✅ TERMDAT.DAT Parser - Production Ready
 - Parses thermal plant registry (CADUSIT, CADUNIDT, CURVACOMB records)
@@ -122,6 +123,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
   - 387 thermal units (47 ON, 340 OFF states)
   - 422 operational constraint records
   - Fixed-width column format based on IDESEM reference
+- INIT records publish `initial_status` (0=off, 1=on) for cross-parser consistency
 
 ### ✅ DADVAZ.DAT Parser - Production Ready ⭐ NEW
 - Parses natural inflow data and metadata

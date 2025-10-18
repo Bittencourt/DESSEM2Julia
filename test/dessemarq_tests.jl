@@ -117,7 +117,8 @@ using DESSEM2Julia.DessemArqParser
     @testset "DessemArq constructor" begin
         # Test default constructor
         arq_empty = DessemArq()
-        @test all(isnothing, [getfield(arq_empty, f) for f in fieldnames(DessemArq)])
+        @test all(getfield(arq_empty, f) === nothing for f in fieldnames(DessemArq) if f != :files)
+        @test isempty(arq_empty.files)
         
         # Test partial constructor
         arq_partial = DessemArq(dadger="test.dat", cadterm="term.dat")

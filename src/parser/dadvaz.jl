@@ -30,6 +30,15 @@ _parse_optional_int(token::AbstractString) = parse_int(token; allow_blank=true)
 
 """Parse a single inflow record line."""
 function _parse_inflow_line(line::AbstractString)
+    # Check for end-of-file markers
+    line_clean = strip(line)
+    if line_clean == "FIM" || line_clean == "9999" || isempty(line_clean)
+        return nothing
+    end
+    
+    # Skip if line is too short
+    length(line) < 53 && return nothing
+    
     plant_num = parse(Int, extract_field(line, 1, 3))
     plant_name = extract_field(line, 5, 16)
     inflow_type = parse(Int, extract_field(line, 20, 20))
@@ -156,7 +165,9 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
             continue
         elseif in_record_section
             record = _parse_inflow_line(raw_line)
-            push!(inflow_records, record)
+            if !isnothing(record)
+                push!(inflow_records, record)
+            end
             idx += 1
             continue
         else
@@ -170,6 +181,19 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
     fcf_week_index === nothing && error("Missing FCF week index in DADVAZ header")
     study_weeks === nothing && error("Missing study weeks in DADVAZ header")
     simulation_flag === nothing && error("Missing simulation flag in DADVAZ header")
+
+    if length(plant_numbers) >= 2 * plant_count
+        expected = collect(1:plant_count)
+        if plant_numbers[1:plant_count] == expected
+            plant_numbers = plant_numbers[plant_count+1:end]
+        end
+    end
+
+    if length(plant_numbers) > plant_count
+        plant_numbers = plant_numbers[1:plant_count]
+    elseif length(plant_numbers) < plant_count
+        error("Incomplete plant number list in DADVAZ header: expected $plant_count entries, found $(length(plant_numbers))")
+    end
 
     header = DadvazHeader(
         plant_count=plant_count,

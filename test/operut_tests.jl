@@ -16,7 +16,7 @@ using DESSEM2Julia: parse_operut, INITRecord, OPERRecord, OperutData
         @test record.plant_num == 1
         @test record.plant_name == "ANGRA 1"
         @test record.unit_num == 1
-        @test record.status == 1
+    @test record.initial_status == 1
         @test record.initial_generation ≈ 640.0
         @test record.hours_in_state == 1879
         @test record.mh_flag == 1
@@ -31,7 +31,7 @@ using DESSEM2Julia: parse_operut, INITRecord, OPERRecord, OperutData
         @test record2.plant_num == 4
         @test record2.plant_name == "ST.CRUZ 34"
         @test record2.unit_num == 3
-        @test record2.status == 0
+    @test record2.initial_status == 0
         @test record2.initial_generation ≈ 0.0
         @test record2.hours_in_state == 20016
         
@@ -131,13 +131,13 @@ using DESSEM2Julia: parse_operut, INITRecord, OPERRecord, OperutData
             # Check first INIT record
             @test data.init_records[1].plant_num == 1
             @test data.init_records[1].plant_name == "ANGRA 1"
-            @test data.init_records[1].status == 1
+            @test data.init_records[1].initial_status == 1
             @test data.init_records[1].initial_generation ≈ 640.0
             
             # Check INIT record with multiple units
             termorio_units = filter(r -> r.plant_name == "TERMORIO", data.init_records)
             @test length(termorio_units) == 2
-            @test all(r -> r.status == 0, termorio_units)
+            @test all(r -> r.initial_status == 0, termorio_units)
             
             # Check first OPER record
             @test data.oper_records[1].plant_num == 1
@@ -170,7 +170,7 @@ using DESSEM2Julia: parse_operut, INITRecord, OPERRecord, OperutData
             # Check specific known units
             angra1_init = filter(r -> r.plant_num == 1 && r.plant_name == "ANGRA 1", data.init_records)
             @test length(angra1_init) > 0
-            @test angra1_init[1].status == 1  # Should be ON
+            @test angra1_init[1].initial_status == 1  # Should be ON
             @test angra1_init[1].initial_generation ≈ 640.0
             
             angra1_oper = filter(r -> r.plant_num == 1 && r.plant_name == "ANGRA 1", data.oper_records)
@@ -184,8 +184,8 @@ using DESSEM2Julia: parse_operut, INITRecord, OPERRecord, OperutData
             end
             
             # Check for OFF units
-            off_units = filter(r -> r.status == 0, data.init_records)
-            on_units = filter(r -> r.status == 1, data.init_records)
+            off_units = filter(r -> r.initial_status == 0, data.init_records)
+            on_units = filter(r -> r.initial_status == 1, data.init_records)
             println("  Units ON: $(length(on_units)), OFF: $(length(off_units))")
             
             # Verify all OPER records have end_day = "F"

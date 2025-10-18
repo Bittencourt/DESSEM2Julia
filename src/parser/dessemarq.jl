@@ -15,58 +15,29 @@ Reference: idessem/dessem/dessemarq.py (https://github.com/rjmalves/idessem)
 """
 module DessemArqParser
 
-export parse_dessemarq, DessemArq
+export parse_dessemarq, DessemArq, DessemFileRecord
 
 using ..DESSEM2Julia: ParserError
 
 """
+    DessemFileRecord
+
+Ordered entry from `dessem.arq` capturing mnemonic, description, and resolved
+filename for a DESSEM input file. Maintains the original order of declarations
+to support sequential processing requirements.
+"""
+Base.@kwdef struct DessemFileRecord
+    mnemonic::String
+    description::String = ""
+    filename::String
+end
+
+"""
     DessemArq
 
-Structure representing the master index file (dessem.arq) that maps all DESSEM input files.
-
-Each field contains the filename for a specific DESSEM input file. A value of `nothing` 
-indicates the file is not specified (line was commented with '&' prefix).
-
-# Fields
-- `caso::Union{String, Nothing}`: Case name file
-- `titulo::Union{String, Nothing}`: Study title text
-- `vazoes::Union{String, Nothing}`: Natural flows file (DADVAZ)
-- `dadger::Union{String, Nothing}`: General data file (ENTDADOS)
-- `mapfcf::Union{String, Nothing}`: DECOMP cuts map file
-- `cortfcf::Union{String, Nothing}`: DECOMP cuts file
-- `cadusih::Union{String, Nothing}`: Hydroelectric plant registry (HIDR)
-- `operuh::Union{String, Nothing}`: Hydro operational restrictions
-- `deflant::Union{String, Nothing}`: Antecedent outflows
-- `cadterm::Union{String, Nothing}`: Thermal plant registry (TERMDAT)
-- `operut::Union{String, Nothing}`: Thermal unit operations
-- `indelet::Union{String, Nothing}`: Electric network index (DESSELET)
-- `ilstri::Union{String, Nothing}`: Pereira Barreto canal
-- `cotasr11::Union{String, Nothing}`: Previous R11 quotas
-- `simul::Union{String, Nothing}`: Simulation data
-- `areacont::Union{String, Nothing}`: Power reserve registry
-- `respot::Union{String, Nothing}`: Power reserve study
-- `mlt::Union{String, Nothing}`: FPHA data (MLT)
-- `tolperd::Union{String, Nothing}`: Loss tolerances
-- `curvtviag::Union{String, Nothing}`: TVIAG propagation curve
-- `ptoper::Union{String, Nothing}`: GNL plant operating point
-- `infofcf::Union{String, Nothing}`: FCF cuts information
-- `meta::Union{String, Nothing}`: Goal restrictions
-- `ree::Union{String, Nothing}`: Equivalent energy reservoirs
-- `eolica::Union{String, Nothing}`: Wind plants (renewables)
-- `rampas::Union{String, Nothing}`: Trajectory file
-- `rstlpp::Union{String, Nothing}`: LPP restrictions
-- `restseg::Union{String, Nothing}`: Table restrictions
-- `respotele::Union{String, Nothing}`: Electric network power reserve
-- `ilibs::Union{String, Nothing}`: LIBS functionalities
-- `dessopc::Union{String, Nothing}`: Execution options
-- `rmpflx::Union{String, Nothing}`: Flow ramp
-
-# Example
-```julia
-arq = parse_dessemarq("dessem.arq")
-println("General data file: ", arq.dadger)  # "entdados.dat"
-println("Thermal registry: ", arq.cadterm)  # "termdat.dat"
-```
+Master file registry parsed from `dessem.arq`. Individual fields expose direct
+access to each mnemonic, while the `files` vector preserves the declaration
+order as `DessemFileRecord` entries for iteration.
 """
 Base.@kwdef struct DessemArq
     caso::Union{String, Nothing} = nothing
@@ -101,6 +72,7 @@ Base.@kwdef struct DessemArq
     ilibs::Union{String, Nothing} = nothing
     dessopc::Union{String, Nothing} = nothing
     rmpflx::Union{String, Nothing} = nothing
+    files::Vector{DessemFileRecord} = DessemFileRecord[]
 end
 
 """
@@ -135,8 +107,9 @@ println(arq.simul)    # nothing (commented out)
 - `ParserError`: If the file cannot be read or parsed
 """
 function parse_dessemarq(filepath::String)::DessemArq
-    # Dictionary to collect file mappings
+    # Dictionary to collect file mappings and ordered registry
     files = Dict{Symbol, String}()
+    records = DessemFileRecord[]
     
     try
         open(filepath, "r") do io
@@ -151,31 +124,53 @@ function parse_dessemarq(filepath::String)::DessemArq
                 # Format: MNEMONIC (col 1-10) DESCRIPTION (col 11-50) FILENAME (col 51+)
                 if length(line) < 51
                     # Line too short, try to parse as space-separated
-                    parts = split(line)
+                    parts = split(strip(line))
                     length(parts) >= 2 || continue
-                    
-                    mnemonic = lowercase(parts[1])
+
+                    mnemonic_token = parts[1]
                     filename = parts[end]
-                    
+
                     # Skip flags
                     if filename == "(F)" || filename == "(NF)"
                         filename = length(parts) >= 3 ? parts[end-1] : ""
                     end
-                    
-                    if !isempty(filename) && filename != "(F)" && filename != "(NF)"
-                        files[Symbol(mnemonic)] = filename
-                    end
+
+                    isempty(filename) && continue
+
+                    description = length(parts) > 2 ? join(parts[2:end-1], " ") : ""
+                    mnemonic = lowercase(mnemonic_token)
+                    files[Symbol(mnemonic)] = filename
+
+                    record = DessemFileRecord(
+                        mnemonic = uppercase(mnemonic_token),
+                        description = description,
+                        filename = filename,
+                    )
                 else
                     # Use fixed-width parsing
-                    mnemonic = lowercase(strip(line[1:10]))
-                    # Description is in columns 11-50, filename starts at 51
+                    mnemonic_token = strip(line[1:10])
+                    mnemonic = lowercase(mnemonic_token)
+                    description = strip(line[11:50])
+                    # Filename starts at column 51
                     filename_part = strip(line[51:end])
-                    
-                    # Skip if no filename specified
+
                     isempty(filename_part) && continue
-                    
-                    # Store the mapping
+
                     files[Symbol(mnemonic)] = filename_part
+
+                    record = DessemFileRecord(
+                        mnemonic = uppercase(mnemonic_token),
+                        description = description,
+                        filename = filename_part,
+                    )
+                end
+
+                # Ensure latest record wins while preserving order
+                existing_index = findfirst(r -> r.mnemonic == record.mnemonic, records)
+                if existing_index !== nothing
+                    records[existing_index] = record
+                else
+                    push!(records, record)
                 end
             end
         end
@@ -221,6 +216,7 @@ function parse_dessemarq(filepath::String)::DessemArq
         ilibs = get(files, :ilibs, nothing),
         dessopc = get(files, :dessopc, nothing),
         rmpflx = get(files, :rmpflx, nothing),
+        files = records,
     )
 end
 
