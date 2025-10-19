@@ -4,6 +4,57 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### October 18, 2025 - Session 8: ENTDADOS Record Type Expansion ✅
+
+**Achievement**: Implemented 16 missing ENTDADOS record types, eliminating hundreds of parser warnings
+
+**Implemented**:
+
+1. **New Record Types** (`src/types.jl` - 16 new structs):
+   - **RE** - Electrical constraint definitions
+   - **LU** - Constraint limits (with optional blank fields)
+   - **FH, FT, FI, FE, FR, FC** - Coefficient records for hydro/thermal/interchange/energy/renewable/load
+   - **TX** - Discount rate
+   - **EZ** - Coupling volume percentage
+   - **R11** - Gauge 11 variations
+   - **FP** - FPHA parameters (8 fields)
+   - **SECR** - River section (5 upstream plant pairs)
+   - **CR** - Head-flow polynomial (degree + 7 coefficients)
+   - **AC** - Generic plant adjustment (variable format: 2 ints, 1 float, or int+float)
+   - **AG** - Aggregate group (with optional group_id)
+
+2. **Parser Functions** (`src/parser/entdados.jl` - 16 new functions):
+   - `parse_re`, `parse_lu`, `parse_fh`, `parse_ft`, `parse_fi`, `parse_fe`
+   - `parse_fr`, `parse_fc`, `parse_tx`, `parse_ez`, `parse_r11`, `parse_fp`
+   - `parse_secr`, `parse_cr`, `parse_ac`, `parse_ag`
+   - Updated GeneralData struct from 8 vectors to 24 vectors
+
+3. **Technical Challenges Solved**:
+   - **LU records**: Optional blank limits using `allow_blank=true` + `Union{Float64, Nothing}`
+   - **AC records**: Variable format parsing (2 ints, 1 float, or int+float combinations)
+   - **AG records**: Minimal format with optional group_id
+
+4. **Test Results**:
+   - **129/129 ENTDADOS tests passing** ✅
+   - **123 ONS integration tests passing** ✅
+   - Warnings reduced from hundreds to <100 (only less common types: DE, CD, RI, IA, GP, NI, VE, CE, CI)
+   - Successfully parses complete ONS production data
+
+5. **Documentation**:
+   - Created session summary: `docs/sessions/session8_summary.md`
+   - Updated README.md with new test counts and record type coverage
+   - Updated file_formats.md with parser status
+
+**Key Learnings**:
+- Union types essential for optional fields in fixed-format files
+- Try-catch blocks enable flexible parsing for variable-format records
+- Test-driven debugging reveals edge cases efficiently
+- IDESSEM Python library is authoritative source for field specifications
+
+**Status**: ENTDADOS parser now supports 30+ record types covering all major operational data ✅
+
+---
+
 ### October 13, 2025 - Session 7: DADVAZ Parser Implementation ✅
 
 **Achievement**: Added natural inflow parser covering DADVAZ.DAT header metadata and daily flow records

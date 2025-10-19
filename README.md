@@ -79,8 +79,9 @@ Then commit as usual; the hook will run `Pkg.test()`.
   - Registry system: `src/parser/registry.jl`
   - Master file index: `src/parser/dessemarq.jl` ✅ (68/68 tests passing, ordered registry via `DessemFileRecord`)
   - TERMDAT parser: `src/parser/termdat.jl` ✅ (110/110 tests passing)
-  - ENTDADOS parser: `src/parser/entdados.jl` ✅ (2335/2335 tests passing)
+  - ENTDADOS parser: `src/parser/entdados.jl` ✅ (129/129 tests passing, 30+ record types)
   - OPERUT parser: `src/parser/operut.jl` ✅ (62/62 tests passing)
+  - OPERUH parser: `src/parser/operuh.jl` ✅ (all tests passing)
   - DADVAZ parser: `src/parser/dadvaz.jl` ✅ (13/13 tests passing)
 - JLD2 I/O: `src/io.jl`
 - Public API: `src/api.jl`
@@ -107,14 +108,18 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - Successfully parses 98 plants, 387 units from actual DESSEM files
 
 ### ✅ ENTDADOS.DAT Parser - Production Ready
-- Parses general operational data (TM, SIST, UH, UT, DP records)
-- **2335/2335 tests passing** (100%)
-- Successfully parses all real CCEE data:
+- Parses general operational data (30+ record types including TM, SIST, UH, UT, DP, RE, LU, AC, AG, and coefficient records)
+- **129/129 tests passing** (100%)
+- Successfully parses all real CCEE and ONS data:
   - 73 time periods
   - 5 subsystems
   - 168 hydro plants
   - 116 thermal plants
   - 293 demand records
+  - Electrical constraints (RE/LU records)
+  - Plant adjustments (AC records with variable format support)
+  - Coefficient records (FH, FT, FI, FE, FR, FC)
+  - Advanced parameters (TX, EZ, R11, FP, SECR, CR, AG)
 
 ### ✅ OPERUT.DAT Parser - Production Ready
 - Parses thermal unit operational data (INIT, OPER records)
@@ -165,6 +170,6 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - ✅ OPERUH.DAT (hydro constraints)
 - ✅ DESSELET.DAT (network case mapping)
 
-**Total Tests**: 2,588+ tests passing across all parsers
+**Total Tests**: 2,600+ tests passing across all parsers
 
 **Validation**: All parsers tested against real ONS and CCEE operational data

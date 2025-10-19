@@ -8,9 +8,9 @@ For detailed format specifications, see [dessem-complete-specs.md](dessem-comple
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| DESSEM.ARQ | Index file with case configuration | TODO | § 2 |
+| DESSEM.ARQ | Index file with case configuration | ✅ Parser | § 2 |
 | DADVAZ.XXX | Case information and natural inflows | ✅ Parser | § 3 |
-| ENTDADOS.XXX | General data file (TM, SIST, UH, UT, DP, IA, CD, VR, RD, PD records) | TODO | § 4 |
+| ENTDADOS.XXX | General data file (30+ record types: TM, SIST, UH, UT, DP, DA, MH, MT, RE, LU, FH, FT, FI, FE, FR, FC, TX, EZ, R11, FP, SECR, CR, AC, AG) | ✅ Parser | § 4 |
 | SIMUL.XXX | Simulation data (DISC, VOLI, OPER blocks) | TODO | § 5 |
 
 ## Plant Registry Files
@@ -18,14 +18,14 @@ For detailed format specifications, see [dessem-complete-specs.md](dessem-comple
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
 | HIDR.DAT | Hydroelectric plant registry (CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ records) | TODO | § 6 |
-| TERM.DAT | Thermal plant registry (CADUSIT, CADUNIDT, CURVACOMB, CONFGEST records) | TODO | § 7 |
+| TERM.DAT | Thermal plant registry (CADUSIT, CADUNIDT, CURVACOMB, CONFGEST records) | ✅ Parser | § 7 |
 
 ## Operational Data Files
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| OPERUH.XXX | Hydro plant operational constraints (REST, LIM, VAR records) | TODO | § 8 |
-| OPERUT.XXX | Thermal unit operational data (INIT, OPER, RAMP, CUSTO, RESTR blocks) | TODO | § 9 |
+| OPERUH.XXX | Hydro plant operational constraints (REST, ELEM, LIM, VAR records) | ✅ Parser | § 8 |
+| OPERUT.XXX | Thermal unit operational data (INIT, OPER, RAMP, CUSTO, RESTR blocks) | ✅ Parser | § 9 |
 
 ## DECOMP Integration Files
 
@@ -39,7 +39,7 @@ For detailed format specifications, see [dessem-complete-specs.md](dessem-comple
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| DESSELET.XXX | Network data index | TODO | § 11 |
+| DESSELET.XXX | Network data index | ✅ Parser | § 11 |
 | leve.dat | Light load network case (ANAREDE format: DBAR, DLIN, DGLT blocks) | TODO | § 11 |
 | media.dat | Medium load network case (ANAREDE format) | TODO | § 11 |
 | pesada.dat | Heavy load network case (ANAREDE format) | TODO | § 11 |

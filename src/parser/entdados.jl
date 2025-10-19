@@ -22,6 +22,9 @@ using ..ParserCommon
 # Import types
 import ..Types: TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord
 import ..Types: DARecord, MHRecord, MTRecord, GeneralData
+import ..Types: RERecord, LURecord, FHRecord, FTRecord, FIRecord, FERecord
+import ..Types: FRRecord, FCRecord, TXRecord, EZRecord, R11Record, FPRecord
+import ..Types: SECRRecord, CRRecord, ACRecord, AGRecord
 
 export parse_entdados
 
@@ -430,6 +433,423 @@ function parse_mt(line::AbstractString, filename::AbstractString, line_num::Int)
     )
 end
 
+"""
+    parse_re(line, filename, line_num) -> RERecord
+
+Parse RE record (electrical constraint definition).
+"""
+function parse_re(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 10; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 18; special_char="F", file=filename, line_num=line_num)
+
+    return RERecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+    )
+end
+
+"""
+    parse_lu(line, filename, line_num) -> LURecord
+
+Parse LU record (electrical constraint limits).
+"""
+function parse_lu(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 9; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 17; special_char="F", file=filename, line_num=line_num)
+    lower_limit = parse_float(strip(extract_field(line, 25, 34)); allow_blank=true)
+    upper_limit = parse_float(strip(extract_field(line, 35, 44)); allow_blank=true)
+
+    return LURecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        lower_limit=lower_limit,
+        upper_limit=upper_limit,
+    )
+end
+
+"""
+    parse_fh(line, filename, line_num) -> FHRecord
+
+Parse FH record (hydro plant coefficient in electrical constraint).
+"""
+function parse_fh(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 9; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 17; special_char="F", file=filename, line_num=line_num)
+    plant_code = parse_int(strip(extract_field(line, 25, 27)))
+    group_code = parse_int(strip(extract_field(line, 29, 30)), allow_blank=true)
+    coefficient = parse_float(strip(extract_field(line, 35, 44)))
+
+    return FHRecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        plant_code=plant_code,
+        group_code=something(group_code, 0),
+        coefficient=coefficient,
+    )
+end
+
+"""
+    parse_ft(line, filename, line_num) -> FTRecord
+
+Parse FT record (thermal plant coefficient in electrical constraint).
+"""
+function parse_ft(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 9; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 17; special_char="F", file=filename, line_num=line_num)
+    plant_code = parse_int(strip(extract_field(line, 25, 27)))
+    coefficient = parse_float(strip(extract_field(line, 35, 44)))
+
+    return FTRecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        plant_code=plant_code,
+        coefficient=coefficient,
+    )
+end
+
+"""
+    parse_fi(line, filename, line_num) -> FIRecord
+
+Parse FI record (interchange flow coefficient in electrical constraint).
+"""
+function parse_fi(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 9; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 17; special_char="F", file=filename, line_num=line_num)
+    from_subsystem = strip(extract_field(line, 25, 26))
+    to_subsystem = strip(extract_field(line, 30, 31))
+    coefficient = parse_float(strip(extract_field(line, 35, 44)))
+
+    return FIRecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        from_subsystem=from_subsystem,
+        to_subsystem=to_subsystem,
+        coefficient=coefficient,
+    )
+end
+
+"""
+    parse_fe(line, filename, line_num) -> FERecord
+
+Parse FE record (energy contract coefficient in electrical constraint).
+"""
+function parse_fe(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 9; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 17; special_char="F", file=filename, line_num=line_num)
+    contract_code = parse_int(strip(extract_field(line, 25, 27)))
+    coefficient = parse_float(strip(extract_field(line, 35, 44)))
+
+    return FERecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        contract_code=contract_code,
+        coefficient=coefficient,
+    )
+end
+
+"""
+    parse_fr(line, filename, line_num) -> FRRecord
+
+Parse FR record (renewable plant coefficient in electrical constraint).
+"""
+function parse_fr(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 11; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 19; special_char="F", file=filename, line_num=line_num)
+    plant_code = parse_int(strip(extract_field(line, 27, 31)))
+    coefficient = parse_float(strip(extract_field(line, 37, 46)))
+
+    return FRRecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        plant_code=plant_code,
+        coefficient=coefficient,
+    )
+end
+
+"""
+    parse_fc(line, filename, line_num) -> FCRecord
+
+Parse FC record (special load coefficient in electrical constraint).
+"""
+function parse_fc(line::AbstractString, filename::AbstractString, line_num::Int)
+    constraint_code = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 11; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 19; special_char="F", file=filename, line_num=line_num)
+    load_code = parse_int(strip(extract_field(line, 27, 29)))
+    coefficient = parse_float(strip(extract_field(line, 37, 46)))
+
+    return FCRecord(
+        constraint_code=constraint_code,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        load_code=load_code,
+        coefficient=coefficient,
+    )
+end
+
+"""
+    parse_tx(line, filename, line_num) -> TXRecord
+
+Parse TX record (discount rate).
+"""
+function parse_tx(line::AbstractString, filename::AbstractString, line_num::Int)
+    rate = parse_float(strip(extract_field(line, 5, 14)))
+    return TXRecord(rate=rate)
+end
+
+"""
+    parse_ez(line, filename, line_num) -> EZRecord
+
+Parse EZ record (maximum useful volume percentage for coupling).
+"""
+function parse_ez(line::AbstractString, filename::AbstractString, line_num::Int)
+    plant_code = parse_int(strip(extract_field(line, 5, 7)))
+    volume_pct = parse_float(strip(extract_field(line, 10, 14)))
+    return EZRecord(plant_code=plant_code, volume_pct=volume_pct)
+end
+
+"""
+    parse_r11(line, filename, line_num) -> R11Record
+
+Parse R11 record (Gauge 11 level variation constraints).
+"""
+function parse_r11(line::AbstractString, filename::AbstractString, line_num::Int)
+    start_day, start_hour, start_half = parse_stage_date(line, 5; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 13; special_char="F", file=filename, line_num=line_num)
+    initial_level = parse_float(strip(extract_field(line, 21, 30)))
+    max_hourly_variation = parse_float(strip(extract_field(line, 31, 40)))
+    max_daily_variation = parse_float(strip(extract_field(line, 41, 50)))
+
+    return R11Record(
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        initial_level=initial_level,
+        max_hourly_variation=max_hourly_variation,
+        max_daily_variation=max_daily_variation,
+    )
+end
+
+"""
+    parse_fp(line, filename, line_num) -> FPRecord
+
+Parse FP record (production function approximation parameters).
+"""
+function parse_fp(line::AbstractString, filename::AbstractString, line_num::Int)
+    plant_code = parse_int(strip(extract_field(line, 4, 6)))
+    volume_treatment = parse_int(strip(extract_field(line, 8, 8)))
+    turbine_points = parse_int(strip(extract_field(line, 11, 13)))
+    volume_points = parse_int(strip(extract_field(line, 16, 18)))
+    check_concavity = parse_int(strip(extract_field(line, 21, 21)))
+    least_squares = parse_int(strip(extract_field(line, 25, 25)))
+    volume_window_pct = parse_float(strip(extract_field(line, 30, 39)))
+    deviation_tolerance = parse_float(strip(extract_field(line, 40, 49)))
+
+    return FPRecord(
+        plant_code=plant_code,
+        volume_treatment=volume_treatment,
+        turbine_points=turbine_points,
+        volume_points=volume_points,
+        check_concavity=check_concavity,
+        least_squares=least_squares,
+        volume_window_pct=volume_window_pct,
+        deviation_tolerance=deviation_tolerance,
+    )
+end
+
+"""
+    parse_secr(line, filename, line_num) -> SECRRecord
+
+Parse SECR record (river section definition).
+"""
+function parse_secr(line::AbstractString, filename::AbstractString, line_num::Int)
+    section_code = parse_int(strip(extract_field(line, 6, 8)))
+    section_name = strip(extract_field(line, 10, 21))
+    
+    upstream_plant_1 = parse_int(strip(extract_field(line, 25, 27)), allow_blank=true)
+    participation_1 = parse_float(strip(extract_field(line, 29, 33)), allow_blank=true)
+    upstream_plant_2 = parse_int(strip(extract_field(line, 35, 37)), allow_blank=true)
+    participation_2 = parse_float(strip(extract_field(line, 39, 43)), allow_blank=true)
+    upstream_plant_3 = parse_int(strip(extract_field(line, 45, 47)), allow_blank=true)
+    participation_3 = parse_float(strip(extract_field(line, 49, 53)), allow_blank=true)
+    upstream_plant_4 = parse_int(strip(extract_field(line, 55, 57)), allow_blank=true)
+    participation_4 = parse_float(strip(extract_field(line, 59, 63)), allow_blank=true)
+    upstream_plant_5 = parse_int(strip(extract_field(line, 65, 67)), allow_blank=true)
+    participation_5 = parse_float(strip(extract_field(line, 69, 73)), allow_blank=true)
+
+    return SECRRecord(
+        section_code=section_code,
+        section_name=section_name,
+        upstream_plant_1=upstream_plant_1,
+        participation_1=participation_1,
+        upstream_plant_2=upstream_plant_2,
+        participation_2=participation_2,
+        upstream_plant_3=upstream_plant_3,
+        participation_3=participation_3,
+        upstream_plant_4=upstream_plant_4,
+        participation_4=participation_4,
+        upstream_plant_5=upstream_plant_5,
+        participation_5=participation_5,
+    )
+end
+
+"""
+    parse_cr(line, filename, line_num) -> CRRecord
+
+Parse CR record (river section head-flow polynomial).
+"""
+function parse_cr(line::AbstractString, filename::AbstractString, line_num::Int)
+    section_code = parse_int(strip(extract_field(line, 5, 7)))
+    section_name = strip(extract_field(line, 10, 21))
+    polynomial_degree = parse_int(strip(extract_field(line, 25, 26)))
+    
+    # Parse coefficients (in scientific notation format "E")
+    a0 = parse_float(strip(extract_field(line, 28, 42)), allow_blank=true)
+    a1 = parse_float(strip(extract_field(line, 44, 58)), allow_blank=true)
+    a2 = parse_float(strip(extract_field(line, 60, 74)), allow_blank=true)
+    a3 = parse_float(strip(extract_field(line, 76, 90)), allow_blank=true)
+    a4 = parse_float(strip(extract_field(line, 92, 106)), allow_blank=true)
+    a5 = parse_float(strip(extract_field(line, 108, 122)), allow_blank=true)
+    a6 = parse_float(strip(extract_field(line, 124, 138)), allow_blank=true)
+
+    return CRRecord(
+        section_code=section_code,
+        section_name=section_name,
+        polynomial_degree=polynomial_degree,
+        a0=something(a0, 0.0),
+        a1=something(a1, 0.0),
+        a2=something(a2, 0.0),
+        a3=something(a3, 0.0),
+        a4=something(a4, 0.0),
+        a5=something(a5, 0.0),
+        a6=something(a6, 0.0),
+    )
+end
+
+"""
+    parse_ac(line, filename, line_num) -> ACRecord
+
+Parse AC record (plant configuration adjustment).
+AC records have variable formats depending on the adjustment type.
+"""
+function parse_ac(line::AbstractString, filename::AbstractString, line_num::Int)
+    plant_code = parse_int(strip(extract_field(line, 5, 7)))
+    ac_type = strip(extract_field(line, 10, 20))
+    
+    # Parse values - the values start around column 21
+    remainder = strip(line[min(21, length(line)):end])
+    parts = split(remainder)
+    
+    local int_value = nothing
+    local int_value2 = nothing
+    local float_value = nothing
+    
+    # Try parsing each part individually
+    if length(parts) >= 2
+        # Two values
+        try
+            int_value = parse_int(parts[1], allow_blank=true)
+        catch
+            # First value is a float
+            float_value = parse_float(parts[1], allow_blank=true)
+        end
+        
+        # Try parsing second value
+        try
+            int_value2 = parse_int(parts[2], allow_blank=true)
+        catch
+            # Second value is a float - if first was also parsed, this is float_value
+            if int_value === nothing
+                # Already got the float in the first position
+            else
+                # int + float case
+                float_value = parse_float(parts[2], allow_blank=true)
+            end
+        end
+    elseif length(parts) == 1
+        # Single value - try as integer first, then as float
+        try
+            int_value = parse_int(parts[1], allow_blank=true)
+        catch
+            float_value = parse_float(parts[1], allow_blank=true)
+        end
+    end
+
+    return ACRecord(
+        plant_code=plant_code,
+        ac_type=ac_type,
+        int_value=int_value,
+        float_value=float_value,
+        int_value2=int_value2,
+    )
+end
+
+"""
+    parse_ag(line, filename, line_num) -> AGRecord
+
+Parse AG record (aggregate/group record).
+"""
+function parse_ag(line::AbstractString, filename::AbstractString, line_num::Int)
+    group_type = strip(extract_field(line, 5, 8))
+    group_id = parse_int(strip(extract_field(line, 10, 12)), allow_blank=true)
+    description = strip(extract_field(line, 15, 40))
+
+    return AGRecord(
+        group_type=group_type,
+        group_id=group_id,
+        description=description,
+    )
+end
+
 # ============================================================================
 # Main Parser
 # ============================================================================
@@ -464,6 +884,22 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
     diversions = DARecord[]
     hydro_maint = MHRecord[]
     thermal_maint = MTRecord[]
+    electrical_constraints = RERecord[]
+    constraint_limits = LURecord[]
+    hydro_coefficients = FHRecord[]
+    thermal_coefficients = FTRecord[]
+    interchange_coefficients = FIRecord[]
+    contract_coefficients = FERecord[]
+    renewable_coefficients = FRRecord[]
+    load_coefficients = FCRecord[]
+    discount_rate = TXRecord[]
+    coupling_volumes = EZRecord[]
+    gauge11_constraints = R11Record[]
+    fpha_parameters = FPRecord[]
+    river_sections = SECRRecord[]
+    section_polynomials = CRRecord[]
+    plant_adjustments = ACRecord[]
+    aggregate_groups = AGRecord[]
     
     line_num = 0
     for line in eachline(io)
@@ -473,7 +909,7 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
         is_blank(line) && continue
         is_comment_line(line) && continue
         
-        # Extract record type
+        # Extract record type - handle AC records specially (variable format)
         record_type = uppercase(strip(extract_field(line, 1, 4)))
         
         try
@@ -493,6 +929,38 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
                 push!(hydro_maint, parse_mh(line, filename, line_num))
             elseif record_type == "MT"
                 push!(thermal_maint, parse_mt(line, filename, line_num))
+            elseif record_type == "RE"
+                push!(electrical_constraints, parse_re(line, filename, line_num))
+            elseif record_type == "LU"
+                push!(constraint_limits, parse_lu(line, filename, line_num))
+            elseif record_type == "FH"
+                push!(hydro_coefficients, parse_fh(line, filename, line_num))
+            elseif record_type == "FT"
+                push!(thermal_coefficients, parse_ft(line, filename, line_num))
+            elseif record_type == "FI"
+                push!(interchange_coefficients, parse_fi(line, filename, line_num))
+            elseif record_type == "FE"
+                push!(contract_coefficients, parse_fe(line, filename, line_num))
+            elseif record_type == "FR"
+                push!(renewable_coefficients, parse_fr(line, filename, line_num))
+            elseif record_type == "FC"
+                push!(load_coefficients, parse_fc(line, filename, line_num))
+            elseif record_type == "TX"
+                push!(discount_rate, parse_tx(line, filename, line_num))
+            elseif record_type == "EZ"
+                push!(coupling_volumes, parse_ez(line, filename, line_num))
+            elseif record_type == "R11"
+                push!(gauge11_constraints, parse_r11(line, filename, line_num))
+            elseif record_type == "FP"
+                push!(fpha_parameters, parse_fp(line, filename, line_num))
+            elseif record_type == "SECR"
+                push!(river_sections, parse_secr(line, filename, line_num))
+            elseif record_type == "CR"
+                push!(section_polynomials, parse_cr(line, filename, line_num))
+            elseif record_type == "AC"
+                push!(plant_adjustments, parse_ac(line, filename, line_num))
+            elseif record_type == "AG"
+                push!(aggregate_groups, parse_ag(line, filename, line_num))
             else
                 # Skip unknown record types (RD, RIVAR, REE, etc.)
                 if !startswith(record_type, "&")  # Don't warn for comment lines
@@ -517,6 +985,22 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
         diversions=diversions,
         hydro_maintenance=hydro_maint,
         thermal_maintenance=thermal_maint,
+        electrical_constraints=electrical_constraints,
+        constraint_limits=constraint_limits,
+        hydro_coefficients=hydro_coefficients,
+        thermal_coefficients=thermal_coefficients,
+        interchange_coefficients=interchange_coefficients,
+        contract_coefficients=contract_coefficients,
+        renewable_coefficients=renewable_coefficients,
+        load_coefficients=load_coefficients,
+        discount_rate=discount_rate,
+        coupling_volumes=coupling_volumes,
+        gauge11_constraints=gauge11_constraints,
+        fpha_parameters=fpha_parameters,
+        river_sections=river_sections,
+        section_polynomials=section_polynomials,
+        plant_adjustments=plant_adjustments,
+        aggregate_groups=aggregate_groups,
     )
 end
 

@@ -363,6 +363,412 @@ Base.@kwdef struct MTRecord
 end
 
 """
+    RERecord
+
+Electrical constraint definition record from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+"""
+Base.@kwdef struct RERecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+end
+
+"""
+    LURecord
+
+Electrical constraint limits record from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier (per RE record)
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `lower_limit::Float64`: Lower limit for the constraint
+- `upper_limit::Float64`: Upper limit for the constraint
+"""
+Base.@kwdef struct LURecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    lower_limit::Union{Float64, Nothing} = nothing
+    upper_limit::Union{Float64, Nothing} = nothing
+end
+
+"""
+    FHRecord
+
+Hydro plant coefficient in electrical constraint from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier (per RE record)
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `plant_code::Int`: Hydro plant identifier
+- `group_code::Int`: Generator group code (default 0)
+- `coefficient::Float64`: Participation coefficient
+"""
+Base.@kwdef struct FHRecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    plant_code::Int
+    group_code::Int = 0
+    coefficient::Float64
+end
+
+"""
+    FTRecord
+
+Thermal plant coefficient in electrical constraint from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier (per RE record)
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `plant_code::Int`: Thermal plant identifier
+- `coefficient::Float64`: Participation coefficient
+"""
+Base.@kwdef struct FTRecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    plant_code::Int
+    coefficient::Float64
+end
+
+"""
+    FIRecord
+
+Interchange flow coefficient in electrical constraint from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier (per RE record)
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `from_subsystem::String`: Origin subsystem code
+- `to_subsystem::String`: Destination subsystem code
+- `coefficient::Float64`: Participation coefficient
+"""
+Base.@kwdef struct FIRecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    from_subsystem::String
+    to_subsystem::String
+    coefficient::Float64
+end
+
+"""
+    FERecord
+
+Energy contract coefficient in electrical constraint from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier (per RE record)
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `contract_code::Int`: Contract identifier
+- `coefficient::Float64`: Participation coefficient
+"""
+Base.@kwdef struct FERecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    contract_code::Int
+    coefficient::Float64
+end
+
+"""
+    FRRecord
+
+Renewable plant coefficient in electrical constraint from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier (per RE record)
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `plant_code::Int`: Renewable plant identifier
+- `coefficient::Float64`: Participation coefficient
+"""
+Base.@kwdef struct FRRecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    plant_code::Int
+    coefficient::Float64
+end
+
+"""
+    FCRecord
+
+Special load coefficient in electrical constraint from ENTDADOS.XXX.
+
+# Fields
+- `constraint_code::Int`: Constraint identifier (per RE record)
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `load_code::Int`: Special load identifier
+- `coefficient::Float64`: Participation coefficient
+"""
+Base.@kwdef struct FCRecord
+    constraint_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    load_code::Int
+    coefficient::Float64
+end
+
+"""
+    TXRecord
+
+Discount rate record from ENTDADOS.XXX (for FCF construction).
+
+# Fields
+- `rate::Float64`: Annual discount rate in percentage
+"""
+Base.@kwdef struct TXRecord
+    rate::Float64
+end
+
+"""
+    EZRecord
+
+Maximum useful volume percentage for coupling from ENTDADOS.XXX.
+
+# Fields
+- `plant_code::Int`: Hydro plant identifier
+- `volume_pct::Float64`: Volume percentage (% of maximum useful volume)
+"""
+Base.@kwdef struct EZRecord
+    plant_code::Int
+    volume_pct::Float64
+end
+
+"""
+    R11Record
+
+Gauge 11 level variation constraints from ENTDADOS.XXX.
+
+# Fields
+- `start_day::Union{Int,String,Nothing}`: Start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: End day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `initial_level::Float64`: Initial water level at Gauge 11 (m)
+- `max_hourly_variation::Float64`: Maximum hourly level variation (m)
+- `max_daily_variation::Float64`: Maximum daily level variation (m)
+"""
+Base.@kwdef struct R11Record
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    initial_level::Float64
+    max_hourly_variation::Float64
+    max_daily_variation::Float64
+end
+
+"""
+    FPRecord
+
+Production function approximation parameters from ENTDADOS.XXX.
+
+# Fields
+- `plant_code::Int`: Hydro plant identifier
+- `volume_treatment::Int`: Volume treatment type (1=linear, 2=3d envelope)
+- `turbine_points::Int`: Number of discretization points for turbining
+- `volume_points::Int`: Number of discretization points for volume
+- `check_concavity::Int`: Flag to enable concavity check (0/1)
+- `least_squares::Int`: Flag to enable least squares adjustment (0/1)
+- `volume_window_pct::Float64`: Volume window length (% of useful volume)
+- `deviation_tolerance::Float64`: Tolerance for production function deviation (%)
+"""
+Base.@kwdef struct FPRecord
+    plant_code::Int
+    volume_treatment::Int
+    turbine_points::Int
+    volume_points::Int
+    check_concavity::Int
+    least_squares::Int
+    volume_window_pct::Float64
+    deviation_tolerance::Float64
+end
+
+"""
+    SECRRecord
+
+River section definition record from ENTDADOS.XXX.
+
+# Fields
+- `section_code::Int`: Section identifier
+- `section_name::String`: Section name
+- `upstream_plant_1::Union{Int,Nothing}`: First upstream plant code
+- `participation_1::Union{Float64,Nothing}`: First plant participation factor
+- `upstream_plant_2::Union{Int,Nothing}`: Second upstream plant code
+- `participation_2::Union{Float64,Nothing}`: Second plant participation factor
+- `upstream_plant_3::Union{Int,Nothing}`: Third upstream plant code
+- `participation_3::Union{Float64,Nothing}`: Third plant participation factor
+- `upstream_plant_4::Union{Int,Nothing}`: Fourth upstream plant code
+- `participation_4::Union{Float64,Nothing}`: Fourth plant participation factor
+- `upstream_plant_5::Union{Int,Nothing}`: Fifth upstream plant code
+- `participation_5::Union{Float64,Nothing}`: Fifth plant participation factor
+"""
+Base.@kwdef struct SECRRecord
+    section_code::Int
+    section_name::String
+    upstream_plant_1::Union{Int,Nothing} = nothing
+    participation_1::Union{Float64,Nothing} = nothing
+    upstream_plant_2::Union{Int,Nothing} = nothing
+    participation_2::Union{Float64,Nothing} = nothing
+    upstream_plant_3::Union{Int,Nothing} = nothing
+    participation_3::Union{Float64,Nothing} = nothing
+    upstream_plant_4::Union{Int,Nothing} = nothing
+    participation_4::Union{Float64,Nothing} = nothing
+    upstream_plant_5::Union{Int,Nothing} = nothing
+    participation_5::Union{Float64,Nothing} = nothing
+end
+
+"""
+    CRRecord
+
+River section head-flow polynomial record from ENTDADOS.XXX.
+
+# Fields
+- `section_code::Int`: Section identifier (per SECR record)
+- `section_name::String`: Section name
+- `polynomial_degree::Int`: Polynomial degree (0-7)
+- `a0::Float64`: Constant coefficient
+- `a1::Float64`: Linear coefficient
+- `a2::Float64`: Quadratic coefficient
+- `a3::Float64`: Cubic coefficient
+- `a4::Float64`: Quartic coefficient
+- `a5::Float64`: Quintic coefficient
+- `a6::Float64`: Sextic coefficient
+"""
+Base.@kwdef struct CRRecord
+    section_code::Int
+    section_name::String
+    polynomial_degree::Int
+    a0::Float64 = 0.0
+    a1::Float64 = 0.0
+    a2::Float64 = 0.0
+    a3::Float64 = 0.0
+    a4::Float64 = 0.0
+    a5::Float64 = 0.0
+    a6::Float64 = 0.0
+end
+
+"""
+    ACRecord
+
+Generic hydro plant configuration adjustment record from ENTDADOS.XXX.
+AC records modify various plant parameters (volumes, polynomials, etc.).
+
+# Fields
+- `plant_code::Int`: Hydro plant identifier
+- `ac_type::String`: Type of adjustment (e.g., "VOLMAX", "VOLMIN", "VTFUGA")
+- `int_value::Union{Int,Nothing}`: Integer parameter value
+- `float_value::Union{Float64,Nothing}`: Float parameter value
+- `int_value2::Union{Int,Nothing}`: Second integer parameter (for multi-param AC types)
+"""
+Base.@kwdef struct ACRecord
+    plant_code::Int
+    ac_type::String
+    int_value::Union{Int,Nothing} = nothing
+    float_value::Union{Float64,Nothing} = nothing
+    int_value2::Union{Int,Nothing} = nothing
+end
+
+"""
+    AGRecord
+
+Generic aggregate/group record from ENTDADOS.XXX.
+AG records are used for various grouping purposes.
+
+# Fields
+- `group_type::String`: Type of grouping
+- `group_id::Int`: Group identifier
+- `description::String`: Group description
+"""
+Base.@kwdef struct AGRecord
+    group_type::String
+    group_id::Union{Int, Nothing} = nothing
+    description::String
+end
+
+"""
     GeneralData
 
 Container for all general data from ENTDADOS.XXX.
@@ -376,6 +782,22 @@ Container for all general data from ENTDADOS.XXX.
 - `diversions::Vector{DARecord}`: Water withdrawal rate records
 - `hydro_maintenance::Vector{MHRecord}`: Hydro maintenance windows
 - `thermal_maintenance::Vector{MTRecord}`: Thermal maintenance windows
+- `electrical_constraints::Vector{RERecord}`: Electrical constraint definitions
+- `constraint_limits::Vector{LURecord}`: Constraint limit specifications
+- `hydro_coefficients::Vector{FHRecord}`: Hydro plant coefficients in constraints
+- `thermal_coefficients::Vector{FTRecord}`: Thermal plant coefficients in constraints
+- `interchange_coefficients::Vector{FIRecord}`: Interchange flow coefficients
+- `contract_coefficients::Vector{FERecord}`: Energy contract coefficients
+- `renewable_coefficients::Vector{FRRecord}`: Renewable plant coefficients
+- `load_coefficients::Vector{FCRecord}`: Special load coefficients
+- `discount_rate::Vector{TXRecord}`: Discount rate records
+- `coupling_volumes::Vector{EZRecord}`: Coupling volume percentages
+- `gauge11_constraints::Vector{R11Record}`: Gauge 11 variation constraints
+- `fpha_parameters::Vector{FPRecord}`: Production function parameters
+- `river_sections::Vector{SECRRecord}`: River section definitions
+- `section_polynomials::Vector{CRRecord}`: River section head-flow polynomials
+- `plant_adjustments::Vector{ACRecord}`: Plant configuration adjustments
+- `aggregate_groups::Vector{AGRecord}`: Aggregate/group records
 """
 Base.@kwdef struct GeneralData
     time_periods::Vector{TMRecord} = TMRecord[]
@@ -386,6 +808,22 @@ Base.@kwdef struct GeneralData
     diversions::Vector{DARecord} = DARecord[]
     hydro_maintenance::Vector{MHRecord} = MHRecord[]
     thermal_maintenance::Vector{MTRecord} = MTRecord[]
+    electrical_constraints::Vector{RERecord} = RERecord[]
+    constraint_limits::Vector{LURecord} = LURecord[]
+    hydro_coefficients::Vector{FHRecord} = FHRecord[]
+    thermal_coefficients::Vector{FTRecord} = FTRecord[]
+    interchange_coefficients::Vector{FIRecord} = FIRecord[]
+    contract_coefficients::Vector{FERecord} = FERecord[]
+    renewable_coefficients::Vector{FRRecord} = FRRecord[]
+    load_coefficients::Vector{FCRecord} = FCRecord[]
+    discount_rate::Vector{TXRecord} = TXRecord[]
+    coupling_volumes::Vector{EZRecord} = EZRecord[]
+    gauge11_constraints::Vector{R11Record} = R11Record[]
+    fpha_parameters::Vector{FPRecord} = FPRecord[]
+    river_sections::Vector{SECRRecord} = SECRRecord[]
+    section_polynomials::Vector{CRRecord} = CRRecord[]
+    plant_adjustments::Vector{ACRecord} = ACRecord[]
+    aggregate_groups::Vector{AGRecord} = AGRecord[]
 end
 
 # ============================================================================
