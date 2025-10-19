@@ -20,13 +20,13 @@ using ..Types
 using ..ParserCommon
 
 # Import types
-import ..Types: TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord
+import ..Types: TMRecord, SISTRecord, REERecord, UHRecord, TVIAGRecord, UTRecord, USIERecord, DPRecord
 import ..Types: DARecord, MHRecord, MTRecord, GeneralData
 import ..Types: RERecord, LURecord, FHRecord, FTRecord, FIRecord, FERecord
 import ..Types: FRRecord, FCRecord, TXRecord, EZRecord, R11Record, FPRecord
 import ..Types: SECRRecord, CRRecord, ACRecord, AGRecord
 import ..Types: IARecord, CDRecord, VERecord, RIRecord, CERecord, CIRecord
-import ..Types: DERecord, NIRecord, GPRecord
+import ..Types: DERecord, NIRecord, GPRecord, RIVARRecord, RDRecord
 
 export parse_entdados
 
@@ -1133,6 +1133,226 @@ function parse_gp(line::AbstractString, filename::AbstractString, line_num::Int)
     )
 end
 
+"""
+    parse_ree(line::AbstractString, filename::AbstractString, line_num::Int) -> REERecord
+
+Parse REE record (energy reservoir equivalent).
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - REE class:
+- IntegerField(2, 6): ree_code (0-indexed positions 6-7 → 1-indexed 7-8)
+- IntegerField(2, 9): subsystem_code (0-indexed 9-10 → 1-indexed 10-11)  
+- LiteralField(10, 12): ree_name (0-indexed 12-21 → 1-indexed 13-22)
+
+# Format
+- Columns 7-8: ree_code (I2)
+- Columns 10-11: subsystem_code (I2)
+- Columns 13-22: ree_name (A10)
+"""
+function parse_ree(line::AbstractString, filename::AbstractString, line_num::Int)
+    ree_code = parse_int(strip(extract_field(line, 7, 8)))
+    subsystem_code = parse_int(strip(extract_field(line, 10, 11)))
+    ree_name = strip(extract_field(line, 13, 22))
+
+    return REERecord(
+        ree_code=ree_code,
+        subsystem_code=subsystem_code,
+        ree_name=ree_name,
+    )
+end
+
+"""
+    parse_tviag(line::AbstractString, filename::AbstractString, line_num::Int) -> TVIAGRecord
+
+Parse TVIAG record (water travel time).
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - TVIAG class:
+- IntegerField(3, 6): upstream_plant (0-indexed 6-8 → 1-indexed 7-9)
+- IntegerField(3, 10): downstream_element (0-indexed 10-12 → 1-indexed 11-13)
+- LiteralField(1, 14): element_type (0-indexed 14 → 1-indexed 15)
+- IntegerField(3, 19): duration (0-indexed 19-21 → 1-indexed 20-22)
+- IntegerField(1, 24): travel_type (0-indexed 24 → 1-indexed 25)
+
+# Format
+- Columns 7-9: upstream_plant (I3)
+- Columns 11-13: downstream_element (I3)
+- Column 15: element_type (A1) - "H" for hydro, "S" for section
+- Columns 20-22: duration in hours (I3)
+- Column 25: travel_type (I1) - 1=translation, 2=propagation
+"""
+function parse_tviag(line::AbstractString, filename::AbstractString, line_num::Int)
+    upstream_plant = parse_int(strip(extract_field(line, 7, 9)))
+    downstream_element = parse_int(strip(extract_field(line, 11, 13)))
+    element_type = strip(extract_field(line, 15, 15))
+    duration = parse_int(strip(extract_field(line, 20, 22)))
+    travel_type = parse_int(strip(extract_field(line, 25, 25)))
+
+    return TVIAGRecord(
+        upstream_plant=upstream_plant,
+        downstream_element=downstream_element,
+        element_type=element_type,
+        duration=duration,
+        travel_type=travel_type,
+    )
+end
+
+"""
+    parse_rivar(line::AbstractString, filename::AbstractString, line_num::Int) -> RIVARRecord
+
+Parse RIVAR record (variable restriction).
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - RIVAR class:
+- IntegerField(3, 7): entity_code (0-indexed 7-9 → 1-indexed 8-10)
+- IntegerField(3, 12): to_system (0-indexed 12-14 → 1-indexed 13-15)
+- IntegerField(2, 15): variable_type (0-indexed 15-16 → 1-indexed 16-17)
+- FloatField(10, 19): penalty (0-indexed 19-28 → 1-indexed 20-29)
+
+# Format
+- Columns 8-10: entity_code (I3) 
+- Columns 13-15: to_system (I3) - optional for interchange restrictions
+- Columns 16-17: variable_type (I2)
+- Columns 20-29: penalty (F10.x) - optional
+"""
+function parse_rivar(line::AbstractString, filename::AbstractString, line_num::Int)
+    entity_code = parse_int(strip(extract_field(line, 8, 10)))
+    
+    # to_system is optional - may be empty for non-interchange restrictions
+    to_system_str = strip(extract_field(line, 13, 15))
+    to_system = parse_int(to_system_str, allow_blank=true)
+    
+    variable_type = parse_int(strip(extract_field(line, 16, 17)))
+    
+    # penalty is optional - may not be present if line is short
+    penalty = if length(line) >= 29
+        penalty_str = strip(extract_field(line, 20, 29))
+        parse_float(penalty_str, allow_blank=true)
+    else
+        nothing
+    end
+
+    return RIVARRecord(
+        entity_code=entity_code,
+        to_system=to_system,
+        variable_type=variable_type,
+        penalty=penalty,
+    )
+end
+
+"""
+    parse_usie(line::AbstractString, filename::AbstractString, line_num::Int) -> USIERecord
+
+Parse USIE record (pump station).
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - USIE class:
+- IntegerField(3, 5): plant_code (0-indexed 5-7 → 1-indexed 6-8)
+- IntegerField(2, 9): subsystem_code (0-indexed 9-10 → 1-indexed 10-11)
+- LiteralField(12, 14): plant_name (0-indexed 14-25 → 1-indexed 15-26)
+- IntegerField(3, 29): upstream_plant (0-indexed 29-31 → 1-indexed 30-32)
+- IntegerField(3, 34): downstream_plant (0-indexed 34-36 → 1-indexed 35-37)
+- FloatField(10, 39, 3): min_pump_flow (0-indexed 39-48 → 1-indexed 40-49)
+- FloatField(10, 49, 3): max_pump_flow (0-indexed 49-58 → 1-indexed 50-59)
+- FloatField(10, 59, 3): consumption_rate (0-indexed 59-68 → 1-indexed 60-69)
+
+# Format
+- Columns 6-8: plant_code (I3)
+- Columns 10-11: subsystem_code (I2)
+- Columns 15-26: plant_name (A12)
+- Columns 30-32: upstream_plant (I3)
+- Columns 35-37: downstream_plant (I3)
+- Columns 40-49: min_pump_flow in m³/s (F10.3)
+- Columns 50-59: max_pump_flow in m³/s (F10.3)
+- Columns 60-69: consumption_rate in MWmed/m³/s (F10.3)
+"""
+function parse_usie(line::AbstractString, filename::AbstractString, line_num::Int)
+    plant_code = parse_int(strip(extract_field(line, 6, 8)))
+    subsystem_code = parse_int(strip(extract_field(line, 10, 11)))
+    plant_name = strip(extract_field(line, 15, 26))
+    upstream_plant = parse_int(strip(extract_field(line, 30, 32)))
+    downstream_plant = parse_int(strip(extract_field(line, 35, 37)))
+    min_pump_flow = parse_float(strip(extract_field(line, 40, 49)))
+    max_pump_flow = parse_float(strip(extract_field(line, 50, 59)))
+    consumption_rate = parse_float(strip(extract_field(line, 60, 69)))
+
+    return USIERecord(
+        plant_code=plant_code,
+        subsystem_code=subsystem_code,
+        plant_name=plant_name,
+        upstream_plant=upstream_plant,
+        downstream_plant=downstream_plant,
+        min_pump_flow=min_pump_flow,
+        max_pump_flow=max_pump_flow,
+        consumption_rate=consumption_rate,
+    )
+end
+
+"""
+    parse_rd(line::AbstractString, filename::AbstractString, line_num::Int) -> RDRecord
+
+Parse RD record (network representation options).
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - RD class:
+- IntegerField(1, 4): slack_variables (0-indexed 4 → 1-indexed 5)
+- IntegerField(3, 9): max_violated_circuits (0-indexed 9-11 → 1-indexed 10-12)
+- IntegerField(1, 14): load_dbar_register (0-indexed 14 → 1-indexed 15)
+- IntegerField(1, 16): ignore_bars (0-indexed 16 → 1-indexed 17)
+- IntegerField(1, 18): circuit_limits_drefs (0-indexed 18 → 1-indexed 19)
+- IntegerField(1, 20): consider_losses (0-indexed 20 → 1-indexed 21)
+- IntegerField(1, 22): network_file_format (0-indexed 22 → 1-indexed 23)
+
+# Format
+- Column 5: slack_variables (I1)
+- Columns 10-12: max_violated_circuits (I3)
+- Column 15: load_dbar_register (I1)
+- Column 17: ignore_bars (I1)
+- Column 19: circuit_limits_drefs (I1)
+- Column 21: consider_losses (I1)
+- Column 23: network_file_format (I1)
+"""
+function parse_rd(line::AbstractString, filename::AbstractString, line_num::Int)
+    slack_variables = parse_int(strip(extract_field(line, 5, 5)))
+    max_violated_circuits = parse_int(strip(extract_field(line, 10, 12)))
+    load_dbar_register = parse_int(strip(extract_field(line, 15, 15)))
+    
+    # Optional fields - may not be present in all records (check line length)
+    ignore_bars = if length(line) >= 17
+        parse_int(strip(extract_field(line, 17, 17)), allow_blank=true)
+    else
+        nothing
+    end
+    
+    circuit_limits_drefs = if length(line) >= 19
+        parse_int(strip(extract_field(line, 19, 19)), allow_blank=true)
+    else
+        nothing
+    end
+    
+    consider_losses = if length(line) >= 21
+        parse_int(strip(extract_field(line, 21, 21)), allow_blank=true)
+    else
+        nothing
+    end
+    
+    network_file_format = if length(line) >= 23
+        parse_int(strip(extract_field(line, 23, 23)), allow_blank=true)
+    else
+        nothing
+    end
+
+    return RDRecord(
+        slack_variables=slack_variables,
+        max_violated_circuits=max_violated_circuits,
+        load_dbar_register=load_dbar_register,
+        ignore_bars=ignore_bars,
+        circuit_limits_drefs=circuit_limits_drefs,
+        consider_losses=consider_losses,
+        network_file_format=network_file_format,
+    )
+end
+
 # ============================================================================
 # Main Parser
 # ============================================================================
@@ -1161,8 +1381,11 @@ Processes TM, SIST, UH, UT, and DP records. Skips unknown record types with warn
 function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
     time_periods = TMRecord[]
     subsystems = SISTRecord[]
+    energy_reservoirs = REERecord[]
     hydro_plants = UHRecord[]
+    travel_times = TVIAGRecord[]
     thermal_plants = UTRecord[]
+    pump_stations = USIERecord[]
     demands = DPRecord[]
     diversions = DARecord[]
     hydro_maint = MHRecord[]
@@ -1192,6 +1415,22 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
     special_demands = DERecord[]
     network_config = NIRecord[]
     tolerance_gaps = GPRecord[]
+    variable_restrictions = RIVARRecord[]
+    network_options = RDRecord[]
+    fpha_parameters = FPRecord[]
+    river_sections = SECRRecord[]
+    section_polynomials = CRRecord[]
+    plant_adjustments = ACRecord[]
+    aggregate_groups = AGRecord[]
+    interchange_limits = IARecord[]
+    deficit_costs = CDRecord[]
+    flood_volumes = VERecord[]
+    itaipu_restrictions = RIRecord[]
+    export_contracts = CERecord[]
+    import_contracts = CIRecord[]
+    special_demands = DERecord[]
+    network_config = NIRecord[]
+    tolerance_gaps = GPRecord[]
     
     line_num = 0
     for line in eachline(io)
@@ -1201,9 +1440,10 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
         is_blank(line) && continue
         is_comment_line(line) && continue
         
-        # Extract record type - get first 2-4 chars up to first space/digit
-        record_type_raw = uppercase(strip(extract_field(line, 1, 4)))
-        # Keep only alphabetic characters (handles "CE 3" → "CE", "SIST" → "SIST")
+        # Extract record type - get first 2-6 chars up to first space/digit
+        # Need to handle longer record types like "TVIAG" (5 chars), "RIVAR" (5 chars)
+        record_type_raw = uppercase(strip(extract_field(line, 1, 6)))
+        # Keep only alphabetic characters (handles "CE 3" → "CE", "SIST" → "SIST", "TVIAG" → "TVIAG")
         record_type = match(r"^([A-Z]+)", record_type_raw)
         record_type = record_type === nothing ? record_type_raw : record_type.captures[1]
         
@@ -1212,10 +1452,18 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
                 push!(time_periods, parse_tm(line, filename, line_num))
             elseif record_type == "SIST"
                 push!(subsystems, parse_sist(line, filename, line_num))
+            elseif record_type == "REE"
+                push!(energy_reservoirs, parse_ree(line, filename, line_num))
             elseif record_type == "UH"
                 push!(hydro_plants, parse_uh(line, filename, line_num))
+            elseif record_type == "TVIAG"
+                push!(travel_times, parse_tviag(line, filename, line_num))
             elseif record_type == "UT"
                 push!(thermal_plants, parse_ut(line, filename, line_num))
+            elseif record_type == "USIE"
+                push!(pump_stations, parse_usie(line, filename, line_num))
+            elseif record_type == "RIVAR" || record_type == "RIVA"
+                push!(variable_restrictions, parse_rivar(line, filename, line_num))
             elseif record_type == "DP"
                 push!(demands, parse_dp(line, filename, line_num))
             elseif record_type == "DA"
@@ -1272,10 +1520,12 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
                 push!(special_demands, parse_de(line, filename, line_num))
             elseif record_type == "NI"
                 push!(network_config, parse_ni(line, filename, line_num))
+            elseif record_type == "RD"
+                push!(network_options, parse_rd(line, filename, line_num))
             elseif record_type == "GP"
                 push!(tolerance_gaps, parse_gp(line, filename, line_num))
             else
-                # Skip unknown record types (RD, RIVAR, REE, etc.)
+                # Skip unknown record types
                 if !startswith(record_type, "&")  # Don't warn for comment lines
                     @warn "Unknown record type in $filename line $line_num: $record_type"
                 end
@@ -1292,8 +1542,11 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
     return GeneralData(
         time_periods=time_periods,
         subsystems=subsystems,
+        energy_reservoirs=energy_reservoirs,
         hydro_plants=hydro_plants,
+        travel_times=travel_times,
         thermal_plants=thermal_plants,
+        pump_stations=pump_stations,
         demands=demands,
         diversions=diversions,
         hydro_maintenance=hydro_maint,
@@ -1322,6 +1575,8 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
         import_contracts=import_contracts,
         special_demands=special_demands,
         network_config=network_config,
+        network_options=network_options,
+        variable_restrictions=variable_restrictions,
         tolerance_gaps=tolerance_gaps,
     )
 end
