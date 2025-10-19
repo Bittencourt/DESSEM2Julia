@@ -10,6 +10,9 @@ Record types supported:
 - UH: Hydroelectric plant configuration
 - UT: Thermal plant configuration
 - DP: Demand data
+- DA: Water withdrawal rates
+- MH: Hydro unit maintenance windows
+- MT: Thermal unit maintenance windows
 """
 module EntdadosParser
 
@@ -17,7 +20,8 @@ using ..Types
 using ..ParserCommon
 
 # Import types
-import ..Types: TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, GeneralData
+import ..Types: TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord
+import ..Types: DARecord, MHRecord, MTRecord, GeneralData
 
 export parse_entdados
 
@@ -305,6 +309,127 @@ function parse_dp(line::AbstractString, filename::AbstractString, line_num::Int)
     )
 end
 
+"""
+    parse_da(line, filename, line_num) -> DARecord
+
+Parse DA record (water withdrawal rate).
+"""
+function parse_da(line::AbstractString, filename::AbstractString, line_num::Int)
+    plant_num = parse_int(strip(extract_field(line, 5, 7)))
+    start_day, start_hour, start_half = parse_stage_date(line, 9; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 17; special_char="F", file=filename, line_num=line_num)
+    rate_raw = extract_field(line, 30, 41)
+    rate_val = parse_float(rate_raw; allow_blank=true)
+    withdrawal_rate = rate_val === nothing ? 0.0 : rate_val
+
+    if isa(start_day, Int)
+        validate_range(start_day, 0, 99, "start_day"; file=filename, line_num=line_num)
+    end
+    if isa(end_day, Int)
+        validate_range(end_day, 0, 99, "end_day"; file=filename, line_num=line_num)
+    end
+
+    return DARecord(
+        plant_num=plant_num,
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        withdrawal_rate=withdrawal_rate,
+    )
+end
+
+"""
+    parse_mh(line, filename, line_num) -> MHRecord
+
+Parse MH record (hydro unit maintenance).
+"""
+function parse_mh(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:plant_num, 5, 7, Int, required=true),
+        FieldSpec(:group_code, 10, 11, Int, required=true),
+        FieldSpec(:unit_code, 13, 14, Int, required=true),
+        FieldSpec(:available_flag, 30, 30, Int, required=false, default=0),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+
+    validate_range(values[:plant_num], 1, 999, "plant_num"; file=filename, line_num=line_num)
+    validate_range(values[:group_code], 0, 99, "group_code"; file=filename, line_num=line_num)
+    validate_range(values[:unit_code], 0, 99, "unit_code"; file=filename, line_num=line_num)
+
+    start_day, start_hour, start_half = parse_stage_date(line, 15; special_char="I", file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 23; special_char="F", file=filename, line_num=line_num)
+
+    if isa(start_day, Int)
+        validate_range(start_day, 0, 99, "start_day"; file=filename, line_num=line_num)
+    end
+    if isa(end_day, Int)
+        validate_range(end_day, 0, 99, "end_day"; file=filename, line_num=line_num)
+    end
+
+    available = something(values[:available_flag], 0)
+    validate_range(available, 0, 1, "available_flag"; file=filename, line_num=line_num)
+
+    return MHRecord(
+        plant_num=values[:plant_num],
+        group_code=values[:group_code],
+        unit_code=values[:unit_code],
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        available_flag=available,
+    )
+end
+
+"""
+    parse_mt(line, filename, line_num) -> MTRecord
+
+Parse MT record (thermal unit maintenance).
+"""
+function parse_mt(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:plant_num, 5, 7, Int, required=true),
+        FieldSpec(:unit_code, 9, 11, Int, required=true),
+        FieldSpec(:available_flag, 30, 30, Int, required=false, default=0),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+
+    validate_range(values[:plant_num], 1, 999, "plant_num"; file=filename, line_num=line_num)
+    validate_range(values[:unit_code], 1, 999, "unit_code"; file=filename, line_num=line_num)
+
+    start_day, start_hour, start_half = parse_stage_date(line, 14; file=filename, line_num=line_num)
+    end_day, end_hour, end_half = parse_stage_date(line, 22; special_char="F", file=filename, line_num=line_num)
+
+    if isa(start_day, Int)
+        validate_range(start_day, 0, 99, "start_day"; file=filename, line_num=line_num)
+    end
+    if isa(end_day, Int)
+        validate_range(end_day, 0, 99, "end_day"; file=filename, line_num=line_num)
+    end
+
+    available = something(values[:available_flag], 0)
+    validate_range(available, 0, 1, "available_flag"; file=filename, line_num=line_num)
+
+    return MTRecord(
+        plant_num=values[:plant_num],
+        unit_code=values[:unit_code],
+        start_day=start_day,
+        start_hour=start_hour,
+        start_half=start_half,
+        end_day=end_day,
+        end_hour=end_hour,
+        end_half=end_half,
+        available_flag=available,
+    )
+end
+
 # ============================================================================
 # Main Parser
 # ============================================================================
@@ -336,6 +461,9 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
     hydro_plants = UHRecord[]
     thermal_plants = UTRecord[]
     demands = DPRecord[]
+    diversions = DARecord[]
+    hydro_maint = MHRecord[]
+    thermal_maint = MTRecord[]
     
     line_num = 0
     for line in eachline(io)
@@ -359,6 +487,12 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
                 push!(thermal_plants, parse_ut(line, filename, line_num))
             elseif record_type == "DP"
                 push!(demands, parse_dp(line, filename, line_num))
+            elseif record_type == "DA"
+                push!(diversions, parse_da(line, filename, line_num))
+            elseif record_type == "MH"
+                push!(hydro_maint, parse_mh(line, filename, line_num))
+            elseif record_type == "MT"
+                push!(thermal_maint, parse_mt(line, filename, line_num))
             else
                 # Skip unknown record types (RD, RIVAR, REE, etc.)
                 if !startswith(record_type, "&")  # Don't warn for comment lines
@@ -374,12 +508,15 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
         end
     end
     
-    return GeneralData(;
+    return GeneralData(
         time_periods=time_periods,
         subsystems=subsystems,
         hydro_plants=hydro_plants,
         thermal_plants=thermal_plants,
-        demands=demands
+        demands=demands,
+        diversions=diversions,
+        hydro_maintenance=hydro_maint,
+        thermal_maintenance=thermal_maint,
     )
 end
 

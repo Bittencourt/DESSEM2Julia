@@ -95,6 +95,38 @@ Base.@kwdef struct CURVACOMB
 end
 
 """
+    CADCONF
+
+Combined-cycle configuration record from TERM.DAT.
+
+# Fields
+- `plant_num::Int`: Thermal plant identifier (per CADUSIT)
+- `configuration::Int`: Equivalent configuration identifier
+- `unit_num::Int`: Unit that belongs to the configuration
+"""
+Base.@kwdef struct CADCONF
+    plant_num::Int
+    configuration::Int
+    unit_num::Int
+end
+
+"""
+    CADMIN
+
+Simple-cycle dependent configuration record from TERM.DAT.
+
+# Fields
+- `plant_num::Int`: Thermal plant identifier (per CADUSIT)
+- `configuration::Int`: Equivalent configuration identifier
+- `unit_num::Int`: Unit that belongs to the configuration
+"""
+Base.@kwdef struct CADMIN
+    plant_num::Int
+    configuration::Int
+    unit_num::Int
+end
+
+"""
     ThermalRegistry
 
 Container for all thermal plant registry data from TERM.DAT.
@@ -103,11 +135,15 @@ Container for all thermal plant registry data from TERM.DAT.
 - `plants::Vector{CADUSIT}`: All CADUSIT plant records
 - `units::Vector{CADUNIDT}`: All CADUNIDT unit records
 - `heat_curves::Vector{CURVACOMB}`: All CURVACOMB heat rate curve points
+- `combined_cycle_configs::Vector{CADCONF}`: Combined-cycle configuration memberships
+- `simple_cycle_configs::Vector{CADMIN}`: Simple-cycle configuration memberships
 """
 Base.@kwdef struct ThermalRegistry
     plants::Vector{CADUSIT} = CADUSIT[]
     units::Vector{CADUNIDT} = CADUNIDT[]
     heat_curves::Vector{CURVACOMB} = CURVACOMB[]
+    combined_cycle_configs::Vector{CADCONF} = CADCONF[]
+    simple_cycle_configs::Vector{CADMIN} = CADMIN[]
 end
 
 # ============================================================================
@@ -243,6 +279,90 @@ Base.@kwdef struct DPRecord
 end
 
 """
+    DARecord
+
+Water withdrawal rate (taxa de desvio de água) record from ENTDADOS.XXX.
+
+# Fields
+- `plant_num::Int`: Hydro plant identifier
+- `start_day::Union{Int,String,Nothing}`: Initial day or special marker (e.g., "I")
+- `start_hour::Int`: Initial hour (0-23, default 0)
+- `start_half::Int`: Initial half-hour flag (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: Final day or special marker (e.g., "F")
+- `end_hour::Int`: Final hour (0-23, default 0)
+- `end_half::Int`: Final half-hour flag (0 or 1, default 0)
+- `withdrawal_rate::Float64`: Withdrawal rate (m³/s)
+"""
+Base.@kwdef struct DARecord
+    plant_num::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    withdrawal_rate::Float64
+end
+
+"""
+    MHRecord
+
+Hydro unit maintenance record from ENTDADOS.XXX.
+
+# Fields
+- `plant_num::Int`: Hydro plant identifier
+- `group_code::Int`: Generator group code within the plant
+- `unit_code::Int`: Unit identifier within the group
+- `start_day::Union{Int,String,Nothing}`: Maintenance start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: Maintenance end day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `available_flag::Int`: Availability flag (0=unavailable, 1=available)
+"""
+Base.@kwdef struct MHRecord
+    plant_num::Int
+    group_code::Int
+    unit_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    available_flag::Int = 0
+end
+
+"""
+    MTRecord
+
+Thermal unit maintenance record from ENTDADOS.XXX.
+
+# Fields
+- `plant_num::Int`: Thermal plant identifier
+- `unit_code::Int`: Unit identifier
+- `start_day::Union{Int,String,Nothing}`: Maintenance start day or special marker
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half::Int`: Start half-hour (0 or 1, default 0)
+- `end_day::Union{Int,String,Nothing}`: Maintenance end day or special marker
+- `end_hour::Int`: End hour (0-23, default 0)
+- `end_half::Int`: End half-hour (0 or 1, default 0)
+- `available_flag::Int`: Availability flag (0=unavailable, 1=available)
+"""
+Base.@kwdef struct MTRecord
+    plant_num::Int
+    unit_code::Int
+    start_day::Union{Int, String, Nothing}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int, String, Nothing}
+    end_hour::Int = 0
+    end_half::Int = 0
+    available_flag::Int = 0
+end
+
+"""
     GeneralData
 
 Container for all general data from ENTDADOS.XXX.
@@ -253,6 +373,9 @@ Container for all general data from ENTDADOS.XXX.
 - `hydro_plants::Vector{UHRecord}`: Hydroelectric plant configurations
 - `thermal_plants::Vector{UTRecord}`: Thermal plant configurations
 - `demands::Vector{DPRecord}`: Demand data by subsystem and period
+- `diversions::Vector{DARecord}`: Water withdrawal rate records
+- `hydro_maintenance::Vector{MHRecord}`: Hydro maintenance windows
+- `thermal_maintenance::Vector{MTRecord}`: Thermal maintenance windows
 """
 Base.@kwdef struct GeneralData
     time_periods::Vector{TMRecord} = TMRecord[]
@@ -260,6 +383,9 @@ Base.@kwdef struct GeneralData
     hydro_plants::Vector{UHRecord} = UHRecord[]
     thermal_plants::Vector{UTRecord} = UTRecord[]
     demands::Vector{DPRecord} = DPRecord[]
+    diversions::Vector{DARecord} = DARecord[]
+    hydro_maintenance::Vector{MHRecord} = MHRecord[]
+    thermal_maintenance::Vector{MTRecord} = MTRecord[]
 end
 
 # ============================================================================
@@ -332,6 +458,68 @@ Container for all natural inflow information parsed from DADVAZ.DAT.
 Base.@kwdef struct DadvazData
     header::DadvazHeader
     records::Vector{DadvazInflowRecord} = DadvazInflowRecord[]
+end
+
+# ============================================================================
+# DESSELET.DAT - Network Case Mapping
+# ============================================================================
+
+"""
+    DesseletBaseCase
+
+Base network case reference from DESSELET.DAT.
+
+# Fields
+- `base_id::Int`: Identifier used by patamar entries
+- `label::String`: Human readable label (e.g., "leve")
+- `filename::String`: Base case filename (e.g., "leve.pwf")
+"""
+Base.@kwdef struct DesseletBaseCase
+    base_id::Int
+    label::String
+    filename::String
+end
+
+"""
+    DesseletPatamar
+
+Network scenario definition referencing a base case.
+
+# Fields
+- `patamar_id::Int`: Sequential patamar identifier
+- `name::String`: Scenario name (e.g., "Estagio01")
+- `date::Date`: Calendar date for the snapshot
+- `hour::Int`: Hour component (0-23)
+- `minute::Int`: Minute component (usually 0 or 30)
+- `duration_hours::Float64`: Duration in hours for the scenario
+- `base_case_id::Int`: Linked base case identifier
+- `filename::String`: Adjustment file (e.g., "pat01.afp")
+"""
+Base.@kwdef struct DesseletPatamar
+    patamar_id::Int
+    name::String
+    date::Date
+    hour::Int
+    minute::Int
+    duration_hours::Float64
+    base_case_id::Int
+    filename::String
+end
+
+"""
+    DesseletData
+
+Container for DESSELET.DAT content.
+
+# Fields
+- `base_cases::Vector{DesseletBaseCase}`: Base case definitions
+- `patamares::Vector{DesseletPatamar}`: Scenario modifications referencing base cases
+- `metadata::Dict{String, Any}`: Optional metadata (e.g., file path)
+"""
+Base.@kwdef struct DesseletData
+    base_cases::Vector{DesseletBaseCase} = DesseletBaseCase[]
+    patamares::Vector{DesseletPatamar} = DesseletPatamar[]
+    metadata::Dict{String, Any} = Dict{String, Any}()
 end
 
 # ============================================================================

@@ -6,6 +6,7 @@ export normalize_name, strip_comments, is_blank
 export extract_field, parse_int, parse_float, parse_string
 export parse_date, parse_time, parse_datetime, parse_time_period
 export ParserError, FieldSpec, extract_fields
+export parse_stage_date
 export is_comment_line, read_nonblank_lines
 export validate_range, validate_positive, validate_nonnegative
 
@@ -307,6 +308,43 @@ function extract_fields(line::AbstractString, specs::Vector{FieldSpec};
     end
     
     return NamedTuple{Tuple(names)}(Tuple(values))
+end
+
+# ============================================================================
+# Stage Date Utility
+# ============================================================================
+
+"""
+    parse_stage_date(line, start_col; special_char=nothing, file="", line_num=0)
+
+Parse a DESSEM stage-based date field consisting of day, hour, and half-hour
+components stored in fixed columns. Returns `(day, hour, half_hour)` where `day`
+may be an `Int`, a special marker such as "I"/"F", or `nothing` if blank, and
+hour/half-hour default to `0` when omitted.
+"""
+function parse_stage_date(line::AbstractString, start_col::Int; special_char::Union{Nothing, String}=nothing,
+                          file::AbstractString="", line_num::Int=0)
+    day_str = extract_field(line, start_col, start_col + 1)
+    hour_str = extract_field(line, start_col + 3, start_col + 4)
+    half_str = extract_field(line, start_col + 6, start_col + 6)
+
+    day_val::Union{Nothing, Int, String} = nothing
+    if isempty(day_str)
+        day_val = nothing
+    elseif special_char !== nothing && day_str == special_char
+        day_val = special_char
+    else
+        day_val = parse_int(day_str)
+        validate_range(day_val, 0, 99, "stage_day"; file=file, line_num=line_num)
+    end
+
+    hour_val = isempty(hour_str) ? 0 : parse_int(hour_str)
+    validate_range(hour_val, 0, 23, "stage_hour"; file=file, line_num=line_num)
+
+    half_val = isempty(half_str) ? 0 : parse_int(half_str)
+    validate_range(half_val, 0, 1, "stage_half"; file=file, line_num=line_num)
+
+    return (day_val, hour_val, half_val)
 end
 
 # ============================================================================

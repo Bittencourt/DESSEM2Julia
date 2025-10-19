@@ -132,3 +132,39 @@ Then commit as usual; the hook will run `Pkg.test()`.
   - Header metadata (plant roster, study start, FCF configuration)
   - Daily inflow slices for 168 hydro plants
   - Handles symbolic period markers ("I"/"F") and optional hours
+
+### ✅ OPERUH.DAT Parser - Production Ready ⭐ NEW
+- Parses hydro operational constraints (REST, ELEM, LIM, VAR records)
+- **All tests passing** (100%)
+- Successfully parses real ONS data:
+  - Constraint definitions (REST records)
+  - Plant participation factors (ELEM records)
+  - Time-varying operational limits (LIM records)
+  - Ramp/variation constraints (VAR records)
+  - Constraint ID linking validated
+
+### ✅ DESSELET.DAT Parser - Production Ready ⭐ NEW
+- Parses network case mapping (base cases + patamares)
+- **All tests passing** (100%)
+- Successfully parses real ONS data:
+  - Base network cases (4 cases: leve, media, pesada, etc.)
+  - Patamar scenarios (48 time stages)
+  - Date/time scheduling with duration
+  - Base case reference linking
+
+---
+
+### 📊 Overall Parser Progress
+
+**Completed**: 7/32 parsers (22% coverage)
+- ✅ dessem.arq (master file registry)
+- ✅ TERMDAT.DAT (thermal plant registry)
+- ✅ ENTDADOS.DAT (general operational data)
+- ✅ OPERUT.DAT (thermal operations)
+- ✅ DADVAZ.DAT (natural inflows)
+- ✅ OPERUH.DAT (hydro constraints)
+- ✅ DESSELET.DAT (network case mapping)
+
+**Total Tests**: 2,588+ tests passing across all parsers
+
+**Validation**: All parsers tested against real ONS and CCEE operational data

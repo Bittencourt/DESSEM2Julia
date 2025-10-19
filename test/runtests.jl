@@ -13,6 +13,7 @@ include("entdados_tests.jl")
 include("dessemarq_tests.jl")
 include("operut_tests.jl")
 include("dadvaz_tests.jl")
+include("desselet_tests.jl")
 
 # Integration tests with real ONS sample data
 include("ons_integration_tests.jl")

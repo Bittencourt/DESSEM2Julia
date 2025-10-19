@@ -9,7 +9,7 @@ This module parses thermal plant registry data including:
 module TermdatParser
 
 using ..ParserCommon
-using ..Types: CADUSIT, CADUNIDT, CURVACOMB, ThermalRegistry
+using ..Types: CADUSIT, CADUNIDT, CURVACOMB, CADCONF, CADMIN, ThermalRegistry
 using Dates
 
 export parse_termdat
@@ -292,6 +292,118 @@ function parse_curvacomb(line::AbstractString, file::String, line_num::Int)
 end
 
 """
+    parse_cadconf(line, file, line_num) -> CADCONF
+
+Parse a CADCONF record (combined-cycle configuration membership).
+"""
+function parse_cadconf(line::AbstractString, file::String, line_num::Int)
+    parts = split(line)
+
+    if isempty(parts)
+        throw(ParserError(file, line_num, line, "Empty CADCONF record"))
+    end
+
+    record_type = parts[1]
+
+    if record_type != "CADCONF"
+        throw(ParserError(file, line_num, line,
+            "Expected CADCONF record, got $(record_type)"))
+    end
+
+    if length(parts) < 4
+        throw(ParserError(file, line_num, line,
+            "CADCONF record must include plant, configuration, and unit identifiers"))
+    end
+
+    plant_num = try
+        parse_int(parts[2])
+    catch err
+        throw(ParserError(file, line_num, line,
+            "Invalid plant number in CADCONF record: $(parts[2])"))
+    end
+
+    configuration = try
+        parse_int(parts[3])
+    catch err
+        throw(ParserError(file, line_num, line,
+            "Invalid configuration number in CADCONF record: $(parts[3])"))
+    end
+
+    unit_num = try
+        parse_int(parts[4])
+    catch err
+        throw(ParserError(file, line_num, line,
+            "Invalid unit number in CADCONF record: $(parts[4])"))
+    end
+
+    validate_range(plant_num, 1, 999, "plant_num")
+    validate_range(configuration, 1, 999, "configuration")
+    validate_range(unit_num, 1, 999, "unit_num")
+
+    return CADCONF(
+        plant_num = plant_num,
+        configuration = configuration,
+        unit_num = unit_num,
+    )
+end
+
+"""
+    parse_cadmin(line, file, line_num) -> CADMIN
+
+Parse a CADMIN record (simple-cycle dependent configuration membership).
+"""
+function parse_cadmin(line::AbstractString, file::String, line_num::Int)
+    parts = split(line)
+
+    if isempty(parts)
+        throw(ParserError(file, line_num, line, "Empty CADMIN record"))
+    end
+
+    record_type = parts[1]
+
+    if record_type != "CADMIN"
+        throw(ParserError(file, line_num, line,
+            "Expected CADMIN record, got $(record_type)"))
+    end
+
+    if length(parts) < 4
+        throw(ParserError(file, line_num, line,
+            "CADMIN record must include plant, configuration, and unit identifiers"))
+    end
+
+    plant_num = try
+        parse_int(parts[2])
+    catch err
+        throw(ParserError(file, line_num, line,
+            "Invalid plant number in CADMIN record: $(parts[2])"))
+    end
+
+    configuration = try
+        parse_int(parts[3])
+    catch err
+        throw(ParserError(file, line_num, line,
+            "Invalid configuration number in CADMIN record: $(parts[3])"))
+    end
+
+    unit_num = try
+        parse_int(parts[4])
+    catch err
+        throw(ParserError(file, line_num, line,
+            "Invalid unit number in CADMIN record: $(parts[4])"))
+    end
+
+    validate_range(plant_num, 1, 999, "plant_num")
+    validate_range(configuration, 1, 999, "configuration")
+    validate_range(unit_num, 1, 999, "unit_num")
+
+    return CADMIN(
+        plant_num = plant_num,
+        configuration = configuration,
+        unit_num = unit_num,
+    )
+end
+
+"""
     parse_termdat(filepath::AbstractString) -> ThermalRegistry
 
 Parse a TERM.DAT file and return a ThermalRegistry object.
@@ -313,6 +425,8 @@ function parse_termdat(filepath::AbstractString)
     plants = CADUSIT[]
     units = CADUNIDT[]
     heat_curves = CURVACOMB[]
+    combined_configs = CADCONF[]
+    simple_configs = CADMIN[]
     
     filename = basename(filepath)
     lines = read_nonblank_lines(filepath, skip_comments=true)
@@ -329,6 +443,10 @@ function parse_termdat(filepath::AbstractString)
                 push!(units, parse_cadunidt(line, filename, line_num))
             elseif startswith(record_type, "CURVACOMB")
                 push!(heat_curves, parse_curvacomb(line, filename, line_num))
+            elseif startswith(record_type, "CADCONF")
+                push!(combined_configs, parse_cadconf(line, filename, line_num))
+            elseif startswith(record_type, "CADMIN")
+                push!(simple_configs, parse_cadmin(line, filename, line_num))
             elseif startswith(record_type, "CONFGEST") || startswith(record_type, "RESTRICOES")
                 # These record types not yet implemented - skip for now
                 continue
@@ -352,7 +470,9 @@ function parse_termdat(filepath::AbstractString)
     return ThermalRegistry(
         plants = plants,
         units = units,
-        heat_curves = heat_curves
+        heat_curves = heat_curves,
+        combined_cycle_configs = combined_configs,
+        simple_cycle_configs = simple_configs,
     )
 end
 

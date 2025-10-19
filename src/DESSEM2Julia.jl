@@ -7,8 +7,10 @@ export GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord
 export OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR
 export OperutData, INITRecord, OPERRecord
 export DadvazData, DadvazHeader, DadvazInflowRecord
+export DesseletData, DesseletBaseCase, DesseletPatamar
 export parse_termdat, parse_entdados, parse_operuh, parse_operut, parse_init_record, parse_oper_record
 export parse_dadvaz
+export parse_desselet
 export DessemArq, DessemFileRecord, parse_dessemarq
 
 # Core type system (comprehensive data model)
@@ -23,7 +25,7 @@ export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
 export ExecutionOptions
 
-include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord, DadvazData, DadvazHeader, DadvazInflowRecord
+include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord, DadvazData, DadvazHeader, DadvazInflowRecord, DesseletData, DesseletBaseCase, DesseletPatamar
 include("models/core_types.jl"); using .CoreTypes
 include("io.jl"); using .IO
 include("parser/common.jl"); using .ParserCommon
@@ -32,6 +34,7 @@ include("parser/entdados.jl"); using .EntdadosParser: parse_entdados
 include("parser/operuh.jl"); using .OperuhParser: parse_operuh
 include("parser/operut.jl"); using .OperutParser: parse_operut, parse_init_record, parse_oper_record
 include("parser/dadvaz.jl"); using .DadvazParser: parse_dadvaz
+include("parser/desselet.jl"); using .DesseletParser: parse_desselet
 include("parser/dessemarq.jl"); using .DessemArqParser: DessemArq, DessemFileRecord, parse_dessemarq
 include("parser/registry.jl"); using .ParserRegistry
 include("api.jl"); using .API: convert_inputs

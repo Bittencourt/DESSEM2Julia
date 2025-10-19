@@ -267,6 +267,13 @@ const ONS_SAMPLE_DIR = joinpath(@__DIR__, "..", "docs", "Sample", "DS_ONS_102025
         @test isfile(leve_pwf_path) || @warn "leve.pwf not found"
         @test isfile(media_pwf_path) || @warn "media.pwf not found"
         
+        if isfile(desselet_path)
+            data = parse_desselet(desselet_path)
+            @test !isempty(data.base_cases)
+            @test length(data.patamares) == 48
+            println("  ✅ DESSELET: $(length(data.base_cases)) base cases, $(length(data.patamares)) patamares")
+        end
+
         if isfile(leve_pwf_path) && isfile(media_pwf_path)
             println("  ✅ ONS network files present (PWF format)")
         end

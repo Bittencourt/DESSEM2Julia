@@ -77,6 +77,31 @@ catch e
     println("   Partial results may still be available")
 end
 
+# Test 4: desselet.dat
+print("\n4. desselet.dat parsing... ")
+try
+    arq = parse_dessemarq(joinpath(ons_dir, "dessem.arq"))
+    if isnothing(arq.indelet) || isempty(arq.indelet)
+        println("⚠️  dessem.arq does not reference DESSELET")
+        results["desselet.dat"] = true
+    else
+        desselet_path = joinpath(ons_dir, arq.indelet)
+        if !isfile(desselet_path)
+            println("❌ Missing file: $(arq.indelet)")
+            results["desselet.dat"] = false
+        else
+            network = parse_desselet(desselet_path)
+            results["desselet.dat"] = true
+            println("✅")
+            println("   Base cases: $(length(network.base_cases))")
+            println("   Patamares: $(length(network.patamares))")
+        end
+    end
+catch e
+    results["desselet.dat"] = false
+    println("❌ Error: $(typeof(e))")
+end
+
 # Restore logger
 global_logger(original_logger)
 
@@ -102,7 +127,6 @@ if all_passed
     println()
     println("Next steps:")
     println("  • Implement parsers for unknown record types")
-    println("  • Add desselet.dat parser for network files")
     println("  • Document ONS-specific features")
 else
     println("  Additional work needed for ONS compatibility.")

@@ -289,6 +289,60 @@ using DESSEM2Julia
             @test_throws Exception parse_entdados(IOBuffer(line))
         end
     end
+
+    # ========================================================================
+    # DA Record Tests
+    # ========================================================================
+
+    @testset "DA Record Parsing" begin
+        line = "DA    1 27      F              0.2"
+        data = parse_entdados(IOBuffer(line))
+        @test length(data.diversions) == 1
+    da = data.diversions[1]
+        @test da.plant_num == 1
+        @test da.start_day == 27
+        @test da.start_hour == 0
+        @test da.start_half == 0
+        @test da.end_day == "F"
+        @test da.withdrawal_rate ≈ 0.2
+    end
+
+    # ========================================================================
+    # MH Record Tests
+    # ========================================================================
+
+    @testset "MH Record Parsing" begin
+        line = "MH   43  1  03 3 10 0  3 13 0 0"
+        data = parse_entdados(IOBuffer(line))
+        @test length(data.hydro_maintenance) == 1
+        mh = data.hydro_maintenance[1]
+        @test mh.plant_num == 43
+        @test mh.group_code == 1
+        @test mh.unit_code == 3
+        @test mh.start_day == 3
+        @test mh.start_hour == 10
+        @test mh.end_day == 3
+        @test mh.end_hour == 13
+        @test mh.available_flag == 0
+    end
+
+    # ========================================================================
+    # MT Record Tests
+    # ========================================================================
+
+    @testset "MT Record Parsing" begin
+        line = "MT  052 001  28 00 0 29 00 0 0"
+        data = parse_entdados(IOBuffer(line))
+        @test length(data.thermal_maintenance) == 1
+        mt = data.thermal_maintenance[1]
+        @test mt.plant_num == 52
+        @test mt.unit_code == 1
+        @test mt.start_day == 28
+        @test mt.start_hour == 0
+        @test mt.end_day == 29
+        @test mt.end_hour == 0
+        @test mt.available_flag == 0
+    end
     
     # ========================================================================
     # Integration Tests
@@ -409,6 +463,9 @@ using DESSEM2Julia
                     @test length(data.hydro_plants) > 0
                     @test length(data.thermal_plants) > 0
                     @test length(data.demands) > 0
+                    @test length(data.diversions) > 0
+                    @test length(data.hydro_maintenance) > 0
+                    @test length(data.thermal_maintenance) > 0
                 end
                 
                 @testset "Real File TM Records Valid" begin

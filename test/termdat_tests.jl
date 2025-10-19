@@ -15,7 +15,8 @@ Tests cover:
 using Test
 using DESSEM2Julia
 using DESSEM2Julia.ParserCommon
-using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb, parse_termdat
+using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb,
+    parse_cadconf, parse_cadmin, parse_termdat
 
 @testset "TERMDAT Parser Tests" begin
     
@@ -227,6 +228,34 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
         # )
     end
     
+    @testset "CADCONF - Combined Cycle Configuration" begin
+        line = "CADCONF  12   3   2"
+        config = parse_cadconf(line, "test.dat", 1)
+
+        @test config.plant_num == 12
+        @test config.configuration == 3
+        @test config.unit_num == 2
+
+        @test_throws ParserError parse_cadconf(
+            "CADCONF 9999   1   1",
+            "test.dat", 2
+        )
+    end
+
+    @testset "CADMIN - Simple Cycle Configuration" begin
+        line = "CADMIN   58   2   4"
+        config = parse_cadmin(line, "test.dat", 1)
+
+        @test config.plant_num == 58
+        @test config.configuration == 2
+        @test config.unit_num == 4
+
+        @test_throws ParserError parse_cadmin(
+            "CADMIN   58   0   1",
+            "test.dat", 2
+        )
+    end
+
     @testset "Full File Parsing - Minimal" begin
         # Create a minimal test file
         content = """
@@ -255,6 +284,8 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
             @test length(registry.plants) == 2
             @test length(registry.units) == 3
             @test length(registry.heat_curves) == 3
+            @test length(registry.combined_cycle_configs) == 0
+            @test length(registry.simple_cycle_configs) == 0
             
             # Check plant data
             @test registry.plants[1].plant_num == 1
@@ -289,26 +320,31 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
         end
     end
     
-    @testset "Full File Parsing - With Unknown Records" begin
-        # File with unknown record types that should be skipped
+    @testset "Full File Parsing - With Additional Records" begin
+        # File with additional record types and an unknown entry that should be skipped
         content = """
-        & Test file with unknown records
+        & Test file with additional records
         CADUSIT   1 PLANT X       1 2020 01 01 00 0    1
-        CADCONF   1  1  1  0  # Unknown record - should be skipped
+        CADCONF   1   1   1
         CADUNIDT   1  1 2025 04 26 00 0     100.000     50.000     0     0
-        CADMIN    1  0  # Unknown record - should be skipped
+        CADMIN    1   1   1
+        FOOBAR     1   1   1
         """
         
         tmpfile = tempname() * ".dat"
         write(tmpfile, content)
         
         try
-            # Should parse successfully, skipping unknown records
+            # Should parse successfully, collecting known records and skipping unknown ones
             registry = parse_termdat(tmpfile)
             
             @test length(registry.plants) == 1
             @test length(registry.units) == 1
             @test length(registry.heat_curves) == 0
+            @test length(registry.combined_cycle_configs) == 1
+            @test length(registry.simple_cycle_configs) == 1
+            @test registry.combined_cycle_configs[1].unit_num == 1
+            @test registry.simple_cycle_configs[1].configuration == 1
             
         finally
             rm(tmpfile, force=true)
@@ -326,6 +362,11 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
             # Verify expected counts from our testing
             @test length(registry.plants) == 98
             @test length(registry.units) == 387
+            @test length(registry.combined_cycle_configs) == 1464
+            @test length(registry.simple_cycle_configs) == 70
+
+            @test minimum(cfg.unit_num for cfg in registry.combined_cycle_configs) == 1
+            @test minimum(cfg.unit_num for cfg in registry.simple_cycle_configs) == 1
             
             # Spot check first plant
             first_plant = registry.plants[1]
@@ -374,6 +415,8 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
             # Should only parse the data lines, not comments
             @test length(registry.plants) == 1
             @test length(registry.units) == 1
+            @test isempty(registry.combined_cycle_configs)
+            @test isempty(registry.simple_cycle_configs)
             
         finally
             rm(tmpfile, force=true)
@@ -397,6 +440,8 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
             @test length(registry.plants) == 1
             @test length(registry.units) == 1
             @test length(registry.heat_curves) == 1
+            @test isempty(registry.combined_cycle_configs)
+            @test isempty(registry.simple_cycle_configs)
             
             @test registry.plants[1] isa CADUSIT
             @test registry.units[1] isa CADUNIDT
@@ -418,6 +463,8 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
             @test length(registry.plants) == 0
             @test length(registry.units) == 0
             @test length(registry.heat_curves) == 0
+            @test isempty(registry.combined_cycle_configs)
+            @test isempty(registry.simple_cycle_configs)
         finally
             rm(tmpfile, force=true)
         end
@@ -435,6 +482,8 @@ using DESSEM2Julia.TermdatParser: parse_cadusit, parse_cadunidt, parse_curvacomb
             @test length(registry.plants) == 0
             @test length(registry.units) == 0
             @test length(registry.heat_curves) == 0
+            @test isempty(registry.combined_cycle_configs)
+            @test isempty(registry.simple_cycle_configs)
         finally
             rm(tmpfile2, force=true)
         end

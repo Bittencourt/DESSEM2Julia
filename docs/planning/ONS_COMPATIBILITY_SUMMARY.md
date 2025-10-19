@@ -87,6 +87,7 @@ julia --project=. examples/test_ons_sample.jl
 - [x] entdados.dat parsing (general data, time periods, demands)
 - [x] Network flag detection in time periods
 - [x] Network file reference detection (INDELET field)
+- [x] desselet.dat parsing (base cases + patamar mapping)
 
 ### ⚠️ Partial Implementation
 - [~] entdados.dat has unknown record types (non-fatal warnings):
@@ -95,7 +96,6 @@ julia --project=. examples/test_ons_sample.jl
   - Does not affect core functionality
 
 ### ❌ Not Yet Implemented
-- [ ] desselet.dat parser (network file index)
 - [ ] PWF file parser (power flow cases)
 - [ ] Binary hidr.dat parser (both ONS and CCEE use binary format)
 
@@ -126,7 +126,7 @@ Both ONS and CCEE versions contain unknown record types in entdados.dat:
 3. **TODO**: Implement parsers for unknown records
 
 ### Medium Priority
-4. **TODO**: Implement desselet.dat parser
+4. ✅ **DONE**: Implement desselet.dat parser
 5. **TODO**: Update documentation with ONS-specific features
 6. **TODO**: Add ONS sample to test suite
 
@@ -149,9 +149,8 @@ Both ONS and CCEE versions contain unknown record types in entdados.dat:
 
 1. **Immediate**: Document this verification in project documentation
 2. **Short-term**: Implement parsers for unknown record types
-3. **Medium-term**: Add desselet.dat parser for network modeling support
-4. **Long-term**: Investigate PWF format for full network integration
-
+3. **Medium-term**: Update documentation with ONS-specific features
+4. **Medium-term**: Add ONS sample to test suite
 ## Conclusion
 
 The DESSEM2Julia library successfully handles both:
