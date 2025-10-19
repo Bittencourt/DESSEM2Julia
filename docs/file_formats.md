@@ -1,8 +1,12 @@
 # File formats coverage
 
+> **📚 Part of**: [DESSEM2Julia Documentation](INDEX.md) | **📖 Also see**: [DESSEM Complete Specs](dessem-complete-specs.md), [Entity Relationships](ENTITY_RELATIONSHIPS.md), [Format Notes](FORMAT_NOTES.md)
+
 This document tracks DESSEM input files and their parsing coverage.
 
 For detailed format specifications, see [dessem-complete-specs.md](dessem-complete-specs.md).
+
+For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](ENTITY_RELATIONSHIPS.md) 🔗.
 
 ## Core Input Files
 
@@ -17,7 +21,7 @@ For detailed format specifications, see [dessem-complete-specs.md](dessem-comple
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| HIDR.DAT | Hydroelectric plant registry (CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ records) | TODO | § 6 |
+| HIDR.DAT | Hydroelectric plant registry (CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ records) | ✅ Binary & Text Parsers | § 6 |
 | TERM.DAT | Thermal plant registry (CADUSIT, CADUNIDT, CURVACOMB, CONFGEST records) | ✅ Parser | § 7 |
 
 ## Operational Data Files

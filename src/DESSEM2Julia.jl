@@ -8,9 +8,11 @@ export OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM,
 export OperutData, INITRecord, OPERRecord
 export DadvazData, DadvazHeader, DadvazInflowRecord
 export DesseletData, DesseletBaseCase, DesseletPatamar
+export HidrData, CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ
 export parse_termdat, parse_entdados, parse_operuh, parse_operut, parse_init_record, parse_oper_record
 export parse_dadvaz
 export parse_desselet
+export parse_hidr
 export DessemArq, DessemFileRecord, parse_dessemarq
 
 # Core type system (comprehensive data model)
@@ -25,7 +27,7 @@ export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
 export ExecutionOptions
 
-include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord, DadvazData, DadvazHeader, DadvazInflowRecord, DesseletData, DesseletBaseCase, DesseletPatamar
+include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord, DadvazData, DadvazHeader, DadvazInflowRecord, DesseletData, DesseletBaseCase, DesseletPatamar, HidrData, CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ
 include("models/core_types.jl"); using .CoreTypes
 include("io.jl"); using .IO
 include("parser/common.jl"); using .ParserCommon
@@ -36,6 +38,7 @@ include("parser/operut.jl"); using .OperutParser: parse_operut, parse_init_recor
 include("parser/dadvaz.jl"); using .DadvazParser: parse_dadvaz
 include("parser/desselet.jl"); using .DesseletParser: parse_desselet
 include("parser/dessemarq.jl"); using .DessemArqParser: DessemArq, DessemFileRecord, parse_dessemarq
+include("parser/hidr.jl"); using .HidrParser: parse_hidr
 include("parser/registry.jl"); using .ParserRegistry
 include("api.jl"); using .API: convert_inputs
 

@@ -4,6 +4,22 @@ Convert DESSEM input files (.DAT and related text files) into structured Julia o
 
 DESSEM is a hydrothermal dispatch optimization model used for short-term operational planning in Brazilian power systems.
 
+---
+
+## 📚 Documentation
+
+> **🗺️ [Complete Documentation Index](docs/INDEX.md)** - Wiki-style navigation for all documentation  
+> **📖 [Documentation Hub](docs/README.md)** - Organized documentation overview  
+> **🗺️ [Documentation Sitemap](docs/SITEMAP.md)** - Visual map of all docs
+
+**Quick Links**:
+- 🚀 [Quick Start Guide](docs/planning/QUICK_START_GUIDE.md) - Get started in minutes
+- 🔗 [Entity Relationships](docs/ENTITY_RELATIONSHIPS.md) - Complete ER model ⭐ **ESSENTIAL**
+- 💧 [HIDR Quick Reference](docs/HIDR_QUICK_REFERENCE.md) - Hydro plant parsing
+- 📋 [File Formats](docs/file_formats.md) - Parser status overview
+
+---
+
 ## Quickstart
 
 Open this folder in VS Code, then in a Julia REPL run:
@@ -29,6 +45,7 @@ Pkg.test()
 ### Architecture & Design
 - **Architecture overview**: [`docs/architecture.md`](docs/architecture.md)
 - **Type system guide**: [`docs/type_system.md`](docs/type_system.md) ⭐
+- **Entity relationships (Database-like model)**: [`docs/ENTITY_RELATIONSHIPS.md`](docs/ENTITY_RELATIONSHIPS.md) 🔗 **NEW**
 - **DESSEM file format specifications**: [`docs/dessem-complete-specs.md`](docs/dessem-complete-specs.md)
 - **File coverage status**: [`docs/file_formats.md`](docs/file_formats.md)
 - **Format implementation notes**: [`docs/FORMAT_NOTES.md`](docs/FORMAT_NOTES.md)

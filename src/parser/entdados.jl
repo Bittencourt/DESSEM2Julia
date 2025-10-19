@@ -25,6 +25,8 @@ import ..Types: DARecord, MHRecord, MTRecord, GeneralData
 import ..Types: RERecord, LURecord, FHRecord, FTRecord, FIRecord, FERecord
 import ..Types: FRRecord, FCRecord, TXRecord, EZRecord, R11Record, FPRecord
 import ..Types: SECRRecord, CRRecord, ACRecord, AGRecord
+import ..Types: IARecord, CDRecord, VERecord, RIRecord, CERecord, CIRecord
+import ..Types: DERecord, NIRecord, GPRecord
 
 export parse_entdados
 
@@ -683,16 +685,20 @@ end
     parse_fp(line, filename, line_num) -> FPRecord
 
 Parse FP record (production function approximation parameters).
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - FP class
 """
 function parse_fp(line::AbstractString, filename::AbstractString, line_num::Int)
     plant_code = parse_int(strip(extract_field(line, 4, 6)))
     volume_treatment = parse_int(strip(extract_field(line, 8, 8)))
     turbine_points = parse_int(strip(extract_field(line, 11, 13)))
     volume_points = parse_int(strip(extract_field(line, 16, 18)))
-    check_concavity = parse_int(strip(extract_field(line, 21, 21)))
-    least_squares = parse_int(strip(extract_field(line, 25, 25)))
-    volume_window_pct = parse_float(strip(extract_field(line, 30, 39)))
-    deviation_tolerance = parse_float(strip(extract_field(line, 40, 49)))
+    # Optional fields - can be blank
+    check_concavity = parse_int(strip(extract_field(line, 21, 21)), allow_blank=true)
+    least_squares = parse_int(strip(extract_field(line, 25, 25)), allow_blank=true)
+    volume_window_pct = parse_float(strip(extract_field(line, 30, 39)), allow_blank=true)
+    deviation_tolerance = parse_float(strip(extract_field(line, 40, 49)), allow_blank=true)
 
     return FPRecord(
         plant_code=plant_code,
@@ -850,6 +856,283 @@ function parse_ag(line::AbstractString, filename::AbstractString, line_num::Int)
     )
 end
 
+"""
+    parse_ia(line, filename, line_num) -> IARecord
+
+Parse IA record (interchange limits between subsystems).
+"""
+function parse_ia(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:subsystem_from, 5, 6, String, required=true),
+        FieldSpec(:subsystem_to, 10, 11, String, required=true),
+        FieldSpec(:capacity_from_to, 30, 39, Float64, required=true),
+        FieldSpec(:capacity_to_from, 40, 49, Float64, required=true),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+    
+    day_start, hour_start, half_start = parse_stage_date(line, 14; special_char="I", file=filename, line_num=line_num)
+    day_end, hour_end, half_end = parse_stage_date(line, 22; special_char="F", file=filename, line_num=line_num)
+
+    return IARecord(
+        subsystem_from=strip(values[:subsystem_from]),
+        subsystem_to=strip(values[:subsystem_to]),
+        day_start=day_start,
+        hour_start=hour_start,
+        half_hour_start=half_start,
+        day_end=day_end,
+        hour_end=hour_end,
+        half_hour_end=half_end,
+        capacity_from_to=values[:capacity_from_to],
+        capacity_to_from=values[:capacity_to_from],
+    )
+end
+
+"""
+    parse_cd(line, filename, line_num) -> CDRecord
+
+Parse CD record (deficit cost curves).
+"""
+function parse_cd(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:subsystem, 5, 6, Int, required=true),
+        FieldSpec(:curve_number, 8, 9, Int, required=true),
+        FieldSpec(:cost, 28, 37, Float64, required=true),
+        FieldSpec(:upper_limit, 39, 48, Float64, required=true),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+    
+    day_start, hour_start, half_start = parse_stage_date(line, 11; special_char="I", file=filename, line_num=line_num)
+    day_end, hour_end, half_end = parse_stage_date(line, 19; special_char="F", file=filename, line_num=line_num)
+
+    return CDRecord(
+        subsystem=values[:subsystem],
+        curve_number=values[:curve_number],
+        day_start=day_start,
+        hour_start=hour_start,
+        half_hour_start=half_start,
+        day_end=day_end,
+        hour_end=hour_end,
+        half_hour_end=half_end,
+        cost=values[:cost],
+        upper_limit=values[:upper_limit],
+    )
+end
+
+"""
+    parse_ve(line, filename, line_num) -> VERecord
+
+Parse VE record (flood control volumes).
+"""
+function parse_ve(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:plant_num, 5, 7, Int, required=true),
+        FieldSpec(:volume, 26, 35, Float64, required=true),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+    
+    day_start, hour_start, half_start = parse_stage_date(line, 9; special_char="I", file=filename, line_num=line_num)
+    day_end, hour_end, half_end = parse_stage_date(line, 17; special_char="F", file=filename, line_num=line_num)
+
+    return VERecord(
+        plant_num=values[:plant_num],
+        day_start=day_start,
+        hour_start=hour_start,
+        half_hour_start=half_start,
+        day_end=day_end,
+        hour_end=hour_end,
+        half_hour_end=half_end,
+        volume=values[:volume],
+    )
+end
+
+"""
+    parse_ri(line, filename, line_num) -> RIRecord
+
+Parse RI record (Itaipu restrictions).
+"""
+function parse_ri(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:gen_min_50hz, 29, 36, Float64, required=true),
+        FieldSpec(:gen_max_50hz, 39, 46, Float64, required=true),
+        FieldSpec(:gen_min_60hz, 49, 56, Float64, required=true),
+        FieldSpec(:gen_max_60hz, 59, 66, Float64, required=true),
+        FieldSpec(:ande_load, 69, 76, Float64, required=true),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+    
+    day_start, hour_start, half_start = parse_stage_date(line, 2; special_char="I", file=filename, line_num=line_num)
+    day_end, hour_end, half_end = parse_stage_date(line, 10; special_char="F", file=filename, line_num=line_num)
+
+    return RIRecord(
+        day_start=day_start,
+        hour_start=hour_start,
+        half_hour_start=half_start,
+        day_end=day_end,
+        hour_end=hour_end,
+        half_hour_end=half_end,
+        gen_min_50hz=values[:gen_min_50hz],
+        gen_max_50hz=values[:gen_max_50hz],
+        gen_min_60hz=values[:gen_min_60hz],
+        gen_max_60hz=values[:gen_max_60hz],
+        ande_load=values[:ande_load],
+    )
+end
+
+"""
+    parse_ce(line, filename, line_num) -> CERecord
+
+Parse CE record (export energy contracts).
+"""
+function parse_ce(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:contract_num, 4, 6, Int, required=true),
+        FieldSpec(:contract_name, 8, 17, String, required=true),
+        FieldSpec(:year, 19, 23, Int, required=true),
+        FieldSpec(:submkt_code, 24, 24, Int, required=true),
+        FieldSpec(:modulation_flag, 42, 42, Int, required=false, default=0),
+        FieldSpec(:min_value, 44, 53, Float64, required=false, default=0.0),
+        FieldSpec(:max_value, 54, 63, Float64, required=false, default=0.0),
+        FieldSpec(:inflexibility, 64, 73, Float64, required=false, default=0.0),
+        FieldSpec(:priority, 74, 83, Float64, required=false, default=0.0),
+        FieldSpec(:availability_flag, 86, 86, Int, required=false, default=0),
+        FieldSpec(:cost, 89, 98, Float64, required=false, default=0.0),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+    
+    day_start, hour_start, half_start = parse_stage_date(line, 26; special_char="I", file=filename, line_num=line_num)
+    day_end, hour_end, half_end = parse_stage_date(line, 34; special_char="F", file=filename, line_num=line_num)
+
+    return CERecord(
+        contract_num=values[:contract_num],
+        contract_name=strip(values[:contract_name]),
+        year=values[:year],
+        submkt_code=values[:submkt_code],
+        day_start=day_start,
+        hour_start=hour_start,
+        half_hour_start=half_start,
+        day_end=day_end,
+        hour_end=hour_end,
+        half_hour_end=half_end,
+        modulation_flag=something(values[:modulation_flag], 0),
+        min_value=something(values[:min_value], 0.0),
+        max_value=something(values[:max_value], 0.0),
+        inflexibility=something(values[:inflexibility], 0.0),
+        priority=something(values[:priority], 0.0),
+        availability_flag=something(values[:availability_flag], 0),
+        cost=something(values[:cost], 0.0),
+    )
+end
+
+"""
+    parse_ci(line, filename, line_num) -> CIRecord
+
+Parse CI record (import energy contracts).
+"""
+function parse_ci(line::AbstractString, filename::AbstractString, line_num::Int)
+    # Same structure as CE records
+    fields = [
+        FieldSpec(:contract_num, 4, 6, Int, required=true),
+        FieldSpec(:contract_name, 8, 17, String, required=true),
+        FieldSpec(:year, 19, 23, Int, required=true),
+        FieldSpec(:submkt_code, 24, 24, Int, required=true),
+        FieldSpec(:modulation_flag, 42, 42, Int, required=false, default=0),
+        FieldSpec(:min_value, 44, 53, Float64, required=false, default=0.0),
+        FieldSpec(:max_value, 54, 63, Float64, required=false, default=0.0),
+        FieldSpec(:inflexibility, 64, 73, Float64, required=false, default=0.0),
+        FieldSpec(:priority, 74, 83, Float64, required=false, default=0.0),
+        FieldSpec(:availability_flag, 86, 86, Int, required=false, default=0),
+        FieldSpec(:cost, 89, 98, Float64, required=false, default=0.0),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+    
+    day_start, hour_start, half_start = parse_stage_date(line, 26; special_char="I", file=filename, line_num=line_num)
+    day_end, hour_end, half_end = parse_stage_date(line, 34; special_char="F", file=filename, line_num=line_num)
+
+    return CIRecord(
+        contract_num=values[:contract_num],
+        contract_name=strip(values[:contract_name]),
+        year=values[:year],
+        submkt_code=values[:submkt_code],
+        day_start=day_start,
+        hour_start=hour_start,
+        half_hour_start=half_start,
+        day_end=day_end,
+        hour_end=hour_end,
+        half_hour_end=half_end,
+        modulation_flag=something(values[:modulation_flag], 0),
+        min_value=something(values[:min_value], 0.0),
+        max_value=something(values[:max_value], 0.0),
+        inflexibility=something(values[:inflexibility], 0.0),
+        priority=something(values[:priority], 0.0),
+        availability_flag=something(values[:availability_flag], 0),
+        cost=something(values[:cost], 0.0),
+    )
+end
+
+"""
+    parse_de(line, filename, line_num) -> DERecord
+
+Parse DE record (special demand).
+"""
+function parse_de(line::AbstractString, filename::AbstractString, line_num::Int)
+    fields = [
+        FieldSpec(:demand_code, 5, 7, Int, required=true),
+        FieldSpec(:description, 9, 40, String, required=true),
+    ]
+
+    values = extract_fields(line, fields, file=filename, line_num=line_num)
+
+    return DERecord(
+        demand_code=values[:demand_code],
+        description=strip(values[:description]),
+    )
+end
+
+"""
+    parse_ni(line, filename, line_num) -> NIRecord
+
+Parse NI record (network configuration).
+"""
+function parse_ni(line::AbstractString, filename::AbstractString, line_num::Int)
+    # NI records contain configuration text
+    option_text = strip(extract_field(line, 5, 80))
+
+    return NIRecord(
+        option_text=option_text,
+    )
+end
+
+"""
+    parse_gp(line, filename, line_num) -> GPRecord
+
+Parse GP record (convergence tolerance gaps for PDD or MILP methods).
+
+# Format
+Columns 1-4: Record type "GP  "
+Columns 5-14: PDD gap (FloatField(10, 4, 8))
+Columns 15-24: MILP gap (FloatField(10, 14, 8))
+"""
+function parse_gp(line::AbstractString, filename::AbstractString, line_num::Int)
+    # Parse PDD gap (columns 5-14)
+    gap_pdd_str = strip(extract_field(line, 5, 14))
+    gap_pdd = isempty(gap_pdd_str) ? nothing : tryparse(Float64, gap_pdd_str)
+    
+    # Parse MILP gap (columns 15-24)
+    gap_milp_str = strip(extract_field(line, 15, 24))
+    gap_milp = isempty(gap_milp_str) ? nothing : tryparse(Float64, gap_milp_str)
+
+    return GPRecord(
+        gap_pdd=gap_pdd,
+        gap_milp=gap_milp,
+    )
+end
+
 # ============================================================================
 # Main Parser
 # ============================================================================
@@ -900,6 +1183,15 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
     section_polynomials = CRRecord[]
     plant_adjustments = ACRecord[]
     aggregate_groups = AGRecord[]
+    interchange_limits = IARecord[]
+    deficit_costs = CDRecord[]
+    flood_volumes = VERecord[]
+    itaipu_restrictions = RIRecord[]
+    export_contracts = CERecord[]
+    import_contracts = CIRecord[]
+    special_demands = DERecord[]
+    network_config = NIRecord[]
+    tolerance_gaps = GPRecord[]
     
     line_num = 0
     for line in eachline(io)
@@ -909,8 +1201,11 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
         is_blank(line) && continue
         is_comment_line(line) && continue
         
-        # Extract record type - handle AC records specially (variable format)
-        record_type = uppercase(strip(extract_field(line, 1, 4)))
+        # Extract record type - get first 2-4 chars up to first space/digit
+        record_type_raw = uppercase(strip(extract_field(line, 1, 4)))
+        # Keep only alphabetic characters (handles "CE 3" → "CE", "SIST" → "SIST")
+        record_type = match(r"^([A-Z]+)", record_type_raw)
+        record_type = record_type === nothing ? record_type_raw : record_type.captures[1]
         
         try
             if record_type == "TM"
@@ -961,6 +1256,24 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
                 push!(plant_adjustments, parse_ac(line, filename, line_num))
             elseif record_type == "AG"
                 push!(aggregate_groups, parse_ag(line, filename, line_num))
+            elseif record_type == "IA"
+                push!(interchange_limits, parse_ia(line, filename, line_num))
+            elseif record_type == "CD"
+                push!(deficit_costs, parse_cd(line, filename, line_num))
+            elseif record_type == "VE"
+                push!(flood_volumes, parse_ve(line, filename, line_num))
+            elseif record_type == "RI"
+                push!(itaipu_restrictions, parse_ri(line, filename, line_num))
+            elseif record_type == "CE"
+                push!(export_contracts, parse_ce(line, filename, line_num))
+            elseif record_type == "CI"
+                push!(import_contracts, parse_ci(line, filename, line_num))
+            elseif record_type == "DE"
+                push!(special_demands, parse_de(line, filename, line_num))
+            elseif record_type == "NI"
+                push!(network_config, parse_ni(line, filename, line_num))
+            elseif record_type == "GP"
+                push!(tolerance_gaps, parse_gp(line, filename, line_num))
             else
                 # Skip unknown record types (RD, RIVAR, REE, etc.)
                 if !startswith(record_type, "&")  # Don't warn for comment lines
@@ -1001,6 +1314,15 @@ function parse_entdados(io::IO, filename::AbstractString="entdados.dat")
         section_polynomials=section_polynomials,
         plant_adjustments=plant_adjustments,
         aggregate_groups=aggregate_groups,
+        interchange_limits=interchange_limits,
+        deficit_costs=deficit_costs,
+        flood_volumes=flood_volumes,
+        itaipu_restrictions=itaipu_restrictions,
+        export_contracts=export_contracts,
+        import_contracts=import_contracts,
+        special_demands=special_demands,
+        network_config=network_config,
+        tolerance_gaps=tolerance_gaps,
     )
 end
 

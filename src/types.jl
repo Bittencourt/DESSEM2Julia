@@ -660,10 +660,10 @@ Base.@kwdef struct FPRecord
     volume_treatment::Int
     turbine_points::Int
     volume_points::Int
-    check_concavity::Int
-    least_squares::Int
-    volume_window_pct::Float64
-    deviation_tolerance::Float64
+    check_concavity::Union{Int,Nothing} = nothing
+    least_squares::Union{Int,Nothing} = nothing
+    volume_window_pct::Union{Float64,Nothing} = nothing
+    deviation_tolerance::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -769,6 +769,237 @@ Base.@kwdef struct AGRecord
 end
 
 """
+    IARecord
+
+Interchange limits between subsystems from ENTDADOS.XXX (IA records).
+
+# Fields
+- `subsystem_from::String`: Origin subsystem mnemonic
+- `subsystem_to::String`: Destination subsystem mnemonic
+- `day_start::Union{Int,String}`: Initial day
+- `hour_start::Int`: Initial hour (0-23)
+- `half_hour_start::Int`: Initial half-hour (0 or 1)
+- `day_end::Union{Int,String}`: Final day (or "F")
+- `hour_end::Int`: Final hour (0-23)
+- `half_hour_end::Int`: Final half-hour (0 or 1)
+- `capacity_from_to::Float64`: Interchange capacity from→to (MW)
+- `capacity_to_from::Float64`: Interchange capacity to→from (MW)
+"""
+Base.@kwdef struct IARecord
+    subsystem_from::String
+    subsystem_to::String
+    day_start::Union{Int,String,Nothing}
+    hour_start::Int = 0
+    half_hour_start::Int = 0
+    day_end::Union{Int,String,Nothing}
+    hour_end::Int = 0
+    half_hour_end::Int = 0
+    capacity_from_to::Float64
+    capacity_to_from::Float64
+end
+
+"""
+    CDRecord
+
+Deficit cost curve from ENTDADOS.XXX (CD records).
+
+# Fields
+- `subsystem::Int`: Subsystem number
+- `curve_number::Int`: Deficit curve index
+- `day_start::Union{Int,String}`: Initial day
+- `hour_start::Int`: Initial hour (0-23)
+- `half_hour_start::Int`: Initial half-hour (0 or 1)
+- `day_end::Union{Int,String}`: Final day (or "F")
+- `hour_end::Int`: Final hour (0-23)
+- `half_hour_end::Int`: Final half-hour (0 or 1)
+- `cost::Float64`: Deficit cost (R\$/MWh)
+- `upper_limit::Float64`: Upper depth for this cost step (MW)
+"""
+Base.@kwdef struct CDRecord
+    subsystem::Int
+    curve_number::Int
+    day_start::Union{Int,String,Nothing}
+    hour_start::Int = 0
+    half_hour_start::Int = 0
+    day_end::Union{Int,String,Nothing}
+    hour_end::Int = 0
+    half_hour_end::Int = 0
+    cost::Float64
+    upper_limit::Float64
+end
+
+"""
+    VERecord
+
+Flood control volume (volume de espera) from ENTDADOS.XXX (VE records).
+
+# Fields
+- `plant_num::Int`: Hydroelectric plant number
+- `day_start::Union{Int,String}`: Initial day
+- `hour_start::Int`: Initial hour (0-23)
+- `half_hour_start::Int`: Initial half-hour (0 or 1)
+- `day_end::Union{Int,String}`: Final day (or "F")
+- `hour_end::Int`: Final hour (0-23)
+- `half_hour_end::Int`: Final half-hour (0 or 1)
+- `volume::Float64`: Flood control volume (hm³ or % useful)
+"""
+Base.@kwdef struct VERecord
+    plant_num::Int
+    day_start::Union{Int,String,Nothing}
+    hour_start::Int = 0
+    half_hour_start::Int = 0
+    day_end::Union{Int,String,Nothing}
+    hour_end::Int = 0
+    half_hour_end::Int = 0
+    volume::Float64
+end
+
+"""
+    RIRecord
+
+Itaipu restriction from ENTDADOS.XXX (RI records).
+
+# Fields
+- `day_start::Union{Int,String}`: Initial day
+- `hour_start::Int`: Initial hour (0-23)
+- `half_hour_start::Int`: Initial half-hour (0 or 1)
+- `day_end::Union{Int,String}`: Final day (or "F")
+- `hour_end::Int`: Final hour (0-23)
+- `half_hour_end::Int`: Final half-hour (0 or 1)
+- `gen_min_50hz::Float64`: Minimum 50Hz generation (MW)
+- `gen_max_50hz::Float64`: Maximum 50Hz generation (MW)
+- `gen_min_60hz::Float64`: Minimum 60Hz generation (MW)
+- `gen_max_60hz::Float64`: Maximum 60Hz generation (MW)
+- `ande_load::Float64`: ANDE load (MW)
+"""
+Base.@kwdef struct RIRecord
+    day_start::Union{Int,String,Nothing}
+    hour_start::Int = 0
+    half_hour_start::Int = 0
+    day_end::Union{Int,String,Nothing}
+    hour_end::Int = 0
+    half_hour_end::Int = 0
+    gen_min_50hz::Float64
+    gen_max_50hz::Float64
+    gen_min_60hz::Float64
+    gen_max_60hz::Float64
+    ande_load::Float64
+end
+
+"""
+    CERecord
+
+Export energy contract from ENTDADOS.XXX (CE records).
+
+# Fields
+- `contract_num::Int`: Contract number
+- `contract_name::String`: Contract name
+- `year::Int`: Contract year
+- `submkt_code::Int`: Subsystem code
+- `day_start::Union{Int,String}`: Initial day
+- `hour_start::Int`: Initial hour (0-23)
+- `half_hour_start::Int`: Initial half-hour (0 or 1)
+- `day_end::Union{Int,String}`: Final day (or "F")
+- `hour_end::Int`: Final hour (0-23)
+- `half_hour_end::Int`: Final half-hour (0 or 1)
+- `modulation_flag::Int`: Modulation flag
+- `min_value::Float64`: Minimum value (MW)
+- `max_value::Float64`: Maximum value (MW)
+- `inflexibility::Float64`: Inflexibility (MW)
+- `priority::Float64`: Priority value (MW)
+- `availability_flag::Int`: Availability flag
+- `cost::Float64`: Contract cost (R\$/MWh)
+"""
+Base.@kwdef struct CERecord
+    contract_num::Int
+    contract_name::String
+    year::Int
+    submkt_code::Int
+    day_start::Union{Int,String,Nothing}
+    hour_start::Int = 0
+    half_hour_start::Int = 0
+    day_end::Union{Int,String,Nothing}
+    hour_end::Int = 0
+    half_hour_end::Int = 0
+    modulation_flag::Int
+    min_value::Float64
+    max_value::Float64
+    inflexibility::Float64
+    priority::Float64
+    availability_flag::Int
+    cost::Float64
+end
+
+"""
+    CIRecord
+
+Import energy contract from ENTDADOS.XXX (CI records).
+
+Same structure as CERecord but for import contracts.
+"""
+Base.@kwdef struct CIRecord
+    contract_num::Int
+    contract_name::String
+    year::Int
+    submkt_code::Int
+    day_start::Union{Int,String,Nothing}
+    hour_start::Int = 0
+    half_hour_start::Int = 0
+    day_end::Union{Int,String,Nothing}
+    hour_end::Int = 0
+    half_hour_end::Int = 0
+    modulation_flag::Int
+    min_value::Float64
+    max_value::Float64
+    inflexibility::Float64
+    priority::Float64
+    availability_flag::Int
+    cost::Float64
+end
+
+"""
+    DERecord
+
+Special demand from ENTDADOS.XXX (DE records).
+
+# Fields
+- `demand_code::Int`: Special demand code
+- `description::String`: Demand description
+"""
+Base.@kwdef struct DERecord
+    demand_code::Int
+    description::String
+end
+
+"""
+    NIRecord
+
+Network configuration from ENTDADOS.XXX (NI records).
+Contains network modeling options.
+
+# Fields
+- `option_text::String`: Configuration text
+"""
+Base.@kwdef struct NIRecord
+    option_text::String
+end
+
+"""
+    GPRecord
+
+Convergence tolerance gaps for PDD or MILP methods (GP record).
+From ENTDADOS.XXX - defines convergence criteria for optimization solvers.
+
+# Fields
+- `gap_pdd::Union{Float64,Nothing}`: Convergence gap for Dual Dynamic Programming (PDD) method
+- `gap_milp::Union{Float64,Nothing}`: Convergence gap for Mixed Integer Linear Programming (MILP) method
+"""
+Base.@kwdef struct GPRecord
+    gap_pdd::Union{Float64,Nothing} = nothing
+    gap_milp::Union{Float64,Nothing} = nothing
+end
+
+"""
     GeneralData
 
 Container for all general data from ENTDADOS.XXX.
@@ -798,6 +1029,14 @@ Container for all general data from ENTDADOS.XXX.
 - `section_polynomials::Vector{CRRecord}`: River section head-flow polynomials
 - `plant_adjustments::Vector{ACRecord}`: Plant configuration adjustments
 - `aggregate_groups::Vector{AGRecord}`: Aggregate/group records
+- `interchange_limits::Vector{IARecord}`: Interchange capacity limits between subsystems
+- `deficit_costs::Vector{CDRecord}`: Deficit cost curves
+- `flood_volumes::Vector{VERecord}`: Flood control volumes
+- `itaipu_restrictions::Vector{RIRecord}`: Itaipu plant restrictions
+- `export_contracts::Vector{CERecord}`: Export energy contracts
+- `import_contracts::Vector{CIRecord}`: Import energy contracts
+- `special_demands::Vector{DERecord}`: Special demand definitions
+- `network_config::Vector{NIRecord}`: Network configuration options
 """
 Base.@kwdef struct GeneralData
     time_periods::Vector{TMRecord} = TMRecord[]
@@ -824,6 +1063,217 @@ Base.@kwdef struct GeneralData
     section_polynomials::Vector{CRRecord} = CRRecord[]
     plant_adjustments::Vector{ACRecord} = ACRecord[]
     aggregate_groups::Vector{AGRecord} = AGRecord[]
+    interchange_limits::Vector{IARecord} = IARecord[]
+    deficit_costs::Vector{CDRecord} = CDRecord[]
+    flood_volumes::Vector{VERecord} = VERecord[]
+    itaipu_restrictions::Vector{RIRecord} = RIRecord[]
+    export_contracts::Vector{CERecord} = CERecord[]
+    import_contracts::Vector{CIRecord} = CIRecord[]
+    special_demands::Vector{DERecord} = DERecord[]
+    network_config::Vector{NIRecord} = NIRecord[]
+    tolerance_gaps::Vector{GPRecord} = GPRecord[]
+end
+
+# ============================================================================
+# HIDR.DAT - Hydroelectric Plant Registry
+# ============================================================================
+
+"""
+    CADUSIH
+
+Basic hydroelectric plant data from HIDR.DAT (CADUSIH records).
+
+# Fields
+- `plant_num::Int`: Plant number (1-320)
+- `plant_name::String`: Plant name
+- `subsystem::Int`: Subsystem number
+- `commission_year::Union{Int,Nothing}`: Commission year
+- `commission_month::Union{Int,Nothing}`: Commission month
+- `commission_day::Union{Int,Nothing}`: Commission day
+- `downstream_plant::Union{Int,Nothing}`: Downstream plant number (0 = none)
+- `diversion_downstream::Union{Int,Nothing}`: Diversion downstream plant number
+- `plant_type::Union{Int,Nothing}`: Plant type code
+- `min_volume::Float64`: Minimum reservoir volume (hm³)
+- `max_volume::Float64`: Maximum reservoir volume (hm³)
+- `max_turbine_flow::Float64`: Maximum turbine flow (m³/s)
+- `installed_capacity::Float64`: Installed capacity (MW)
+- `productivity::Float64`: Productivity coefficient (MW/(m³/s)/m)
+"""
+Base.@kwdef struct CADUSIH
+    plant_num::Int
+    plant_name::String
+    subsystem::Int
+    commission_year::Union{Int,Nothing} = nothing
+    commission_month::Union{Int,Nothing} = nothing
+    commission_day::Union{Int,Nothing} = nothing
+    downstream_plant::Union{Int,Nothing} = nothing
+    diversion_downstream::Union{Int,Nothing} = nothing
+    plant_type::Union{Int,Nothing} = nothing
+    min_volume::Float64 = 0.0
+    max_volume::Float64
+    max_turbine_flow::Float64 = 0.0
+    installed_capacity::Float64 = 0.0
+    productivity::Float64 = 0.0
+end
+
+"""
+    USITVIAG
+
+Travel time data between hydroelectric plants from HIDR.DAT.
+
+# Fields
+- `plant_num::Int`: Plant number
+- `downstream_plant::Int`: Downstream plant number
+- `travel_time::Float64`: Travel time in hours
+"""
+Base.@kwdef struct USITVIAG
+    plant_num::Int
+    downstream_plant::Int
+    travel_time::Float64 = 0.0
+end
+
+"""
+    POLCOT
+
+Volume-elevation polynomial from HIDR.DAT (POLCOT records).
+
+# Fields
+- `plant_num::Int`: Plant number
+- `degree::Int`: Polynomial degree (1-5)
+- `coef0::Float64`: Coefficient 0 (constant term)
+- `coef1::Float64`: Coefficient 1
+- `coef2::Float64`: Coefficient 2
+- `coef3::Float64`: Coefficient 3
+- `coef4::Float64`: Coefficient 4
+- `coef5::Float64`: Coefficient 5
+"""
+Base.@kwdef struct POLCOT
+    plant_num::Int
+    degree::Int
+    coef0::Float64
+    coef1::Float64 = 0.0
+    coef2::Float64 = 0.0
+    coef3::Float64 = 0.0
+    coef4::Float64 = 0.0
+    coef5::Float64 = 0.0
+end
+
+"""
+    POLARE
+
+Volume-surface area polynomial from HIDR.DAT (POLARE records).
+
+Same structure as POLCOT but for area calculation.
+"""
+Base.@kwdef struct POLARE
+    plant_num::Int
+    degree::Int
+    coef0::Float64
+    coef1::Float64 = 0.0
+    coef2::Float64 = 0.0
+    coef3::Float64 = 0.0
+    coef4::Float64 = 0.0
+    coef5::Float64 = 0.0
+end
+
+"""
+    POLJUS
+
+Tailrace elevation polynomial from HIDR.DAT (POLJUS records).
+
+Same structure as POLCOT but for tailrace level calculation.
+"""
+Base.@kwdef struct POLJUS
+    plant_num::Int
+    degree::Int
+    coef0::Float64
+    coef1::Float64 = 0.0
+    coef2::Float64 = 0.0
+    coef3::Float64 = 0.0
+    coef4::Float64 = 0.0
+    coef5::Float64 = 0.0
+end
+
+"""
+    COEFEVA
+
+Monthly evaporation coefficients from HIDR.DAT (COEFEVA records).
+
+# Fields
+- `plant_num::Int`: Plant number
+- `jan::Float64`: January coefficient
+- `feb::Float64`: February coefficient
+- `mar::Float64`: March coefficient
+- `apr::Float64`: April coefficient
+- `may::Float64`: May coefficient
+- `jun::Float64`: June coefficient
+- `jul::Float64`: July coefficient
+- `aug::Float64`: August coefficient
+- `sep::Float64`: September coefficient
+- `oct::Float64`: October coefficient
+- `nov::Float64`: November coefficient
+- `dec::Float64`: December coefficient
+"""
+Base.@kwdef struct COEFEVA
+    plant_num::Int
+    jan::Float64 = 0.0
+    feb::Float64 = 0.0
+    mar::Float64 = 0.0
+    apr::Float64 = 0.0
+    may::Float64 = 0.0
+    jun::Float64 = 0.0
+    jul::Float64 = 0.0
+    aug::Float64 = 0.0
+    sep::Float64 = 0.0
+    oct::Float64 = 0.0
+    nov::Float64 = 0.0
+    dec::Float64 = 0.0
+end
+
+"""
+    CADCONJ
+
+Unit set definition from HIDR.DAT (CADCONJ records).
+
+# Fields
+- `plant_num::Int`: Plant number
+- `unit_set_num::Int`: Unit set number (1-5)
+- `num_units::Int`: Number of units in set
+- `unit_capacity::Float64`: Capacity per unit (MW)
+- `min_generation::Float64`: Minimum generation per unit (MW)
+- `max_turbine_flow::Float64`: Maximum turbine flow per unit (m³/s)
+"""
+Base.@kwdef struct CADCONJ
+    plant_num::Int
+    unit_set_num::Int
+    num_units::Int
+    unit_capacity::Float64
+    min_generation::Float64 = 0.0
+    max_turbine_flow::Float64 = 0.0
+end
+
+"""
+    HidrData
+
+Container for all hydroelectric plant registry data from HIDR.DAT.
+
+# Fields
+- `plants::Vector{CADUSIH}`: Basic plant data
+- `travel_times::Vector{USITVIAG}`: Travel time data
+- `volume_elevation::Vector{POLCOT}`: Volume-elevation polynomials
+- `volume_area::Vector{POLARE}`: Volume-area polynomials
+- `tailrace::Vector{POLJUS}`: Tailrace polynomials
+- `evaporation::Vector{COEFEVA}`: Evaporation coefficients
+- `unit_sets::Vector{CADCONJ}`: Unit set definitions
+"""
+Base.@kwdef struct HidrData
+    plants::Vector{CADUSIH} = CADUSIH[]
+    travel_times::Vector{USITVIAG} = USITVIAG[]
+    volume_elevation::Vector{POLCOT} = POLCOT[]
+    volume_area::Vector{POLARE} = POLARE[]
+    tailrace::Vector{POLJUS} = POLJUS[]
+    evaporation::Vector{COEFEVA} = COEFEVA[]
+    unit_sets::Vector{CADCONJ} = CADCONJ[]
 end
 
 # ============================================================================
