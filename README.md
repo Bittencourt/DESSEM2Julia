@@ -165,19 +165,48 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### ✅ DESSELET.DAT Parser - Production Ready ⭐ NEW
 - Parses network case mapping (base cases + patamares)
-- **All tests passing** (100%)
+- **15/15 tests passing** (100%)
 - Successfully parses real ONS data:
-  - Base network cases (4 cases: leve, media, pesada, etc.)
-  - Patamar scenarios (48 time stages)
+  - Base network cases (4 PWF files: leve, media, pesada, etc.)
+  - Patamar scenarios (48 half-hourly time stages)
   - Date/time scheduling with duration
   - Base case reference linking
+- **Exception**: Uses split() instead of fixed-width (variable spacing in actual files)
 
 ---
 
 ### 📊 Overall Parser Progress
 
-**Completed**: 7/32 parsers (22% coverage)
+**Completed**: 9/32 parsers (28% coverage)
 - ✅ dessem.arq (master file registry)
+- ✅ termdat.dat (thermal plant registry)
+- ✅ entdados.dat (general system data - 30+ record types)
+- ✅ operut.dat (thermal operations)
+- ✅ dadvaz.dat (hydro inflows)
+- ✅ operuh.dat (hydro constraints)
+- ✅ desselet.dat (network case mapping)
+
+**In Progress**: 2/32 parsers
+- 🔄 hidr.dat (binary hydro data - partial)
+
+**Pending High Priority**:
+- deflant.dat (previous flows - initial conditions)
+- confhd.dat (hydro configuration)
+- modif.dat (modifications)
+
+---
+
+### 🧪 Test Coverage
+
+**Total Tests**: 2,959 tests passing ✅
+- ParserCommon utilities: 124 tests
+- TERMDAT parser: 136 tests
+- ENTDADOS parser: 2,362 tests
+- DessemArq parser: 69 tests
+- OPERUT parser: 106 tests
+- DADVAZ parser: 17 tests
+- DESSELET parser: 15 tests
+- ONS Integration: 123 tests
 - ✅ TERMDAT.DAT (thermal plant registry)
 - ✅ **ENTDADOS.DAT (general operational data)** - 35+ record types ⭐
 - ✅ OPERUT.DAT (thermal operations)

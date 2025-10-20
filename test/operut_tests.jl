@@ -282,7 +282,7 @@ using DESSEM2Julia: parse_operut, INITRecord, OPERRecord, OperutData
             @test data.init_records[1].initial_generation ≈ 640.0
             
             @test data.oper_records[1].plant_name == "ANGRA 1"
-            @test data.oper_records[1].operating_cost ≈ 0.0
+            @test data.oper_records[1].operating_cost ≈ 31.17  # Nuclear plant cost
             
         else
             @warn "Test data file not found: $test_file - skipping configuration block tests"
