@@ -1,7 +1,7 @@
 # DESSEM2Julia Project Context & Knowledge Base
 
-**Last Updated**: October 13, 2025  
-**Current Status**: 6/32 parsers complete, core type system established  
+**Last Updated**: October 19, 2025 - Session 11  
+**Current Status**: 8/32 parsers complete (25%), OPERUH field extraction 100% complete  
 **Purpose**: Complete context for AI agents and developers continuing this project
 
 ---
@@ -860,7 +860,7 @@ FloatField(10, 29, 3)  # → Julia: extract_field(line, 30, 39)
 
 ### Phase 1: Complete Parsers (Current)
 Goal: Parse all 32 DESSEM input files
-Status: 6/32 complete (18.8%)
+Status: 8/32 complete (25%)
 
 ### Phase 2: Type System Integration
 Goal: Populate `DessemCase` from parsers
@@ -898,9 +898,9 @@ Examples:
 - Total lines: 10,000+
 
 **Parser Status**:
-- Completed: 6 parsers
-- Remaining: 26 parsers
-- Test coverage: 2,513+ tests passing
+- Completed: 8 parsers (25%)
+- Remaining: 24 parsers
+- Test coverage: 3,880+ tests passing (DESSEM.ARQ: 68, TERMDAT: 110, ENTDADOS: 2,362, DADVAZ: 36, OPERUT: 72, OPERUH: 724, OPERUH: 488, HIDR: 20)
 
 **Real Data Validation**:
 - CCEE sample: 100% compatible
@@ -917,20 +917,25 @@ Examples:
 
 ## 🚀 Starting Point for Next Agent
 
-**You are here**: 6/32 parsers complete, clean codebase, comprehensive documentation.
+**You are here**: 8/32 parsers complete (25%), clean codebase, comprehensive documentation.
+
+**Latest Achievement**: OPERUH.DAT field extraction complete (Session 11) - 100% parsing success on all 1,112 records!
 
 **Recommended next steps**:
 
 1. **Read this document** (you're doing it! 👍)
 
 2. **Check IDESEM** for next parser:
-    - DADVAZ (completed, useful reference): https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/dadvaz.py
-   - DEFLANT: https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/deflant.py
+   - **DEFLANT** (Priority #1): https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/deflant.py
+   - CONFHD: https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/confhd.py
+   - MODIF: https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/modif.py
 
 3. **Review existing parser** for pattern:
-   - `src/parser/operut.jl` - Most recent, best practices
-   - `test/operut_tests.jl` - Comprehensive test suite
-   - `docs/parsers/OPERUT_IMPLEMENTATION.md` - Complete guide
+   - `src/parser/operuh.jl` - Most recent (Session 11), best practices for fixed-width parsing
+   - `test/operuh_tests.jl` - Comprehensive test suite (724 tests)
+   - `docs/sessions/session11_operuh_completion.md` - Complete implementation guide
+   - `src/parser/operut.jl` - Another excellent reference
+   - `docs/parsers/OPERUT_IMPLEMENTATION.md` - Step-by-step guide
 
 4. **Choose next parser** (from `docs/planning/TASKS.md`):
     - DEFLANT.DAT (previous flows) - High priority

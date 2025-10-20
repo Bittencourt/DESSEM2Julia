@@ -124,19 +124,17 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - **110/110 tests passing** (100%)
 - Successfully parses 98 plants, 387 units from actual DESSEM files
 
-### ✅ ENTDADOS.DAT Parser - Production Ready
-- Parses general operational data (30+ record types including TM, SIST, UH, UT, DP, RE, LU, AC, AG, and coefficient records)
-- **129/129 tests passing** (100%)
+### ✅ ENTDADOS.DAT Parser - Production Ready ⭐ **100% COMPLETE**
+- Parses general operational data (**35+ record types** - complete coverage)
+- **2,362/2,362 tests passing** (100%)
 - Successfully parses all real CCEE and ONS data:
-  - 73 time periods
-  - 5 subsystems
-  - 168 hydro plants
-  - 116 thermal plants
-  - 293 demand records
-  - Electrical constraints (RE/LU records)
-  - Plant adjustments (AC records with variable format support)
-  - Coefficient records (FH, FT, FI, FE, FR, FC)
-  - Advanced parameters (TX, EZ, R11, FP, SECR, CR, AG)
+  - **Core data**: 73 time periods, 5 subsystems, 168 hydro plants, 116 thermal plants, 293 demand records
+  - **Network configuration**: RD (network options), RIVAR (variable restrictions), REE (energy regions)
+  - **Hydro modeling**: TVIAG (water travel time), USIE (pump storage stations)
+  - **Electrical constraints**: RE (constraint definitions), LU (limits with optional fields)
+  - **Plant adjustments**: AC (variable format support), AG (aggregate groups)
+  - **Coefficient records**: FH, FT, FI, FE, FR, FC (hydro/thermal/interchange/energy/renewable/load)
+  - **Advanced parameters**: TX (discount rate), EZ (coupling %), R11 (gauge variations), FP (FPHA), SECR (river sections), CR (head-flow polynomials)
 
 ### ✅ OPERUT.DAT Parser - Production Ready
 - Parses thermal unit operational data (INIT, OPER records)
@@ -181,12 +179,12 @@ Then commit as usual; the hook will run `Pkg.test()`.
 **Completed**: 7/32 parsers (22% coverage)
 - ✅ dessem.arq (master file registry)
 - ✅ TERMDAT.DAT (thermal plant registry)
-- ✅ ENTDADOS.DAT (general operational data)
+- ✅ **ENTDADOS.DAT (general operational data)** - 35+ record types ⭐
 - ✅ OPERUT.DAT (thermal operations)
 - ✅ DADVAZ.DAT (natural inflows)
 - ✅ OPERUH.DAT (hydro constraints)
 - ✅ DESSELET.DAT (network case mapping)
 
-**Total Tests**: 2,600+ tests passing across all parsers
+**Total Tests**: **2,896 tests passing** across all parsers (100% success rate)
 
 **Validation**: All parsers tested against real ONS and CCEE operational data

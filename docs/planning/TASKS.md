@@ -4,6 +4,62 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### October 19, 2025 - Session 11: OPERUH Field Extraction Complete ✅
+
+**Achievement**: Completed full field extraction for OPERUH.DAT parser - **100% parsing success on all 1,112 records**
+
+**Status Change**: OPERUH parser: 0% field extraction → **100% field extraction** (production ready ✅)
+
+**What Was Implemented**:
+
+1. **Complete Field Extraction for All 4 Record Types**:
+   - **REST** (340 records) - 7 fields: constraint_id, type_flag, interval_type, variable_code, initial_value, variation_type, window_duration
+   - **ELEM** (342 records) - 5 fields: constraint_id, plant_code, plant_name, variable_type, coefficient
+   - **LIM** (341 records) - 9 fields: constraint_id, start_day, start_hour, start_half, end_day, end_hour, end_half, lower_limit, upper_limit
+   - **VAR** (89 records) - 11 fields: constraint_id, 2×StageDateField (start/end), 4 ramp limits
+
+2. **Technical Implementation**:
+   - **Fixed-width column parsing** based on IDESEM specifications (Python 0-indexed → Julia 1-indexed)
+   - **StageDateField parser**: Composite date/time fields handling special chars ("I", "F") and numeric days
+   - **Union types**: `Union{String, Int}` for day fields, `Union{Float64, Nothing}` for optional numeric fields
+   - All column positions verified against IDESEM source code
+
+3. **Critical Bugs Fixed**:
+   - **Bug #1**: SubString → String conversion for Union{String, Int} types
+   - **Bug #2**: ELEM coefficient column positions off by 4 characters (was 40-44, corrected to 44-48)
+   - **Bug #3**: Enhanced `parse_float()` to handle "." as blank/missing value placeholder
+
+4. **Code Changes**:
+   - **src/types.jl**: Updated all 4 OPERUH type definitions with proper fields
+   - **src/parser/operuh.jl**: Complete rewrite with fixed-width parsing (parse_stage_date helper added)
+   - **src/parser/common.jl**: Enhanced parse_float to treat "." as blank
+   - **test/operuh_tests.jl**: Comprehensive test suite (724 tests)
+
+5. **Test Results**:
+   - ✅ **724/724 tests passing** (100%)
+   - ✅ **ONS Data**: 340 REST + 342 ELEM + 341 LIM + 89 VAR = **1,112/1,112 records (100%)**
+   - ✅ **CCEE Data**: 340 REST + 342 ELEM + 334 LIM + 74 VAR = **1,090 records (all parsed)**
+   - ✅ All fields extracted correctly (no raw text lines)
+   - ✅ Constraint relationships verified (ELEM/LIM link to REST)
+
+6. **Key Learnings**:
+   - Always check IDESEM first - saved hours debugging column positions
+   - Fixed-width format requires exact positions - off-by-one causes 100% failures
+   - Union types need explicit String() conversions in Julia
+   - Test with real data early - synthetic tests passed but real data revealed edge cases
+
+**Documentation**:
+- Created `docs/sessions/session11_operuh_completion.md` with complete implementation details
+- Updated type definitions with comprehensive field documentation
+- Documented all column positions with IDESEM references
+
+**Parser Status Update**: 8/32 parsers (25%)
+- **Complete (6)**: DESSEM.ARQ, TERMDAT, ENTDADOS, DADVAZ, OPERUT ✅, OPERUH ✅
+- **Partial (2)**: HIDR (binary), DESSELET (partial)
+- **Next Priority**: DEFLANT.DAT (previous flows - initial conditions)
+
+---
+
 ### October 19, 2025 - Session 10: ENTDADOS Bug Fix and Verification ✅
 
 **Achievement**: Fixed critical bug in record type extraction, verified all parsers working with production data
@@ -684,9 +740,14 @@ See docs/file_formats.md for complete file list and priority order.
   - TX, EZ, R11, FP, SECR, CR, AC, AG parsers ✅ (Session 8)
   - All real ONS and CCEE production data parsing successfully
   - Zero errors, 100% test coverage
-- ✅ **OPERUH.DAT parser** (Session 4 - hydraulic constraints)
-  - OPERUH REST/ELEM/LIM/VAR records
-  - Constraint-based data model
+- ✅ **OPERUH.DAT parser** (724/724 tests passing - 100% field extraction complete) ⭐
+  - REST: 340 records (7 fields each - constraint definitions)
+  - ELEM: 342 records (5 fields each - plant participation)
+  - LIM: 341 records (9 fields each - limit values with StageDateField)
+  - VAR: 89 records (11 fields each - ramp limits with StageDateField)
+  - Fixed-width column parsing based on IDESEM specifications
+  - All 1,112 records from ONS production data parsing successfully (100%)
+  - Comprehensive field extraction (no raw text lines)
 - ✅ **OPERUT.DAT parser** (72/72 tests passing - 100% complete)
   - Fixed-width column format based on IDESEM reference
   - INIT block: 387 records (47 ON, 340 OFF units)

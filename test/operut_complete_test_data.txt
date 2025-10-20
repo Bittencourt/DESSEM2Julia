@@ -1,0 +1,33 @@
+& CONDICOES INICIAIS DAS UNIDADES - Test File with All Blocks
+&
+UCTPAR 2
+UCTERM 2
+PINT
+REGRANPTV     1
+AVLCMO 1
+CPLEXLOG
+&
+&Flags Opcionais (podem estar inativos)
+&UCTBUSLOC
+&UCTHEURFP   1 100
+CONSTDADOS 1  1
+&AJUSTEFCF
+TOLERILH 1
+CROSSOVER 0 0 0 0
+ENGOLIMENTO 0
+TRATA_INVIAB_ILHA  1
+&
+&Dados de unidades termicas (formato ONS real)
+INIT
+&us     nome       ug   st   GerInic     tempo MH A/D T  TITULINFLX
+  1  ANGRA 1        1    1      640.000   2191  1  0  1        640.
+ 13  ANGRA 2        1    1     1350.000   6994  0  0  1       1350.
+ 21  MARANHAO V     1    1      337.600    114  0  0  1          0.
+FIM
+OPER
+&us    nome      un di hi m df hf m Gmin     Gmax       Custo
+  1 ANGRA 1       1 11  0 0 F                                31.17
+ 13 ANGRA 2       1 11  0 0 F                                20.12
+ 21 MARANHAO V    1 11  0 0 F                              3014.12
+FIM
+

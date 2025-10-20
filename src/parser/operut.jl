@@ -163,15 +163,52 @@ end
 
 Parse OPERUT.DAT file containing thermal unit operational data.
 
-The file contains two main blocks:
+The file contains two main data blocks and 14 configuration blocks:
+
+Configuration blocks (single-line flags):
+- UCTPAR: Parallel processing threads
+- UCTERM: Unit commitment thermal methodology
+- PINT: Interior points method flag
+- REGRANPTV: NPTV hydraulic production defaults
+- AVLCMO: CMO evaluation printing
+- CPLEXLOG: CPLEX logging flag
+- UCTBUSLOC: Local search flag
+- UCTHEURFP: Feasibility Pump heuristic
+- CONSTDADOS: Data consistency
+- AJUSTEFCF: FCF adjustments flag
+- TOLERILH: Island tolerance
+- CROSSOVER: Crossover method
+- ENGOLIMENTO: Swallowing method
+- TRATA_INVIAB_ILHA: Island infeasibility treatment
+
+Data blocks:
 - INIT...FIM: Initial conditions for thermal units
 - OPER...FIM: Operating limits and costs by time period
 
-Returns OperutData with vectors of INITRecord and OPERRecord.
+Returns OperutData with all blocks parsed.
+
+# IDESEM Reference
+idessem/dessem/modelos/operut.py
 """
 function parse_operut(filepath::AbstractString)
     init_records = INITRecord[]
     oper_records = OPERRecord[]
+    
+    # Optimization configuration blocks
+    uctpar = nothing
+    ucterm = nothing
+    pint = nothing
+    regranptv = Int[]
+    avlcmo = nothing
+    cplexlog = nothing
+    uctbusloc = nothing
+    uctheurfp = Int[]
+    constdados = Int[]
+    ajustefcf = nothing
+    tolerilh = nothing
+    crossover = Int[]
+    engolimento = nothing
+    tratainviabilha = nothing
     
     current_block = :none
     
@@ -179,6 +216,141 @@ function parse_operut(filepath::AbstractString)
         for line in eachline(file)
             # Skip empty lines and comments
             if isempty(strip(line)) || startswith(strip(line), "&")
+                continue
+            end
+            
+            # Configuration blocks (single-line flags)
+            if occursin(r"^UCTPAR\s+", line)
+                # UCTPAR <n> - Parallel processing threads
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    uctpar = tryparse_int(parts[2])
+                end
+                continue
+            end
+            
+            if occursin(r"^UCTERM\s+", line)
+                # UCTERM <n> - Unit commitment methodology
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    ucterm = tryparse_int(parts[2])
+                end
+                continue
+            end
+            
+            if occursin(r"^PINT\s*$", line)
+                # PINT - Interior points method flag
+                pint = true
+                continue
+            end
+            
+            if occursin(r"^REGRANPTV\s+", line)
+                # REGRANPTV <n1> [n2] [n3] - NPTV hydraulic production defaults
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    for i in 2:length(parts)
+                        val = tryparse_int(parts[i])
+                        if val !== nothing
+                            push!(regranptv, val)
+                        end
+                    end
+                end
+                continue
+            end
+            
+            if occursin(r"^AVLCMO\s+", line)
+                # AVLCMO <n> - CMO evaluation printing
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    avlcmo = tryparse_int(parts[2])
+                end
+                continue
+            end
+            
+            if occursin(r"^CPLEXLOG\s*$", line)
+                # CPLEXLOG - CPLEX logging flag
+                cplexlog = true
+                continue
+            end
+            
+            if occursin(r"^UCTBUSLOC\s*$", line)
+                # UCTBUSLOC - Local search flag
+                uctbusloc = true
+                continue
+            end
+            
+            if occursin(r"^UCTHEURFP\s+", line)
+                # UCTHEURFP <n1> <n2> [n3] - Feasibility Pump heuristic
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    for i in 2:length(parts)
+                        val = tryparse_int(parts[i])
+                        if val !== nothing
+                            push!(uctheurfp, val)
+                        end
+                    end
+                end
+                continue
+            end
+            
+            if occursin(r"^CONSTDADOS\s+", line)
+                # CONSTDADOS <n1> [n2] - Data consistency
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    for i in 2:length(parts)
+                        val = tryparse_int(parts[i])
+                        if val !== nothing
+                            push!(constdados, val)
+                        end
+                    end
+                end
+                continue
+            end
+            
+            if occursin(r"^AJUSTEFCF\s*$", line)
+                # AJUSTEFCF - FCF adjustments flag
+                ajustefcf = true
+                continue
+            end
+            
+            if occursin(r"^TOLERILH\s+", line)
+                # TOLERILH <n> - Island tolerance
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    tolerilh = tryparse_int(parts[2])
+                end
+                continue
+            end
+            
+            if occursin(r"^CROSSOVER\s+", line)
+                # CROSSOVER <n1> <n2> <n3> <n4> - Crossover method
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    for i in 2:length(parts)
+                        val = tryparse_int(parts[i])
+                        if val !== nothing
+                            push!(crossover, val)
+                        end
+                    end
+                end
+                continue
+            end
+            
+            if occursin(r"^ENGOLIMENTO\s+", line)
+                # ENGOLIMENTO <n> - Swallowing method
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    engolimento = tryparse_int(parts[2])
+                end
+                continue
+            end
+            
+            if occursin(r"^TRATA_INVIAB_ILHA\s+", line)
+                # TRATA_INVIAB_ILHA <n> - Island infeasibility treatment
+                parts = split(strip(line))
+                if length(parts) >= 2
+                    tratainviabilha = tryparse_int(parts[2])
+                end
                 continue
             end
             
@@ -207,7 +379,24 @@ function parse_operut(filepath::AbstractString)
         end
     end
     
-    return OperutData(init_records=init_records, oper_records=oper_records)
+    return OperutData(
+        init_records=init_records,
+        oper_records=oper_records,
+        uctpar=uctpar,
+        ucterm=ucterm,
+        pint=pint,
+        regranptv=regranptv,
+        avlcmo=avlcmo,
+        cplexlog=cplexlog,
+        uctbusloc=uctbusloc,
+        uctheurfp=uctheurfp,
+        constdados=constdados,
+        ajustefcf=ajustefcf,
+        tolerilh=tolerilh,
+        crossover=crossover,
+        engolimento=engolimento,
+        tratainviabilha=tratainviabilha
+    )
 end
 
 end # module

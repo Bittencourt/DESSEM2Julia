@@ -246,4 +246,176 @@ using DESSEM2Julia: parse_operut, INITRecord, OPERRecord, OperutData
         end
     end
     
+    @testset "Configuration Blocks" begin
+        # Test all 14 configuration blocks from IDESEM
+        test_file = "test/operut_complete_test_data.txt"
+        
+        if isfile(test_file)
+            data = parse_operut(test_file)
+            
+            # Test single-value blocks
+            @test data.uctpar == 2
+            @test data.ucterm == 2
+            @test data.pint == true
+            @test data.avlcmo == 1
+            @test data.cplexlog == true
+            @test data.tolerilh == 1
+            @test data.engolimento == 0
+            @test data.tratainviabilha == 1
+            
+            # Test multi-value blocks
+            @test data.regranptv == [1]
+            @test data.constdados == [1, 1]
+            @test data.crossover == [0, 0, 0, 0]
+            
+            # Test optional blocks (commented out in test file)
+            @test isnothing(data.uctbusloc)
+            @test isempty(data.uctheurfp)
+            @test isnothing(data.ajustefcf)
+            
+            # Test data blocks still work
+            @test length(data.init_records) == 3
+            @test length(data.oper_records) == 3
+            
+            # Verify specific records
+            @test data.init_records[1].plant_name == "ANGRA 1"
+            @test data.init_records[1].initial_generation ≈ 640.0
+            
+            @test data.oper_records[1].plant_name == "ANGRA 1"
+            @test data.oper_records[1].operating_cost ≈ 0.0
+            
+        else
+            @warn "Test data file not found: $test_file - skipping configuration block tests"
+        end
+    end
+    
+    @testset "Configuration Blocks - Individual Patterns" begin
+        # Test UCTPAR
+        tmpfile = tempname() * ".dat"
+        try
+            write(tmpfile, "UCTPAR 4\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.uctpar == 4
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test UCTERM
+        try
+            write(tmpfile, "UCTERM 1\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.ucterm == 1
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test PINT (boolean flag)
+        try
+            write(tmpfile, "PINT\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.pint == true
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test REGRANPTV (multi-value)
+        try
+            write(tmpfile, "REGRANPTV 1 2 3\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.regranptv == [1, 2, 3]
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test AVLCMO
+        try
+            write(tmpfile, "AVLCMO 0\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.avlcmo == 0
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test CPLEXLOG (boolean flag)
+        try
+            write(tmpfile, "CPLEXLOG\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.cplexlog == true
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test UCTBUSLOC (boolean flag)
+        try
+            write(tmpfile, "UCTBUSLOC\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.uctbusloc == true
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test UCTHEURFP (multi-value)
+        try
+            write(tmpfile, "UCTHEURFP 1 100 50\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.uctheurfp == [1, 100, 50]
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test CONSTDADOS (multi-value)
+        try
+            write(tmpfile, "CONSTDADOS 0 1\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.constdados == [0, 1]
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test AJUSTEFCF (boolean flag)
+        try
+            write(tmpfile, "AJUSTEFCF\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.ajustefcf == true
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test TOLERILH
+        try
+            write(tmpfile, "TOLERILH 0\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.tolerilh == 0
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test CROSSOVER (multi-value)
+        try
+            write(tmpfile, "CROSSOVER 1 0 1 0\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.crossover == [1, 0, 1, 0]
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test ENGOLIMENTO
+        try
+            write(tmpfile, "ENGOLIMENTO 1\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.engolimento == 1
+        finally
+            rm(tmpfile, force=true)
+        end
+        
+        # Test TRATA_INVIAB_ILHA
+        try
+            write(tmpfile, "TRATA_INVIAB_ILHA 0\nINIT\nFIM\nOPER\nFIM\n")
+            data = parse_operut(tmpfile)
+            @test data.tratainviabilha == 0
+        finally
+            rm(tmpfile, force=true)
+        end
+    end
+    
 end

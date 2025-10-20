@@ -191,6 +191,125 @@ Base.@kwdef struct SISTRecord
 end
 
 """
+    REERecord
+
+Energy reservoir equivalent (REE) definition record from ENTDADOS.XXX.
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - REE class
+
+# Fields
+- `ree_code::Int`: REE identifier (1-99)
+- `subsystem_code::Int`: Associated subsystem number
+- `ree_name::String`: REE name (10 characters max)
+"""
+Base.@kwdef struct REERecord
+    ree_code::Int
+    subsystem_code::Int
+    ree_name::String
+end
+
+"""
+    TVIAGRecord
+
+Water travel time between plants record from ENTDADOS.XXX.
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - TVIAG class
+
+# Fields
+- `upstream_plant::Int`: Upstream plant code
+- `downstream_element::Int`: Downstream element code
+- `element_type::String`: Element type ("H" for hydro plant, "S" for river section)
+- `duration::Int`: Travel time duration in hours
+- `travel_type::Int`: Travel time type (1=translation, 2=propagation)
+"""
+Base.@kwdef struct TVIAGRecord
+    upstream_plant::Int
+    downstream_element::Int
+    element_type::String
+    duration::Int
+    travel_type::Int
+end
+
+"""
+    RIVARRecord
+
+Variable restriction record from ENTDADOS.XXX.
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - RIVAR class
+
+# Fields
+- `entity_code::Int`: Entity code (hydro, thermal, pump, or interchange)
+- `to_system::Union{Int,Nothing}`: Destination system for interchange restrictions
+- `variable_type::Int`: Variable type code
+- `penalty::Float64`: Penalty value for restrictions
+"""
+Base.@kwdef struct RIVARRecord
+    entity_code::Int
+    to_system::Union{Int,Nothing} = nothing
+    variable_type::Int
+    penalty::Union{Float64,Nothing} = nothing
+end
+
+"""
+    USIERecord
+
+Pump station (usina elevatória) configuration record from ENTDADOS.XXX.
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - USIE class
+
+# Fields
+- `plant_code::Int`: Pump station identifier
+- `subsystem_code::Int`: Associated subsystem number
+- `plant_name::String`: Station name (12 characters max)
+- `upstream_plant::Int`: Upstream plant code (per UH record)
+- `downstream_plant::Int`: Downstream plant code (per UH record)
+- `min_pump_flow::Float64`: Minimum pumpable flow (m³/s)
+- `max_pump_flow::Float64`: Maximum pumpable flow (m³/s)
+- `consumption_rate::Float64`: Consumption rate (MWmed/m³/s)
+"""
+Base.@kwdef struct USIERecord
+    plant_code::Int
+    subsystem_code::Int
+    plant_name::String
+    upstream_plant::Int
+    downstream_plant::Int
+    min_pump_flow::Float64
+    max_pump_flow::Float64
+    consumption_rate::Float64
+end
+
+"""
+    RDRecord
+
+Electric network representation options record from ENTDADOS.XXX.
+
+# IDESEM Reference
+idessem/dessem/modelos/entdados.py - RD class
+
+# Fields
+- `slack_variables::Int`: Slack variable flag (0/1)
+- `max_violated_circuits::Int`: Maximum violated circuits allowed
+- `load_dbar_register::Int`: Load DBAR register flag (0/1)
+- `ignore_bars::Int`: Ignore bars flag (0/1)
+- `circuit_limits_drefs::Int`: Circuit and DREF limits flag (0/1)
+- `consider_losses::Int`: Consider network losses flag (0/1)
+- `network_file_format::Union{Int, Nothing}`: Network file format flag (0/1), optional
+"""
+Base.@kwdef struct RDRecord
+    slack_variables::Int
+    max_violated_circuits::Int
+    load_dbar_register::Int
+    ignore_bars::Union{Int, Nothing} = nothing
+    circuit_limits_drefs::Union{Int, Nothing} = nothing
+    consider_losses::Union{Int, Nothing} = nothing
+    network_file_format::Union{Int, Nothing} = nothing
+end
+
+"""
     UHRecord
 
 Hydroelectric plant configuration record from ENTDADOS.XXX.
@@ -1037,12 +1156,21 @@ Container for all general data from ENTDADOS.XXX.
 - `import_contracts::Vector{CIRecord}`: Import energy contracts
 - `special_demands::Vector{DERecord}`: Special demand definitions
 - `network_config::Vector{NIRecord}`: Network configuration options
+- `tolerance_gaps::Vector{GPRecord}`: Convergence tolerance gaps (PDD/MILP)
+- `energy_reservoirs::Vector{REERecord}`: Energy reservoir equivalents (REE)
+- `travel_times::Vector{TVIAGRecord}`: Water travel times between plants
+- `variable_restrictions::Vector{RIVARRecord}`: Variable restrictions with penalties
+- `pump_stations::Vector{USIERecord}`: Pump stations (usinas elevatórias)
+- `network_options::Vector{RDRecord}`: Electric network representation options
 """
 Base.@kwdef struct GeneralData
     time_periods::Vector{TMRecord} = TMRecord[]
     subsystems::Vector{SISTRecord} = SISTRecord[]
+    energy_reservoirs::Vector{REERecord} = REERecord[]
     hydro_plants::Vector{UHRecord} = UHRecord[]
+    travel_times::Vector{TVIAGRecord} = TVIAGRecord[]
     thermal_plants::Vector{UTRecord} = UTRecord[]
+    pump_stations::Vector{USIERecord} = USIERecord[]
     demands::Vector{DPRecord} = DPRecord[]
     diversions::Vector{DARecord} = DARecord[]
     hydro_maintenance::Vector{MHRecord} = MHRecord[]
@@ -1072,6 +1200,8 @@ Base.@kwdef struct GeneralData
     special_demands::Vector{DERecord} = DERecord[]
     network_config::Vector{NIRecord} = NIRecord[]
     tolerance_gaps::Vector{GPRecord} = GPRecord[]
+    variable_restrictions::Vector{RIVARRecord} = RIVARRecord[]
+    network_options::Vector{RDRecord} = RDRecord[]
 end
 
 # ============================================================================
@@ -1419,17 +1549,27 @@ end
 
 Hydro constraint definition record from OPERUH.DAT.
 
+IDESEM Reference: idessem/dessem/modelos/operuh.py - REST register
+Column positions: codigo_restricao (14-18), tipo_restricao (21), intervalo_aplicacao (23),
+                 valor_inicial (40-49), tipo_restricao_variacao (51), duracao_janela (55-59)
+
 # Fields
-- `constraint_id::Int`: Unique constraint identifier
-- `type_flag::String`: Constraint type (L=limit, V=variation)
-- `variable_code::String`: Variable being constrained (RHQ=flow, RHV=volume, etc.)
-- `initial_value::Union{Float64, Nothing}`: Initial value for variation constraints
+- `constraint_id::Int`: Unique constraint identifier (5 digits)
+- `type_flag::String`: Constraint type (L=limit, V=variation) (1 char)
+- `interval_type::String`: Interval application type (P, blank) (1 char)
+- `variable_code::String`: Variable being constrained (RHQ=flow, RHV=volume, RHS=storage, etc.) (12 chars)
+- `initial_value::Union{Float64, Nothing}`: Initial value for variation constraints (10.2 format)
+- `variation_type::Union{Int, Nothing}`: Variation constraint type (1 digit)
+- `window_duration::Union{Float64, Nothing}`: Window duration for variation (5.2 format)
 """
 Base.@kwdef struct HydroConstraintREST
     constraint_id::Int
-    type_flag::String
-    variable_code::String
+    type_flag::String  # L or V
+    interval_type::String = ""  # P or blank
+    variable_code::String  # RHQ, RHV, RHS, etc.
     initial_value::Union{Float64, Nothing} = nothing
+    variation_type::Union{Int, Nothing} = nothing
+    window_duration::Union{Float64, Nothing} = nothing
 end
 
 """
@@ -1437,19 +1577,23 @@ end
 
 Hydro constraint element (plant participation) record from OPERUH.DAT.
 
+IDESEM Reference: idessem/dessem/modelos/operuh.py - ELEM register
+Column positions: codigo_restricao (14-18), codigo_usina (20-22), nome_usina (24-35),
+                 tipo (37), coeficiente (39-43)
+
 # Fields
-- `constraint_id::Int`: Constraint identifier (links to REST record)
-- `plant_num::Int`: Hydroelectric plant number
-- `plant_name::String`: Plant name
-- `variable_code::Int`: Variable code (1-65, see documentation)
-- `participation_factor::Float64`: Plant's participation factor in constraint
+- `constraint_id::Int`: Constraint identifier (links to REST record) (5 digits)
+- `plant_code::Int`: Hydroelectric plant code (3 digits)
+- `plant_name::String`: Plant name (12 chars)
+- `variable_type::Int`: Variable type code (1-65, see DESSEM manual) (1 digit)
+- `coefficient::Float64`: Plant's coefficient in constraint equation (5.1 format)
 """
 Base.@kwdef struct HydroConstraintELEM
     constraint_id::Int
-    plant_num::Int
+    plant_code::Int
     plant_name::String
-    variable_code::Int
-    participation_factor::Float64
+    variable_type::Int
+    coefficient::Float64
 end
 
 """
@@ -1457,23 +1601,28 @@ end
 
 Hydro operational limits record from OPERUH.DAT.
 
+IDESEM Reference: idessem/dessem/modelos/operuh.py - LIM register
+Column positions: codigo_restricao (14-18), StageDateField(20) for start, StageDateField(28) for end,
+                 limite_inferior (38-47), limite_superior (48-57)
+StageDateField format: day (2 chars), hour (2 chars), half-hour (1 char) - special char 'I'/'F'
+
 # Fields
-- `constraint_id::Int`: Constraint identifier (links to REST record)
-- `start_day::String`: Initial day (I=initial, F=final, or day number)
+- `constraint_id::Int`: Constraint identifier (links to REST record) (5 digits)
+- `start_day::Union{String, Int}`: Initial day (I=initial, F=final, or day 1-31)
 - `start_hour::Union{Int, Nothing}`: Initial hour (0-23)
 - `start_half::Union{Int, Nothing}`: Initial half-hour (0-1)
-- `end_day::String`: Final day (F=final or day number)
+- `end_day::Union{String, Int}`: Final day (F=final or day 1-31)
 - `end_hour::Union{Int, Nothing}`: Final hour (0-23)
 - `end_half::Union{Int, Nothing}`: Final half-hour (0-1)
-- `lower_limit::Union{Float64, Nothing}`: Lower bound
-- `upper_limit::Union{Float64, Nothing}`: Upper bound
+- `lower_limit::Union{Float64, Nothing}`: Lower bound (10.2 format)
+- `upper_limit::Union{Float64, Nothing}`: Upper bound (10.2 format)
 """
 Base.@kwdef struct HydroConstraintLIM
     constraint_id::Int
-    start_day::String
+    start_day::Union{String, Int}
     start_hour::Union{Int, Nothing} = nothing
     start_half::Union{Int, Nothing} = nothing
-    end_day::String
+    end_day::Union{String, Int}
     end_hour::Union{Int, Nothing} = nothing
     end_half::Union{Int, Nothing} = nothing
     lower_limit::Union{Float64, Nothing} = nothing
@@ -1485,27 +1634,35 @@ end
 
 Hydro variation/ramp constraint record from OPERUH.DAT.
 
+IDESEM Reference: idessem/dessem/modelos/operuh.py - VAR register
+Column positions: codigo_restricao (14-18), StageDateField(19) for start, StageDateField(27) for end,
+                 ramp fields at (37-46), (47-56), (57-66), (67-76) - all 10.2 format
+
 # Fields
-- `constraint_id::Int`: Constraint identifier
-- `start_day::String`: Initial day
+- `constraint_id::Int`: Constraint identifier (5 digits)
+- `start_day::Union{String, Int}`: Initial day (I=initial, F=final, or day 1-31)
 - `start_hour::Union{Int, Nothing}`: Initial hour (0-23)
 - `start_half::Union{Int, Nothing}`: Initial half-hour (0-1)
-- `end_day::String`: Final day
+- `end_day::Union{String, Int}`: Final day (F=final or day 1-31)
 - `end_hour::Union{Int, Nothing}`: Final hour (0-23)
 - `end_half::Union{Int, Nothing}`: Final half-hour (0-1)
-- `lower_ramp::Union{Float64, Nothing}`: Lower ramp limit
-- `upper_ramp::Union{Float64, Nothing}`: Upper ramp limit
+- `ramp_down::Union{Float64, Nothing}`: Maximum decrease rate (10.2 format)
+- `ramp_up::Union{Float64, Nothing}`: Maximum increase rate (10.2 format)
+- `ramp_down_2::Union{Float64, Nothing}`: Secondary decrease rate (10.2 format)
+- `ramp_up_2::Union{Float64, Nothing}`: Secondary increase rate (10.2 format)
 """
 Base.@kwdef struct HydroConstraintVAR
     constraint_id::Int
-    start_day::String
+    start_day::Union{String, Int}
     start_hour::Union{Int, Nothing} = nothing
     start_half::Union{Int, Nothing} = nothing
-    end_day::String
+    end_day::Union{String, Int}
     end_hour::Union{Int, Nothing} = nothing
     end_half::Union{Int, Nothing} = nothing
-    lower_ramp::Union{Float64, Nothing} = nothing
-    upper_ramp::Union{Float64, Nothing} = nothing
+    ramp_down::Union{Float64, Nothing} = nothing
+    ramp_up::Union{Float64, Nothing} = nothing
+    ramp_down_2::Union{Float64, Nothing} = nothing
+    ramp_up_2::Union{Float64, Nothing} = nothing
 end
 
 """
@@ -1596,10 +1753,39 @@ Container for OPERUT.DAT parsed data.
 Fields:
 - `init_records::Vector{INITRecord}`: Unit initial conditions
 - `oper_records::Vector{OPERRecord}`: Operating costs and limits
+- `uctpar::Union{Int,Nothing}`: Parallel processing threads (UCTPAR block)
+- `ucterm::Union{Int,Nothing}`: Unit commitment thermal methodology (UCTERM block)
+- `pint::Union{Bool,Nothing}`: Interior points method flag (PINT block)
+- `regranptv::Vector{Int}`: NPTV hydraulic production defaults (REGRANPTV block)
+- `avlcmo::Union{Int,Nothing}`: CMO evaluation printing flag (AVLCMO block)
+- `cplexlog::Union{Bool,Nothing}`: CPLEX logging flag (CPLEXLOG block)
+- `uctbusloc::Union{Bool,Nothing}`: Local search flag (UCTBUSLOC block)
+- `uctheurfp::Vector{Int}`: Feasibility Pump heuristic parameters (UCTHEURFP block)
+- `constdados::Vector{Int}`: Data consistency parameters (CONSTDADOS block)
+- `ajustefcf::Union{Bool,Nothing}`: FCF adjustments flag (AJUSTEFCF block)
+- `tolerilh::Union{Int,Nothing}`: Island tolerance setting (TOLERILH block)
+- `crossover::Vector{Int}`: Crossover method parameters (CROSSOVER block)
+- `engolimento::Union{Int,Nothing}`: Swallowing method setting (ENGOLIMENTO block)
+- `tratainviabilha::Union{Int,Nothing}`: Island infeasibility treatment (TRATA_INVIAB_ILHA block)
 """
 Base.@kwdef struct OperutData
     init_records::Vector{INITRecord} = INITRecord[]
     oper_records::Vector{OPERRecord} = OPERRecord[]
+    # Optimization configuration blocks
+    uctpar::Union{Int,Nothing} = nothing
+    ucterm::Union{Int,Nothing} = nothing
+    pint::Union{Bool,Nothing} = nothing
+    regranptv::Vector{Int} = Int[]
+    avlcmo::Union{Int,Nothing} = nothing
+    cplexlog::Union{Bool,Nothing} = nothing
+    uctbusloc::Union{Bool,Nothing} = nothing
+    uctheurfp::Vector{Int} = Int[]
+    constdados::Vector{Int} = Int[]
+    ajustefcf::Union{Bool,Nothing} = nothing
+    tolerilh::Union{Int,Nothing} = nothing
+    crossover::Vector{Int} = Int[]
+    engolimento::Union{Int,Nothing} = nothing
+    tratainviabilha::Union{Int,Nothing} = nothing
 end
 
 # ============================================================================

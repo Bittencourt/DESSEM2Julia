@@ -403,7 +403,8 @@ parse_float("", allow_blank=true)   # => nothing
 function parse_float(s::AbstractString; allow_blank::Bool=false, 
                     decimal_char::Char='.')::Union{Float64, Nothing}
     stripped = strip(s)
-    if isempty(stripped)
+    if isempty(stripped) || stripped == "."
+        # Treat empty string or lone "." as blank
         allow_blank && return nothing
         throw(ArgumentError("Cannot parse empty string as Float64"))
     end
