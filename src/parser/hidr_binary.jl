@@ -12,193 +12,179 @@ Binary Structure (792 bytes total):
 Reference: idessem/dessem/modelos/hidr.py
 """
 
-using ...DESSEM2Julia: CADUSIH, HidrData
+using ...DESSEM2Julia: BinaryHidrRecord, BinaryHidrData
 
 """
-    read_hidr_binary_record(io::IO) -> CADUSIH
+    read_hidr_binary_record(io::IO) -> BinaryHidrRecord
 
 Read a single 792-byte binary record from HIDR.DAT file.
 
-Returns a CADUSIH struct with all plant data. String fields are converted from
-fixed-length byte arrays (stripped of nulls and trailing spaces).
+Returns a BinaryHidrRecord with all 111 fields from IDESSEM specification.
+String fields are converted from fixed-length byte arrays (stripped of nulls and trailing spaces).
 
 # Binary Layout (from IDESSEM):
-- Offset 0-11: Nome (12 bytes, string)
-- Offset 12-15: Posto (4 bytes, Int32)
-- Offset 16-23: Posto BDH (8 bytes, Int64) ← Special case!
-- Offset 24-27: Subsistema (4 bytes, Int32)
-- ... (see IDESSEM for complete 111-field layout)
+All 111 fields exactly as specified in idessem/dessem/modelos/hidr.py
 
 # Returns
-- `CADUSIH`: Struct containing plant data (only includes key fields)
+- `BinaryHidrRecord`: Complete struct with all 111 plant fields
 
 # Note
 Binary format uses little-endian byte order (x86/x64 standard).
-Many fields from IDESSEM are not included in CADUSIH - only the essential ones
-are read for now. Full implementation would require 111 fields.
+Total record size: exactly 792 bytes.
 """
 function read_hidr_binary_record(io::IO)
-    # Field 0: Nome (12 bytes) - Plant name
+    # Fields 0-2: Basic Identification (0-23)
     nome_bytes = read(io, 12)
     nome = String(nome_bytes) |> strip |> x -> replace(x, '\0' => "")
-    
-    # Field 1: Posto (4 bytes, Int32) - Station code
     posto = read(io, Int32)
+    posto_bdh = read(io, Int64)  # Special 8-byte field!
     
-    # Field 2: Posto BDH (8 bytes, Int64) - BDH station code (SPECIAL: 8 bytes!)
-    posto_bdh = read(io, Int64)
-    
-    # Field 3: Subsistema (4 bytes, Int32) - Subsystem
+    # Fields 3-6: System and Connectivity (24-39)
     subsistema = read(io, Int32)
-    
-    # Field 4: Empresa (4 bytes, Int32) - Company/Agent
     empresa = read(io, Int32)
-    
-    # Field 5: Jusante (4 bytes, Int32) - Downstream plant
     jusante = read(io, Int32)
-    
-    # Field 6: Desvio (4 bytes, Int32) - Diversion
     desvio = read(io, Int32)
     
-    # Field 7: Volume Mínimo (4 bytes, Float32) - Minimum volume (hm³)
-    volume_minimo = read(io, Float32)
+    # Fields 7-12: Volumes and Elevations (40-63)
+    volume_minimo = Float64(read(io, Float32))
+    volume_maximo = Float64(read(io, Float32))
+    volume_vertedouro = Float64(read(io, Float32))
+    volume_desvio = Float64(read(io, Float32))
+    cota_minima = Float64(read(io, Float32))
+    cota_maxima = Float64(read(io, Float32))
     
-    # Field 8: Volume Máximo (4 bytes, Float32) - Maximum volume (hm³)
-    volume_maximo = read(io, Float32)
+    # Fields 13-17: Volume-Elevation Polynomial (64-83)
+    polinomio_volume_cota = [Float64(read(io, Float32)) for _ in 1:5]
     
-    # Field 9: Volume Vertedouro (4 bytes, Float32) - Spillway volume (hm³)
-    volume_vertedouro = read(io, Float32)
+    # Fields 18-22: Elevation-Area Polynomial (84-103)
+    polinomio_cota_area = [Float64(read(io, Float32)) for _ in 1:5]
     
-    # Field 10: Volume Desvio (4 bytes, Float32) - Diversion volume (hm³)
-    volume_desvio = read(io, Float32)
-    
-    # Field 11: Cota Mínima (4 bytes, Float32) - Minimum elevation (m)
-    cota_minima = read(io, Float32)
-    
-    # Field 12: Cota Máxima (4 bytes, Float32) - Maximum elevation (m)
-    cota_maxima = read(io, Float32)
-    
-    # Fields 13-17: Polinômio Volume-Cota (5 × 4 bytes, Float32)
-    # Polynomial coefficients a0, a1, a2, a3, a4 for V(h)
-    polinomio_volume_cota = [read(io, Float32) for _ in 1:5]
-    
-    # Fields 18-22: Polinômio Cota-Área (5 × 4 bytes, Float32)
-    # Polynomial coefficients a0, a1, a2, a3, a4 for A(h)
-    polinomio_cota_area = [read(io, Float32) for _ in 1:5]
-    
-    # Fields 23-34: Evaporação (12 × 4 bytes, Int32)
-    # Monthly evaporation coefficients (JAN through DEC)
+    # Fields 23-34: Monthly Evaporation (104-151)
     evaporacao = [read(io, Int32) for _ in 1:12]
     
-    # Field 35: Número de Conjuntos de Máquinas (4 bytes, Int32)
-    num_conjuntos_maquinas = read(io, Int32)
+    # Field 35: Number of Machine Sets (152-155)
+    numero_conjuntos_maquinas = read(io, Int32)
     
-    # Fields 36-40: Número de Máquinas por Conjunto (5 × 4 bytes, Int32)
-    num_maquinas_conjunto = [read(io, Int32) for _ in 1:5]
+    # Fields 36-40: Machines per Set (156-175)
+    numero_maquinas_conjunto = [read(io, Int32) for _ in 1:5]
     
-    # Fields 41-45: Potência Efetiva por Conjunto (5 × 4 bytes, Float32) - MW
-    potef_conjunto = [read(io, Float32) for _ in 1:5]
+    # Fields 41-45: Nominal Power per Set (176-195)
+    potef_conjunto = [Float64(read(io, Float32)) for _ in 1:5]
     
-    # Skip ignored section: 300 bytes at offset 196
-    # This is a large reserved block in the IDESSEM format
+    # SPECIAL: Skip 300-byte ignored block (196-495)
+    # This is a large reserved/unused section in the binary format
     seek(io, position(io) + 300)
     
-    # Fields 46-50: H Nominal (5 × 4 bytes, Float32) - Nominal head (m)
-    h_nominal = [read(io, Float32) for _ in 1:5]
+    # Fields 46-50: Nominal Head per Set (496-515)
+    hef_conjunto = [Float64(read(io, Float32)) for _ in 1:5]
     
-    # Fields 51-55: Q Nominal (5 × 4 bytes, Int32) - Nominal flow (m³/s)
-    q_nominal = [read(io, Int32) for _ in 1:5]
+    # Fields 51-55: Nominal Flow per Set (516-535)
+    qef_conjunto = [read(io, Int32) for _ in 1:5]
     
-    # Field 56: Produtibilidade Específica (4 bytes, Float32) - Specific productivity
-    produtibilidade_especifica = read(io, Float32)
+    # Field 56: Specific Productivity (536-539)
+    produtibilidade_especifica = Float64(read(io, Float32))
     
-    # Field 57: Perdas (4 bytes, Float32) - Losses (MW)
-    perdas = read(io, Float32)
+    # Field 57: Losses (540-543)
+    perdas = Float64(read(io, Float32))
     
-    # Field 58: Número de Polinômios de Jusante (4 bytes, Int32)
-    num_polinomios_jusante = read(io, Int32)
+    # Field 58: Number of Tailrace Polynomial Families (544-547)
+    numero_polinomios_jusante = read(io, Int32)
     
-    # Fields 59-94: Polinômios de Jusante (6 families × 6 coefficients = 36 × 4 bytes, Float32)
-    # Each family: 5 polynomial coefficients + 1 reference value
-    # Total: 6 families × 6 values = 36 Float32 values = 144 bytes
-    polinomios_jusante = [read(io, Float32) for _ in 1:36]
+    # Fields 59-94: Tailrace Polynomials (548-691)
+    # 6 families × 6 values (5 coefficients + 1 reference) = 36 Float32 values
+    polinomios_jusante = [Float64(read(io, Float32)) for _ in 1:36]
     
-    # Field 95: Canal de Fuga Médio (4 bytes, Float32) - Average tailrace level (m)
-    canal_fuga_medio = read(io, Float32)
+    # Field 95: Average Tailrace Level (692-695)
+    canal_fuga_medio = Float64(read(io, Float32))
     
-    # Field 96: Influência do Vertimento no Canal de Fuga (4 bytes, Int32)
-    influencia_vertimento = read(io, Int32)
+    # Field 96: Spillway Influence on Tailrace (696-699)
+    influencia_vertimento_canal_fuga = read(io, Int32)
     
-    # Field 97: Fator de Carga Máximo (4 bytes, Float32) - Maximum load factor
-    fator_carga_maximo = read(io, Float32)
+    # Field 97: Maximum Load Factor (700-703)
+    fator_carga_maximo = Float64(read(io, Float32))
     
-    # Field 98: Fator de Carga Mínimo (4 bytes, Float32) - Minimum load factor
-    fator_carga_minimo = read(io, Float32)
+    # Field 98: Minimum Load Factor (704-707)
+    fator_carga_minimo = Float64(read(io, Float32))
     
-    # Field 99: Vazão Mínima Histórica (4 bytes, Int32) - Historical minimum flow
+    # Field 99: Historical Minimum Flow (708-711)
     vazao_minima_historica = read(io, Int32)
     
-    # Field 100: Número de Unidades Base (4 bytes, Int32) - Base number of units
+    # Field 100: Base Number of Units (712-715)
     numero_unidades_base = read(io, Int32)
     
-    # Field 101: Tipo de Turbina (4 bytes, Int32) - Turbine type
+    # Field 101: Turbine Type (716-719)
     tipo_turbina = read(io, Int32)
     
-    # Field 102: Representação do Conjunto (4 bytes, Int32)
+    # Field 102: Set Representation (720-723)
     representacao_conjunto = read(io, Int32)
     
-    # Field 103: TEIF (4 bytes, Float32) - Equivalent forced outage rate
-    teif = read(io, Float32)
+    # Field 103: TEIF - Equivalent Forced Outage Rate (724-727)
+    teif = Float64(read(io, Float32))
     
-    # Field 104: IP (4 bytes, Float32) - Programmed outage
-    ip = read(io, Float32)
+    # Field 104: IP - Programmed Outage (728-731)
+    ip = Float64(read(io, Float32))
     
-    # Field 105: Tipo de Perda (4 bytes, Int32) - Loss type
+    # Field 105: Loss Type (732-735)
     tipo_perda = read(io, Int32)
     
-    # Field 106: Data de Referência (12 bytes, string) - Reference date
+    # Field 106: Reference Date (736-747)
     data_referencia_bytes = read(io, 12)
     data_referencia = String(data_referencia_bytes) |> strip |> x -> replace(x, '\0' => "")
     
-    # Field 107: Observação (39 bytes, string) - Observation/notes
+    # Field 107: Observation/Notes (748-786)
     observacao_bytes = read(io, 39)
     observacao = String(observacao_bytes) |> strip |> x -> replace(x, '\0' => "")
     
-    # Field 108: Volume de Referência (4 bytes, Float32) - Reference volume (hm³)
-    volume_referencia = read(io, Float32)
+    # Field 108: Reference Volume (787-790)
+    volume_referencia = Float64(read(io, Float32))
     
-    # Field 109: Tipo de Regularização (1 byte, string) - Regulation type
+    # Field 109: Regulation Type (791)
     tipo_regulacao_bytes = read(io, 1)
     tipo_regulacao = String(tipo_regulacao_bytes) |> strip |> x -> replace(x, '\0' => "")
     
-    # TOTAL: 792 bytes read
-    # Verify we're at the right position (should be at 792 bytes from start of record)
+    # TOTAL: 792 bytes (0-791)
     
-    # Convert to CADUSIH format (only includes subset of fields)
-    # Note: CADUSIH was designed for text format and doesn't have all 111 fields
-    # We map what we can to the existing structure
-    
-    # For now, create a simplified CADUSIH with key fields
-    # TODO: Consider creating a new BinaryHIDRRecord struct with all 111 fields
-    
-    # Derive installed capacity from potef_conjunto (sum of all sets)
-    installed_capacity_mw = sum(potef_conjunto)
-    
-    return CADUSIH(
-        plant_num=posto,
-        plant_name=nome,
-        subsystem=subsistema,
-        commission_year=nothing,  # Not in binary format (text format only)
-        commission_month=nothing,  # Not in binary format
-        commission_day=nothing,  # Not in binary format
-        downstream_plant=jusante,
-        diversion_downstream=desvio,
-        plant_type=tipo_turbina,
-        min_volume=Float64(volume_minimo),
-        max_volume=Float64(volume_maximo),
-        max_turbine_flow=0.0,  # Could derive from q_nominal
-        installed_capacity=Float64(installed_capacity_mw),
-        productivity=Float64(produtibilidade_especifica)
+    return BinaryHidrRecord(
+        nome=nome,
+        posto=posto,
+        posto_bdh=posto_bdh,
+        subsistema=subsistema,
+        empresa=empresa,
+        jusante=jusante,
+        desvio=desvio,
+        volume_minimo=volume_minimo,
+        volume_maximo=volume_maximo,
+        volume_vertedouro=volume_vertedouro,
+        volume_desvio=volume_desvio,
+        cota_minima=cota_minima,
+        cota_maxima=cota_maxima,
+        polinomio_volume_cota=polinomio_volume_cota,
+        polinomio_cota_area=polinomio_cota_area,
+        evaporacao=evaporacao,
+        numero_conjuntos_maquinas=numero_conjuntos_maquinas,
+        numero_maquinas_conjunto=numero_maquinas_conjunto,
+        potef_conjunto=potef_conjunto,
+        hef_conjunto=hef_conjunto,
+        qef_conjunto=qef_conjunto,
+        produtibilidade_especifica=produtibilidade_especifica,
+        perdas=perdas,
+        numero_polinomios_jusante=numero_polinomios_jusante,
+        polinomios_jusante=polinomios_jusante,
+        canal_fuga_medio=canal_fuga_medio,
+        influencia_vertimento_canal_fuga=influencia_vertimento_canal_fuga,
+        fator_carga_maximo=fator_carga_maximo,
+        fator_carga_minimo=fator_carga_minimo,
+        vazao_minima_historica=vazao_minima_historica,
+        numero_unidades_base=numero_unidades_base,
+        tipo_turbina=tipo_turbina,
+        representacao_conjunto=representacao_conjunto,
+        teif=teif,
+        ip=ip,
+        tipo_perda=tipo_perda,
+        data_referencia=data_referencia,
+        observacao=observacao,
+        volume_referencia=volume_referencia,
+        tipo_regulacao=tipo_regulacao
     )
 end
 
@@ -282,31 +268,36 @@ function is_binary_hidr(filepath::String)::Bool
 end
 
 """
-    parse_hidr_binary(filepath::String) -> HidrData
+    parse_hidr_binary(filepath::String) -> BinaryHidrData
 
 Parse a binary HIDR.DAT file.
 
-Reads all 792-byte plant records and returns a HidrData structure.
+Reads all 792-byte plant records and returns a BinaryHidrData structure
+with complete 111-field records.
+
 Binary format is used by ONS (Brazilian Grid Operator) official data.
 
 # Arguments
 - `filepath::String`: Path to binary HIDR.DAT file
 
 # Returns
-- `HidrData`: Container with parsed data (currently only CADUSIH vector populated)
+- `BinaryHidrData`: Container with all complete plant records
 
 # Example
 ```julia
-hidr_data = parse_hidr_binary("docs/Sample/DS_ONS_102025_RV2D11/hidr.dat")
-println("Number of plants: ", length(hidr_data.cadusih))
-println("First plant: ", hidr_data.cadusih[1].plant_name)
+data = parse_hidr_binary("docs/Sample/DS_ONS_102025_RV2D11/hidr.dat")
+println("Number of plants: ", length(data.records))
+println("First plant: ", data.records[1].nome)
+println("Volume-elevation polynomial: ", data.records[1].polinomio_volume_cota)
+println("Installed capacity: ", sum(data.records[1].potef_conjunto), " MW")
 ```
 
 # Reference
 Based on IDESSEM (rjmalves/idessem) binary format specification.
+All 111 fields from RegistroUHEHidr are parsed.
 """
 function parse_hidr_binary(filepath::String)
-    cadusih_records = CADUSIH[]
+    records = BinaryHidrRecord[]
     
     open(filepath, "r") do io
         # Calculate number of records
@@ -321,24 +312,13 @@ function parse_hidr_binary(filepath::String)
         for i in 1:num_records
             try
                 record = read_hidr_binary_record(io)
-                push!(cadusih_records, record)
+                push!(records, record)
             catch e
-                @warn "Failed to read record $i" exception=(e, catch_backtrace())
+                @warn "Failed to read record $i at byte $(position(io))" exception=(e, catch_backtrace())
                 break
             end
         end
     end
     
-    # Return HidrData with only CADUSIH populated
-    # Other record types (USITVIAG, POLCOT, etc.) are not in binary format
-    # They would need to be derived from the binary data or read from other files
-    return HidrData(
-        plants=cadusih_records,
-        travel_times=USITVIAG[],
-        volume_elevation=POLCOT[],
-        volume_area=POLARE[],
-        tailrace=POLJUS[],
-        evaporation=COEFEVA[],
-        unit_sets=CADCONJ[]
-    )
+    return BinaryHidrData(records=records)
 end

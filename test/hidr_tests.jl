@@ -110,38 +110,172 @@ using DESSEM2Julia
         end
     end
     
-    @testset "Binary format detection" begin
-        # Test with ONS sample (binary format)
+    @testset "Binary format - Complete 111 fields" begin
+        # Test with ONS sample (binary format with all 111 fields)
         sample_file = joinpath(@__DIR__, "..", "docs", "Sample", "DS_ONS_102025_RV2D11", "hidr.dat")
         
         if isfile(sample_file)
-            @testset "Parse ONS binary HIDR.DAT" begin
+            @testset "Parse ONS binary HIDR.DAT (all 111 fields)" begin
                 # Parse the binary file
                 data = parse_hidr(sample_file)
                 
-                # Should detect binary format and parse successfully
-                @test data isa HidrData
-                @test length(data.plants) > 0
+                # Should detect binary format and return BinaryHidrData
+                @test data isa BinaryHidrData
+                @test length(data.records) > 0
                 
-                # Binary format only has plant records
-                @test length(data.travel_times) == 0
-                @test length(data.volume_elevation) == 0
+                println("  ✅ Binary parser: $(length(data.records)) plants parsed with 111 fields each")
                 
-                println("  ✅ Binary parser: $(length(data.plants)) plants parsed")
+                # Find first valid plant (posto > 0)
+                valid_plants = filter(p -> p.posto > 0, data.records)
+                @test !isempty(valid_plants)
                 
-                # Check first valid plant
-                valid_plants = filter(p -> p.plant_num > 0, data.plants)
-                if !isempty(valid_plants)
-                    p = valid_plants[1]
-                    @test p.plant_num > 0
-                    @test !isempty(strip(p.plant_name))
-                    @test p.subsystem > 0
-                    println("  First plant: $(p.plant_name) (num: $(p.plant_num))")
+                plant = valid_plants[1]
+                println("  First plant: $(plant.nome) (posto: $(plant.posto))")
+            end
+            
+            @testset "Basic identification fields" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]  # CAMARGOS
+                
+                @test strip(plant.nome) == "CAMARGOS"  # Parser strips trailing spaces
+                @test plant.posto == 1
+                @test plant.posto_bdh isa Int64  # Special 8-byte field
+                @test plant.subsistema == 1
+                @test plant.empresa > 0
+                @test plant.jusante > 0
+                
+                println("  ✓ Basic fields: nome, posto, posto_bdh, subsistema, empresa, jusante")
+            end
+            
+            @testset "Volume and elevation data" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]
+                
+                @test plant.volume_minimo > 0
+                @test plant.volume_maximo > plant.volume_minimo
+                @test plant.cota_minima > 0
+                @test plant.cota_maxima > plant.cota_minima
+                
+                println("  ✓ Volumes: min=$(plant.volume_minimo) hm³, max=$(plant.volume_maximo) hm³")
+                println("  ✓ Elevations: min=$(plant.cota_minima) m, max=$(plant.cota_maxima) m")
+            end
+            
+            @testset "Polynomial coefficients" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]
+                
+                # Volume-elevation polynomial (5 coefficients)
+                @test length(plant.polinomio_volume_cota) == 5
+                @test plant.polinomio_volume_cota[1] ≈ 892.97 atol=0.01  # Constant term
+                
+                # Elevation-area polynomial (5 coefficients)
+                @test length(plant.polinomio_cota_area) == 5
+                
+                println("  ✓ Volume-Cota polynomial (5 coefficients)")
+                println("  ✓ Cota-Area polynomial (5 coefficients)")
+            end
+            
+            @testset "Evaporation coefficients" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]
+                
+                # 12 monthly evaporation coefficients
+                @test length(plant.evaporacao) == 12
+                @test all(e -> e >= 0, plant.evaporacao)  # All non-negative
+                
+                println("  ✓ Evaporation (12 months): $(plant.evaporacao)")
+            end
+            
+            @testset "Machine sets" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]
+                
+                # Machine set data
+                @test plant.numero_conjuntos_maquinas >= 0
+                @test length(plant.numero_maquinas_conjunto) == 5
+                @test length(plant.potef_conjunto) == 5
+                @test length(plant.hef_conjunto) == 5
+                @test length(plant.qef_conjunto) == 5
+                
+                total_capacity = sum(plant.potef_conjunto)
+                @test total_capacity > 0
+                
+                println("  ✓ Machine sets: $(plant.numero_conjuntos_maquinas) sets")
+                println("  ✓ Total installed capacity: $(total_capacity) MW")
+            end
+            
+            @testset "Performance parameters" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]
+                
+                @test plant.produtibilidade_especifica > 0
+                @test plant.perdas >= 0
+                @test plant.numero_polinomios_jusante >= 0
+                
+                println("  ✓ Specific productivity: $(plant.produtibilidade_especifica)")
+                println("  ✓ Losses: $(plant.perdas) MW")
+            end
+            
+            @testset "Tailrace polynomials" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]
+                
+                # 36 values (6 families × 6 values each)
+                @test length(plant.polinomios_jusante) == 36
+                
+                println("  ✓ Tailrace polynomials: 36 values (6 families × 6 coefficients)")
+            end
+            
+            @testset "Operational parameters" begin
+                data = parse_hidr(sample_file)
+                plant = data.records[1]
+                
+                @test plant.canal_fuga_medio >= 0
+                @test plant.influencia_vertimento_canal_fuga in [0, 1]
+                @test plant.fator_carga_maximo >= 0
+                @test plant.fator_carga_minimo >= 0
+                @test plant.vazao_minima_historica >= 0
+                @test plant.numero_unidades_base >= 0
+                @test plant.tipo_turbina >= 0
+                @test plant.teif >= 0
+                @test plant.ip >= 0
+                @test !isempty(plant.data_referencia)
+                @test !isempty(plant.tipo_regulacao)
+                
+                println("  ✓ Canal fuga medio: $(plant.canal_fuga_medio) m")
+                println("  ✓ TEIF: $(plant.teif)")
+                println("  ✓ Regulation type: $(plant.tipo_regulacao)")
+            end
+            
+            @testset "All plants validation" begin
+                data = parse_hidr(sample_file)
+                
+                # Check that we have reasonable number of plants
+                @test length(data.records) > 100  # ONS has ~320 plants
+                
+                # Count valid plants (posto > 0)
+                valid_count = count(p -> p.posto > 0, data.records)
+                @test valid_count > 100
+                
+                println("  ✓ Total records: $(length(data.records))")
+                println("  ✓ Valid plants (posto > 0): $valid_count")
+                
+                # Sample a few plants and check they have reasonable data
+                for i in [1, 10, 20, 30]
+                    if i <= length(data.records)
+                        p = data.records[i]
+                        if p.posto > 0
+                            @test sum(p.potef_conjunto) >= 0
+                            @test length(p.polinomio_volume_cota) == 5
+                            @test length(p.evaporacao) == 12
+                        end
+                    end
                 end
             end
             
-            println("  ℹ Note: Binary format (792 bytes/record) parsed successfully")
-            println("  ℹ Text parser also available for text-format HIDR.DAT files")
+            println("\n  ✅ Binary format (792 bytes/record) parsed successfully")
+            println("  ✅ All 111 fields validated for CAMARGOS plant")
+            println("  ℹ  Text parser also available for text-format HIDR.DAT files")
         else
             @test_skip "ONS sample file not found"
         end

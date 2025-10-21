@@ -100,6 +100,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
   - OPERUT parser: `src/parser/operut.jl` ✅ (62/62 tests passing)
   - OPERUH parser: `src/parser/operuh.jl` ✅ (all tests passing)
   - DADVAZ parser: `src/parser/dadvaz.jl` ✅ (13/13 tests passing)
+  - **HIDR binary parser**: `src/parser/hidr_binary.jl` ✅ (54/54 tests passing, **111 fields**) ⭐ **NEW**
 - JLD2 I/O: `src/io.jl`
 - Public API: `src/api.jl`
 - Tests: `test/runtests.jl`, `test/*_tests.jl`
@@ -173,11 +174,28 @@ Then commit as usual; the hook will run `Pkg.test()`.
   - Base case reference linking
 - **Exception**: Uses split() instead of fixed-width (variable spacing in actual files)
 
+### ✅ HIDR.DAT Parser - Production Ready ⭐ **COMPLETE**
+- Parses binary hydro plant registry (**111 fields** from IDESSEM specification)
+- **54/54 tests passing** (100%)
+- Successfully parses 320 plants from ONS production data
+- **Complete field coverage**:
+  - Basic identification (name, posto, subsystem, company)
+  - Storage limits (min/max/spillway/diversion volumes)
+  - Elevation data (min/max reservoir levels)
+  - Polynomials (volume-cota, cota-area curves - 10 coefficients)
+  - Evaporation (12 monthly values)
+  - Machine sets (up to 5 sets: capacity, head, flow)
+  - Performance (productivity, losses, tailrace polynomials - 36 coefficients)
+  - Operational parameters (15 fields: TEIF, IP, regulation type, etc.)
+- Binary format: 792 bytes/plant (little-endian)
+- Special handling: 8-byte posto_bdh field, 300-byte reserved block
+- See [`docs/sessions/session14_hidr_complete.md`](docs/sessions/session14_hidr_complete.md) for details
+
 ---
 
 ### 📊 Overall Parser Progress
 
-**Completed**: 10/32 parsers (31% coverage)
+**Completed**: 11/32 parsers (34% coverage)
 - ✅ dessem.arq (master file registry)
 - ✅ termdat.dat (thermal plant registry)
 - ✅ entdados.dat (general system data - 30+ record types)
@@ -186,9 +204,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - ✅ deflant.dat (previous flows for travel time)
 - ✅ operuh.dat (hydro constraints)
 - ✅ desselet.dat (network case mapping)
-
-**In Progress**: 2/32 parsers
-- 🔄 hidr.dat (binary hydro data - partial)
+- ✅ hidr.dat (binary hydro data - **complete 111 fields**) ⭐ **NEW**
 
 **Pending High Priority**:
 - confhd.dat (hydro configuration)
@@ -198,7 +214,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### 🧪 Test Coverage
 
-**Total Tests**: 3,935 tests passing ✅
+**Total Tests**: 3,989 tests passing ✅
 - ParserCommon utilities: 124 tests
 - TERMDAT parser: 136 tests
 - ENTDADOS parser: 2,362 tests
@@ -207,6 +223,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - DADVAZ parser: 17 tests
 - DEFLANT parser: 1,076 tests
 - DESSELET parser: 15 tests
+- **HIDR parser**: 54 tests ⭐ **NEW**
 - ONS Integration: 123 tests
 - ✅ TERMDAT.DAT (thermal plant registry)
 - ✅ **ENTDADOS.DAT (general operational data)** - 35+ record types ⭐

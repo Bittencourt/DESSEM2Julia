@@ -1406,6 +1406,151 @@ Base.@kwdef struct HidrData
     unit_sets::Vector{CADCONJ} = CADCONJ[]
 end
 
+"""
+    BinaryHidrRecord
+
+Complete 792-byte binary HIDR.DAT plant record with all 111 fields from IDESSEM.
+
+Based on `idessem/dessem/modelos/hidr.py` RegistroUHEHidr structure.
+
+# Basic Identification (Fields 0-6)
+- `nome::String`: Plant name (12 characters)
+- `posto::Int`: Station code
+- `posto_bdh::Int64`: BDH station code (8 bytes, special field)
+- `subsistema::Int`: Subsystem code
+- `empresa::Int`: Company/agent code
+- `jusante::Int`: Downstream plant code
+- `desvio::Int`: Diversion code
+
+# Volume and Elevation Data (Fields 7-12)
+- `volume_minimo::Float64`: Minimum volume (hm³)
+- `volume_maximo::Float64`: Maximum volume (hm³)
+- `volume_vertedouro::Float64`: Spillway volume (hm³)
+- `volume_desvio::Float64`: Diversion volume (hm³)
+- `cota_minima::Float64`: Minimum elevation (m)
+- `cota_maxima::Float64`: Maximum elevation (m)
+
+# Polynomial Coefficients (Fields 13-22)
+- `polinomio_volume_cota::Vector{Float64}`: Volume-elevation polynomial (5 coefficients)
+- `polinomio_cota_area::Vector{Float64}`: Elevation-area polynomial (5 coefficients)
+
+# Evaporation Data (Fields 23-34)
+- `evaporacao::Vector{Int}`: Monthly evaporation coefficients (12 months, mm)
+
+# Machine Sets (Fields 35-55)
+- `numero_conjuntos_maquinas::Int`: Number of machine sets
+- `numero_maquinas_conjunto::Vector{Int}`: Machines per set (5 sets)
+- `potef_conjunto::Vector{Float64}`: Nominal power per set (MW, 5 sets)
+- `hef_conjunto::Vector{Float64}`: Nominal head per set (m, 5 sets)
+- `qef_conjunto::Vector{Int}`: Nominal flow per set (m³/s, 5 sets)
+
+# Performance Parameters (Fields 56-58)
+- `produtibilidade_especifica::Float64`: Specific productivity
+- `perdas::Float64`: Losses (MW)
+- `numero_polinomios_jusante::Int`: Number of tailrace polynomial families
+
+# Tailrace Polynomials (Fields 59-95)
+- `polinomios_jusante::Vector{Float64}`: Tailrace polynomials (36 values = 6 families × 6 values)
+
+# Operational Parameters (Fields 96-110)
+- `canal_fuga_medio::Float64`: Average tailrace level (m)
+- `influencia_vertimento_canal_fuga::Int`: Spillway influence on tailrace
+- `fator_carga_maximo::Float64`: Maximum load factor
+- `fator_carga_minimo::Float64`: Minimum load factor
+- `vazao_minima_historica::Int`: Historical minimum flow
+- `numero_unidades_base::Int`: Base number of units
+- `tipo_turbina::Int`: Turbine type
+- `representacao_conjunto::Int`: Set representation
+- `teif::Float64`: Equivalent forced outage rate
+- `ip::Float64`: Programmed outage
+- `tipo_perda::Int`: Loss type
+- `data_referencia::String`: Reference date (12 characters)
+- `observacao::String`: Observation/notes (39 characters)
+- `volume_referencia::Float64`: Reference volume (hm³)
+- `tipo_regulacao::String`: Regulation type (1 character)
+
+# Reference
+IDESSEM: idessem/dessem/modelos/hidr.py RegistroUHEHidr
+Binary format: 792 bytes per plant record
+"""
+Base.@kwdef struct BinaryHidrRecord
+    # Basic identification (Fields 0-6)
+    nome::String
+    posto::Int
+    posto_bdh::Int64
+    subsistema::Int
+    empresa::Int
+    jusante::Int
+    desvio::Int
+    
+    # Volume and elevation data (Fields 7-12)
+    volume_minimo::Float64
+    volume_maximo::Float64
+    volume_vertedouro::Float64
+    volume_desvio::Float64
+    cota_minima::Float64
+    cota_maxima::Float64
+    
+    # Polynomial coefficients (Fields 13-22)
+    polinomio_volume_cota::Vector{Float64}  # 5 coefficients
+    polinomio_cota_area::Vector{Float64}    # 5 coefficients
+    
+    # Evaporation data (Fields 23-34)
+    evaporacao::Vector{Int}  # 12 months
+    
+    # Machine sets (Fields 35-55)
+    numero_conjuntos_maquinas::Int
+    numero_maquinas_conjunto::Vector{Int}    # 5 sets
+    potef_conjunto::Vector{Float64}          # 5 sets (MW)
+    hef_conjunto::Vector{Float64}            # 5 sets (m)
+    qef_conjunto::Vector{Int}                # 5 sets (m³/s)
+    
+    # Performance parameters (Fields 56-58)
+    produtibilidade_especifica::Float64
+    perdas::Float64
+    numero_polinomios_jusante::Int
+    
+    # Tailrace polynomials (Fields 59-95)
+    polinomios_jusante::Vector{Float64}  # 36 values (6 families × 6 values)
+    
+    # Operational parameters (Fields 96-110)
+    canal_fuga_medio::Float64
+    influencia_vertimento_canal_fuga::Int
+    fator_carga_maximo::Float64
+    fator_carga_minimo::Float64
+    vazao_minima_historica::Int
+    numero_unidades_base::Int
+    tipo_turbina::Int
+    representacao_conjunto::Int
+    teif::Float64
+    ip::Float64
+    tipo_perda::Int
+    data_referencia::String  # 12 characters
+    observacao::String       # 39 characters
+    volume_referencia::Float64
+    tipo_regulacao::String   # 1 character
+end
+
+"""
+    BinaryHidrData
+
+Container for binary HIDR.DAT records with all 111 fields per plant.
+
+# Fields
+- `records::Vector{BinaryHidrRecord}`: Complete plant records from binary file
+
+# Example
+```julia
+data = parse_hidr_binary("hidr.dat")
+println("Number of plants: ", length(data.records))
+println("First plant: ", data.records[1].nome)
+println("Volume-elevation polynomial: ", data.records[1].polinomio_volume_cota)
+```
+"""
+Base.@kwdef struct BinaryHidrData
+    records::Vector{BinaryHidrRecord} = BinaryHidrRecord[]
+end
+
 # ============================================================================
 # DADVAZ.DAT - Natural Inflow Data
 # ============================================================================

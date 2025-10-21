@@ -9,7 +9,7 @@ export OperutData, INITRecord, OPERRecord
 export DadvazData, DadvazHeader, DadvazInflowRecord
 export DeflantData, DeflantRecord
 export DesseletData, DesseletBaseCase, DesseletPatamar
-export HidrData, CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ
+export HidrData, CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ, BinaryHidrRecord, BinaryHidrData
 export parse_termdat, parse_entdados, parse_operuh, parse_operut, parse_init_record, parse_oper_record
 export parse_dadvaz
 export parse_deflant
@@ -29,7 +29,7 @@ export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
 export ExecutionOptions
 
-include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord, DadvazData, DadvazHeader, DadvazInflowRecord, DeflantData, DeflantRecord, DesseletData, DesseletBaseCase, DesseletPatamar, HidrData, CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ
+include("types.jl"); using .Types: DessemData, ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB, GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord, OperuhData, HydroConstraintREST, HydroConstraintELEM, HydroConstraintLIM, HydroConstraintVAR, OperutData, INITRecord, OPERRecord, DadvazData, DadvazHeader, DadvazInflowRecord, DeflantData, DeflantRecord, DesseletData, DesseletBaseCase, DesseletPatamar, HidrData, CADUSIH, USITVIAG, POLCOT, POLARE, POLJUS, COEFEVA, CADCONJ, BinaryHidrRecord, BinaryHidrData
 include("models/core_types.jl"); using .CoreTypes
 include("io.jl"); using .IO
 include("parser/common.jl"); using .ParserCommon
