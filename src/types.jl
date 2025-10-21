@@ -3,6 +3,126 @@ module Types
 using Dates
 
 # ============================================================================
+# Control Areas (AREACONT.DAT) Types
+# ============================================================================
+
+"""
+    AreaRecord
+
+Area definition record from AREACONT.DAT.
+
+# Fields
+- `codigo_area::Int`: Area code
+- `nome_area::String`: Area name
+"""
+Base.@kwdef struct AreaRecord
+    codigo_area::Int
+    nome_area::String
+end
+
+"""
+    UsinaRecord
+
+Plant/component in control area from AREACONT.DAT.
+
+# Fields
+- `codigo_area::Int`: Area code
+- `tipo_componente::String`: Component type (H=hydro, T=thermal, etc.)
+- `codigo_componente::Int`: Component code
+- `nome_componente::String`: Component name
+"""
+Base.@kwdef struct UsinaRecord
+    codigo_area::Int
+    tipo_componente::String
+    codigo_componente::Int
+    nome_componente::String
+end
+
+"""
+    AreaContData
+
+Container for AREACONT.DAT data (control areas for power reserve).
+
+# Fields
+- `areas::Vector{AreaRecord}`: Area definitions
+- `usinas::Vector{UsinaRecord}`: Plants/components in each area
+"""
+Base.@kwdef struct AreaContData
+    areas::Vector{AreaRecord} = AreaRecord[]
+    usinas::Vector{UsinaRecord} = UsinaRecord[]
+end
+
+# ============================================================================
+# Itaipu R11 Gauge (COTASR11.DAT) Types
+# ============================================================================
+
+"""
+    CotaR11Record
+
+Itaipu R11 gauge level record from COTASR11.DAT.
+
+# Fields
+- `dia::Int`: Day
+- `hora::Int`: Hour (0-23)
+- `meia_hora::Int`: Half-hour (0 or 1)
+- `cota::Float64`: Water level at R11 gauge (meters)
+"""
+Base.@kwdef struct CotaR11Record
+    dia::Int
+    hora::Int
+    meia_hora::Int
+    cota::Float64
+end
+
+"""
+    CotasR11Data
+
+Container for COTASR11.DAT data (historical R11 gauge levels before study).
+
+# Fields
+- `records::Vector{CotaR11Record}`: R11 gauge level records
+"""
+Base.@kwdef struct CotasR11Data
+    records::Vector{CotaR11Record} = CotaR11Record[]
+end
+
+# ============================================================================
+# Travel Time Curves (CURVTVIAG.DAT) Types
+# ============================================================================
+
+"""
+    CurvTviagRecord
+
+Travel time propagation curve record from CURVTVIAG.DAT.
+
+# Fields
+- `codigo_usina_montante::Int`: Upstream plant code
+- `codigo_elemento_jusante::Int`: Downstream element code
+- `tipo_elemento_jusante::String`: Downstream element type (S=section, H=plant)
+- `hora::Int`: Hour in propagation curve
+- `percentual_acumulado::Int`: Accumulated percentage (0-100)
+"""
+Base.@kwdef struct CurvTviagRecord
+    codigo_usina_montante::Int
+    codigo_elemento_jusante::Int
+    tipo_elemento_jusante::String
+    hora::Int
+    percentual_acumulado::Int
+end
+
+"""
+    CurvTviagData
+
+Container for CURVTVIAG.DAT data (travel time propagation curves).
+
+# Fields
+- `records::Vector{CurvTviagRecord}`: Travel time curve records
+"""
+Base.@kwdef struct CurvTviagData
+    records::Vector{CurvTviagRecord} = CurvTviagRecord[]
+end
+
+# ============================================================================
 # Thermal Plant Registry (TERMDAT.DAT) Types
 # ============================================================================
 
@@ -2003,5 +2123,10 @@ Base.@kwdef struct DessemData
     files::Dict{String, Any} = Dict{String, Any}()
     metadata::Dict{String, Any} = Dict{String, Any}()
 end
+
+# Export new types
+export AreaRecord, UsinaRecord, AreaContData
+export CotaR11Record, CotasR11Data
+export CurvTviagRecord, CurvTviagData
 
 end # module

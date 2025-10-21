@@ -52,7 +52,7 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| AREACONT.DAT | Control area definition | TODO | § 12 |
+| AREACONT.DAT | Control area definition | ✅ Parser | § 12 |
 | RESPOT.XXX | Power reserve constraints | TODO | § 12 |
 | RESTSEG.XXX | Dynamic security constraints | TODO | § 12 |
 | RSTLPP.XXX | Linear piecewise security constraints | TODO | § 12 |
@@ -70,9 +70,9 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
 | MLT.DAT | Long-term average flows (monthly) | TODO | § 14 |
-| DEFLANT.XXX | Previous outflows (for travel time) | TODO | § 14 |
-| COTASR11.XXX | Itaipu R11 gauge data | TODO | § 14 |
-| CURVTVIAG.DAT | Travel time curves | TODO | § 14 |
+| DEFLANT.XXX | Previous outflows (for travel time) | ✅ Parser | § 14 |
+| COTASR11.XXX | Itaipu R11 gauge data | ✅ Parser | § 14 |
+| CURVTVIAG.DAT | Travel time curves | ✅ Parser | § 14 |
 | ILSTRI.DAT | Ilha Solteira - Três Irmãos channel data | TODO | § 14 |
 | RAMPAS.DAT | Thermal unit ramp trajectories | TODO | § 14 |
 | TOLPERD.XXX | Loss tolerance parameters | TODO | § 14 |

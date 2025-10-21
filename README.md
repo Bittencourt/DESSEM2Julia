@@ -195,7 +195,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### 📊 Overall Parser Progress
 
-**Completed**: 11/32 parsers (34% coverage)
+**Completed**: 14/32 parsers (44% coverage) 🎉
 - ✅ dessem.arq (master file registry)
 - ✅ termdat.dat (thermal plant registry)
 - ✅ entdados.dat (general system data - 30+ record types)
@@ -204,17 +204,20 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - ✅ deflant.dat (previous flows for travel time)
 - ✅ operuh.dat (hydro constraints)
 - ✅ desselet.dat (network case mapping)
-- ✅ hidr.dat (binary hydro data - **complete 111 fields**) ⭐ **NEW**
+- ✅ hidr.dat (binary hydro data - **complete 111 fields**)
+- ✅ **areacont.dat (control area assignments)** ⭐ **SESSION 15**
+- ✅ **cotasr11.dat (Itaipu R11 gauge levels)** ⭐ **SESSION 15**
+- ✅ **curvtviag.dat (travel time propagation curves)** ⭐ **SESSION 15**
 
 **Pending High Priority**:
 - confhd.dat (hydro configuration)
-- modif.dat (modifications)
+- modif.dat (modifications - no sample data available)
 
 ---
 
 ### 🧪 Test Coverage
 
-**Total Tests**: 3,989 tests passing ✅
+**Total Tests**: 4,258 tests passing ✅ 🎉
 - ParserCommon utilities: 124 tests
 - TERMDAT parser: 136 tests
 - ENTDADOS parser: 2,362 tests
@@ -223,7 +226,9 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - DADVAZ parser: 17 tests
 - DEFLANT parser: 1,076 tests
 - DESSELET parser: 15 tests
-- **HIDR parser**: 54 tests ⭐ **NEW**
+- **AREACONT parser**: 77 tests ⭐ **SESSION 15**
+- **COTASR11 parser**: 107 tests ⭐ **SESSION 15**
+- **CURVTVIAG parser**: 39 tests ⭐ **SESSION 15**
 - ONS Integration: 123 tests
 - ✅ TERMDAT.DAT (thermal plant registry)
 - ✅ **ENTDADOS.DAT (general operational data)** - 35+ record types ⭐

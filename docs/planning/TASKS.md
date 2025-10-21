@@ -4,6 +4,76 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### October 21, 2025 - Session 15: Three Parsers Implemented ✅
+
+**Achievement**: Implemented AREACONT, COTASR11, and CURVTVIAG parsers - **all 4,258 tests passing**
+
+**Status Change**: 11 → **14 parsers complete** (44% coverage, +10% progress)
+
+**What Was Implemented**:
+
+1. **AREACONT.DAT Parser** (control area assignments):
+   - **Purpose**: Maps hydro and thermal plants to control areas for operational coordination
+   - **Format**: Block-structured with AREA/USINA/FIM markers
+   - **Fields**: Area code, conjunto, plant type (H/T), plant code, plant name
+   - **Parser Type**: State machine with nested block handling
+   - **Tests**: 77 tests passing (1 area + 24 plants from CCEE sample)
+
+2. **COTASR11.DAT Parser** (Itaipu R11 gauge levels):
+   - **Purpose**: Historical water level measurements at Itaipu R11 monitoring point
+   - **Format**: Fixed-width sequential records with right-aligned floats
+   - **Fields**: Day, hour, half-hour flag, cota (water level in meters)
+   - **Parser Type**: Sequential with simple field extraction
+   - **Tests**: 107 tests passing (48 gauge readings, 24 hours half-hourly)
+
+3. **CURVTVIAG.DAT Parser** (travel time propagation curves):
+   - **Purpose**: Defines cumulative percentage curves for water travel time between plants
+   - **Format**: Fixed-width with CURVTV mnemonic, right-aligned integer fields
+   - **Fields**: Upstream plant code, downstream element, element type (S/H), hour, cumulative %
+   - **Parser Type**: Filtered sequential (CURVTV lines only)
+   - **Tests**: 39 tests passing (2 propagation curves, 39 time points)
+
+4. **Intensive Debugging Process** (CURVTVIAG took 5 iterations):
+   - **Challenge**: Right-aligned fields with varying digit counts (1-3 digits)
+   - **Solution**: Character-by-character position mapping, wider extraction ranges + strip()
+   - **Lesson**: Fixed-width formats need empirical validation, not visual inspection
+
+5. **Test Results**:
+   - ✅ **77/77 AREACONT tests passing** (state machine parser)
+   - ✅ **107/107 COTASR11 tests passing** (right-aligned float handling)
+   - ✅ **39/39 CURVTVIAG tests passing** (1-3 digit code support)
+   - ✅ **Real Data**: CCEE and ONS samples validated
+
+6. **Full Test Suite Status**:
+   ```
+   ✅ ParserCommon:       124/124 tests pass
+   ✅ TERMDAT:            136/136 tests pass
+   ✅ ENTDADOS:         2,362/2,362 tests pass
+   ✅ DessemArq:           69/69 tests pass
+   ✅ OPERUT:             106/106 tests pass
+   ✅ DADVAZ:              17/17 tests pass
+   ✅ DEFLANT:          1,076/1,076 tests pass
+   ✅ DESSELET:            15/15 tests pass
+   ✅ AREACONT:            77/77 tests pass (NEW!)
+   ✅ COTASR11:           107/107 tests pass (NEW!)
+   ✅ CURVTVIAG:           39/39 tests pass (NEW!)
+   ✅ ONS Integration:    123/123 tests pass
+   
+   TOTAL: 4,258 tests passing ✅ (+323 from session 13)
+   ```
+
+7. **IDESSEM References Used**:
+   - `areacont.py`: Block structure and Line/RegistroUsina definitions
+   - `cotasr11.py`: Record format validation
+   - `curvtviag.py`: Field positions for right-aligned integers
+
+**Parser Status Update**: 14/32 parsers (44%)
+- **Complete (14)**: AREACONT, COTASR11, CURVTVIAG, DESSEM.ARQ, TERMDAT, ENTDADOS, DADVAZ, DEFLANT, OPERUT, OPERUH, DESSELET, HIDR ✅
+- **Next Priority**: CONFHD.DAT (hydro configuration), MODIF.DAT (needs sample data)
+- **Next Milestone**: 50% completion (16/32 parsers)
+
+---
+
 ### October 21, 2025 - Session 13: DEFLANT Parser Complete ✅
 
 **Achievement**: Implemented deflant.dat parser for previous flow data - **all 3,935 tests passing**

@@ -15,6 +15,9 @@ include("operut_tests.jl")
 include("dadvaz_tests.jl")
 include("deflant_tests.jl")
 include("desselet_tests.jl")
+include("areacont_tests.jl")
+include("cotasr11_tests.jl")
+include("curvtviag_tests.jl")
 
 # Integration tests with real ONS sample data
 include("ons_integration_tests.jl")
