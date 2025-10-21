@@ -177,12 +177,13 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### 📊 Overall Parser Progress
 
-**Completed**: 9/32 parsers (28% coverage)
+**Completed**: 10/32 parsers (31% coverage)
 - ✅ dessem.arq (master file registry)
 - ✅ termdat.dat (thermal plant registry)
 - ✅ entdados.dat (general system data - 30+ record types)
 - ✅ operut.dat (thermal operations)
 - ✅ dadvaz.dat (hydro inflows)
+- ✅ deflant.dat (previous flows for travel time)
 - ✅ operuh.dat (hydro constraints)
 - ✅ desselet.dat (network case mapping)
 
@@ -190,7 +191,6 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - 🔄 hidr.dat (binary hydro data - partial)
 
 **Pending High Priority**:
-- deflant.dat (previous flows - initial conditions)
 - confhd.dat (hydro configuration)
 - modif.dat (modifications)
 
@@ -198,22 +198,24 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### 🧪 Test Coverage
 
-**Total Tests**: 2,959 tests passing ✅
+**Total Tests**: 3,935 tests passing ✅
 - ParserCommon utilities: 124 tests
 - TERMDAT parser: 136 tests
 - ENTDADOS parser: 2,362 tests
 - DessemArq parser: 69 tests
 - OPERUT parser: 106 tests
 - DADVAZ parser: 17 tests
+- DEFLANT parser: 1,076 tests
 - DESSELET parser: 15 tests
 - ONS Integration: 123 tests
 - ✅ TERMDAT.DAT (thermal plant registry)
 - ✅ **ENTDADOS.DAT (general operational data)** - 35+ record types ⭐
 - ✅ OPERUT.DAT (thermal operations)
 - ✅ DADVAZ.DAT (natural inflows)
+- ✅ DEFLANT.DAT (previous flows)
 - ✅ OPERUH.DAT (hydro constraints)
 - ✅ DESSELET.DAT (network case mapping)
 
-**Total Tests**: **2,896 tests passing** across all parsers (100% success rate)
+**Total Tests**: **3,935 tests passing** across all parsers (100% success rate)
 
 **Validation**: All parsers tested against real ONS and CCEE operational data

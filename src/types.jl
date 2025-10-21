@@ -1789,6 +1789,61 @@ Base.@kwdef struct OperutData
 end
 
 # ============================================================================
+# Previous Flows (DEFLANT.DAT) Types
+# ============================================================================
+
+"""
+    DeflantRecord
+
+Represents a previous flow record (DEFANT) for water travel time modeling.
+
+Previous flows define flow rates before the study period to account for 
+water travel time delays between upstream and downstream elements.
+
+# Fields
+- `upstream_plant::Int`: Upstream plant code (1-999)
+- `downstream_element::Int`: Downstream element code (1-999)
+- `element_type::String`: Type of downstream element ("H" = hydro, "S" = river section)
+- `initial_day::Union{String, Int}`: Initial day ("I" for inicio or 1-31)
+- `initial_hour::Union{Int, Nothing}`: Initial hour (0-23)
+- `initial_half::Union{Int, Nothing}`: Initial half-hour (0 or 1)
+- `final_day::Union{String, Int}`: Final day ("F" for fim or 1-31)
+- `final_hour::Union{Int, Nothing}`: Final hour (0-23)
+- `final_half::Union{Int, Nothing}`: Final half-hour (0 or 1)
+- `flow::Float64`: Flow rate in m³/s
+
+# IDESEM Reference
+idessem/dessem/modelos/deflant.py - DEFANT class
+"""
+Base.@kwdef struct DeflantRecord
+    upstream_plant::Int
+    downstream_element::Int
+    element_type::String
+    initial_day::Union{String, Int}
+    initial_hour::Union{Int, Nothing} = nothing
+    initial_half::Union{Int, Nothing} = nothing
+    final_day::Union{String, Int}
+    final_hour::Union{Int, Nothing} = nothing
+    final_half::Union{Int, Nothing} = nothing
+    flow::Float64
+end
+
+"""
+    DeflantData
+
+Container for all DEFLANT.DAT previous flow records.
+
+# Fields
+- `records::Vector{DeflantRecord}`: All DEFANT records
+
+# IDESEM Reference
+idessem/dessem/deflant.py - Deflant class
+"""
+Base.@kwdef struct DeflantData
+    records::Vector{DeflantRecord} = DeflantRecord[]
+end
+
+# ============================================================================
 # Main Container Type
 # ============================================================================
 
