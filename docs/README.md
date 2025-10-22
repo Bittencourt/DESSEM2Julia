@@ -17,6 +17,7 @@ Welcome to the DESSEM2Julia documentation! This project provides Julia parsers a
 - [Quick Start Guide](planning/QUICK_START_GUIDE.md) - Get up and running in minutes
 - [Project Context](planning/PROJECT_CONTEXT.md) - Understanding the project's goals and scope
 - [Repository Structure](REPOSITORY_STRUCTURE.md) - Navigate the codebase
+- [Network Visualization Guide](../examples/NETWORK_VISUALIZATION.md) ⚡ **NEW!** - Visualize electrical network topology
 
 ### 📖 **Core Documentation**
 
@@ -29,7 +30,7 @@ Welcome to the DESSEM2Julia documentation! This project provides Julia parsers a
 #### Architecture & Design
 - **[Architecture Overview](architecture.md)** - System design and components
 - **[Entity Relationships](ENTITY_RELATIONSHIPS.md)** - How DESSEM entities relate to each other
-- **[Reorganization Summary](REORGANIZATION_SUMMARY.md)** - Project structure evolution
+- **[Documentation History](DOCUMENTATION_HISTORY.md)** - Project structure evolution and documentation changes
 
 ---
 
@@ -325,7 +326,7 @@ entdados = parse_entdados("entdados.dat")
 - [Architecture Overview](architecture.md)
 - [Type System](type_system.md)
 - [Repository Structure](REPOSITORY_STRUCTURE.md)
-- [Reorganization Summary](REORGANIZATION_SUMMARY.md)
+- [Documentation History](DOCUMENTATION_HISTORY.md)
 
 </details>
 

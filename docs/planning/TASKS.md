@@ -4,6 +4,98 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### October 21, 2025 - Session 16: Network Topology & Visualization ✅
+
+**Achievement**: Implemented network topology extraction from PDO output files with interactive visualization - **all 2,900+ tests passing**
+
+**Status**: Network analysis capability added - **7/32 parsers complete** (22% coverage)
+
+**What Was Implemented**:
+
+1. **Network Topology Parser** (`src/parser/network_topology.jl`):
+   - **Purpose**: Extract electrical network topology (buses & transmission lines) from DESSEM case
+   - **Data Source**: PDO output files (text format, complete network data)
+     - `pdo_somflux.rel` - Transmission line flows and capacities
+     - `pdo_operacao.rel` - Bus characteristics and generation/load
+   - **Types**: NetworkBus, NetworkLine, NetworkTopology (in `src/types.jl`)
+   - **Functions**: parse_pdo_somflux_topology(), parse_pdo_operacao_buses(), parse_network_topology()
+   - **Test Coverage**: 1,932 assertions passing ✅
+   - **Real Data**: 342 buses, 629 lines from ONS sample
+
+2. **Network Visualization** (`examples/visualize_network_topology.jl`, `plot_network_simple.jl`):
+   - **Purpose**: Create electrical network diagrams showing buses and transmission lines
+   - **Features**:
+     - Buses colored by subsystem (SE=red, S=cyan, NE=yellow, N=green)
+     - Edges weighted by power flow magnitude (MW)
+     - Spring layout algorithm for natural clustering
+     - Labels for high-connectivity buses (degree > 8)
+     - Regional subsystem views
+   - **Requirements**: Graphs.jl, GraphPlot.jl, Colors.jl, Compose.jl
+   - **Output**: PNG diagrams with network statistics
+
+3. **Technical Implementation**:
+   - **Followed #1 Rule**: Consulted IDESEM for PDO format validation
+   - **Parsing Strategy**: Semicolon-delimited fields from PDO text files
+   - **Field Positions**: Validated indices (8,9 for from/to buses, not 7,8)
+   - **Visualization**: RGBA colors for variable opacity, spring layout for clustering
+
+4. **Code Changes**:
+   - **src/types.jl**: Added NetworkBus, NetworkLine, NetworkTopology types
+   - **src/parser/network_topology.jl**: Complete topology extraction (3 functions)
+   - **examples/visualize_network_topology.jl**: Comprehensive analysis + plotting (~580 lines)
+   - **examples/plot_network_simple.jl**: Standalone one-command plotting (~260 lines)
+   - **test/network_topology_tests.jl**: Validation suite
+   - **test/plot_logic_test.jl**: Plotting logic validation (6/6 tests ✅)
+
+5. **Documentation**:
+   - **examples/NETWORK_VISUALIZATION.md**: Complete plotting guide (~400 lines)
+   - **examples/QUICKSTART_PLOT.md**: Quick reference (~150 lines)
+   - **examples/README.md**: Examples directory overview
+   - **docs/sessions/session16_network_topology.md**: Full session summary
+
+6. **Test Results**:
+   - ✅ **1,932 network topology tests passing** (100%)
+   - ✅ **6/6 plot logic tests passing** (validation without plot libraries)
+   - ✅ **Real ONS Data**: 342 buses, 629 lines parsed successfully
+   - ✅ **Subsystems Detected**: NE, SE, S, N (all 4 regions)
+   - ✅ **Flow Data**: All 629 lines have power flow values
+   - ✅ **Connectivity**: Valid bus references in all lines
+
+7. **Full Test Suite Status**:
+   ```
+   ✅ ParserCommon:        124/124 tests pass
+   ✅ TERMDAT:             136/136 tests pass
+   ✅ ENTDADOS:          2,362/2,362 tests pass
+   ✅ DessemArq:            69/69 tests pass
+   ✅ OPERUT:              106/106 tests pass
+   ✅ DADVAZ:               17/17 tests pass
+   ✅ DEFLANT:           1,076/1,076 tests pass
+   ✅ DESSELET:             15/15 tests pass
+   ✅ AREACONT:             77/77 tests pass
+   ✅ COTASR11:            107/107 tests pass
+   ✅ CURVTVIAG:            39/39 tests pass
+   ✅ NetworkTopology:   1,932/1,932 tests pass (NEW!)
+   ✅ Plot Logic:            6/6 tests pass (NEW!)
+   ✅ ONS Integration:     123/123 tests pass
+   
+   TOTAL: 6,189+ tests passing ✅ (+1,931 from session 15)
+   ```
+
+8. **Network Analysis Capabilities**:
+   - Bus connectivity analysis (degree distribution)
+   - Hub identification (top 10 most connected buses)
+   - Power flow statistics (max/average/total MW)
+   - Subsystem distribution (buses per region)
+   - Graph theory metrics (diameter, radius, connected components)
+   - Most loaded transmission lines (top 10 by flow)
+
+**Parser Status Update**: 7/32 parsers (22%)
+- **Complete (7)**: AREACONT, COTASR11, CURVTVIAG, DESSEM.ARQ, TERMDAT, ENTDADOS, DADVAZ, DEFLANT, OPERUT, OPERUH, DESSELET, HIDR ✅
+- **New Capability**: Network topology extraction from PDO files ✅
+- **Next Priority**: CONFHD.DAT (hydro configuration), MODIF.DAT (modifications)
+
+---
+
 ### October 21, 2025 - Session 15: Three Parsers Implemented ✅
 
 **Achievement**: Implemented AREACONT, COTASR11, and CURVTVIAG parsers - **all 4,258 tests passing**

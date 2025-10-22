@@ -222,6 +222,22 @@ All examples are in the `examples/` directory at the project root.
 
 ### Available Examples
 
+#### Network Visualization ⚡ **NEW!**
+- **`examples/visualize_network_topology.jl`** 🔌 **[FEATURED]**
+  - Extract electrical network topology from PDO files
+  - 342 buses, 629 transmission lines
+  - Color-coded by subsystem (SE, S, NE, N)
+  - Power flow visualization
+  - Network statistics and connectivity analysis
+  - See: [Network Visualization Guide](../examples/NETWORK_VISUALIZATION.md)
+  
+- **`examples/plot_network_simple.jl`** 📊 **[QUICK START]**
+  - One-command network diagram generation
+  - Spring layout algorithm
+  - Edge thickness by power flow
+  - Automatic PNG export
+  - See: [Quick Plot Guide](../examples/QUICKSTART_PLOT.md)
+
 #### Hydroelectric Analysis
 - **`examples/simple_hydro_tree.jl`** 🌳 **[RECOMMENDED]**
   - Clean cascade visualization
@@ -307,15 +323,11 @@ Track project progress and understand development decisions.
   - HIDR implementation details
   - Statistics and achievements
 
-- **[Documentation Update](DOCUMENTATION_UPDATE.md)** 📝
-  - Documentation improvement tracking
-  - Structure changes
-  - Content additions
-
-- **[Reorganization Summary](REORGANIZATION_SUMMARY.md)** 🔄
+- **[Documentation History](DOCUMENTATION_HISTORY.md)** 📝
+  - Timeline of major documentation changes
   - Repository reorganization notes
-  - Structure improvements
-  - Migration guide
+  - Documentation evolution statistics
+  - Maintenance history
 
 ---
 
@@ -402,6 +414,11 @@ Visual overview of how documentation relates:
 
 ### I want to...
 
+#### **...visualize network topology** ⚡ **NEW!**
+1. Start: [Network Visualization Guide](../examples/NETWORK_VISUALIZATION.md)
+2. Quick: [Quick Plot Guide](../examples/QUICKSTART_PLOT.md)
+3. Examples: [visualize_network_topology.jl](../examples/visualize_network_topology.jl)
+
 #### **...parse HIDR.DAT files**
 1. Start: [HIDR Quick Reference](HIDR_QUICK_REFERENCE.md)
 2. Examples: [Simple Hydro Tree](../examples/simple_hydro_tree.jl)
@@ -474,8 +491,9 @@ Must-read documents for different roles:
 ### For Data Analysts 📊
 1. **[Entity Relationships](ENTITY_RELATIONSHIPS.md)** ⭐
 2. [HIDR Quick Reference](HIDR_QUICK_REFERENCE.md)
-3. [Simple Hydro Tree Example](../examples/simple_hydro_tree.jl)
-4. [HIDR Entity Diagram](HIDR_ENTITY_DIAGRAM.md)
+3. [Network Visualization Guide](../examples/NETWORK_VISUALIZATION.md) ⚡ **NEW!**
+4. [Simple Hydro Tree Example](../examples/simple_hydro_tree.jl)
+5. [HIDR Entity Diagram](HIDR_ENTITY_DIAGRAM.md)
 
 ### For Contributors 🤝
 1. [Project Context](planning/PROJECT_CONTEXT.md)
@@ -488,6 +506,8 @@ Must-read documents for different roles:
 ## 🌟 Featured Content
 
 ### Recently Updated ⭐
+- **[Network Visualization Guide](../examples/NETWORK_VISUALIZATION.md)** ⚡ **NEW** - Complete plotting guide
+- **[Plot Network Simple](../examples/plot_network_simple.jl)** ⚡ **NEW** - One-command visualization
 - **[Entity Relationships](ENTITY_RELATIONSHIPS.md)** - Complete HIDR integration (+360 lines)
 - **[HIDR Quick Reference](HIDR_QUICK_REFERENCE.md)** - NEW comprehensive guide
 - **[HIDR Entity Diagram](HIDR_ENTITY_DIAGRAM.md)** - NEW visual reference

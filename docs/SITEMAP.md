@@ -25,7 +25,7 @@ Visual overview of all documentation and how it interconnects.
 ├─ 🏗️ Architecture & Design
 │  ├─ architecture.md
 │  ├─ type_system.md ────────┬──► Links to ENTITY_RELATIONSHIPS.md
-│  └─ REORGANIZATION_SUMMARY.md
+│  └─ DOCUMENTATION_HISTORY.md ──► Doc evolution & history
 │
 ├─ 📖 File Formats & Specifications
 │  ├─ file_formats.md ──────────► Master status tracker
@@ -52,8 +52,15 @@ Visual overview of all documentation and how it interconnects.
 │
 ├─ 💻 Examples & Code
 │  └─ ../examples/ (at project root)
-│     ├─ simple_hydro_tree.jl ────► Cascade visualization
-│     ├─ hydro_tree_example.jl ───► Advanced analysis
+│     ├─ README.md ───────────────► Examples directory overview
+│     ├─ Network Visualization ⚡ NEW!
+│     │  ├─ NETWORK_VISUALIZATION.md ──► Complete plotting guide
+│     │  ├─ QUICKSTART_PLOT.md ────────► Quick plot reference
+│     │  ├─ visualize_network_topology.jl ► Full analysis + plots
+│     │  └─ plot_network_simple.jl ────► One-command plotting
+│     ├─ Hydro Analysis
+│     │  ├─ simple_hydro_tree.jl ──────► Cascade visualization
+│     │  └─ hydro_tree_example.jl ─────► Advanced analysis
 │     ├─ parse_sample_case.jl ────► Basic parsing
 │     ├─ test_ons_parsers.jl ─────► ONS testing
 │     └─ [more examples...]
@@ -81,8 +88,9 @@ Visual overview of all documentation and how it interconnects.
 │     ├─ session6_summary.md
 │     └─ session5_summary.md
 │
-├─ 🔧 Internal Documentation
-│  ├─ DOCUMENTATION_UPDATE.md
+├─ 🔧 Meta-Documentation
+│  ├─ DOCUMENTATION_HISTORY.md ──► Doc evolution & maintenance
+│  ├─ DOCUMENTATION_CONSOLIDATION_PLAN.md ──► Cleanup plan
 │  └─ _NAVIGATION_TEMPLATE.md ───► Template for navigation
 
 └─ 🗺️ This Document
@@ -162,12 +170,13 @@ Parser Developer Path:
 | **File Formats** | 4 | 2,000 |
 | **Data Relationships** | 4 | 2,500 |
 | **Parser Docs** | 3 | 1,500 |
-| **Examples** | 7 | 1,000 |
+| **Examples** | 10 | 1,800 |
+| **Network Visualization** ⚡ | 4 | 900 |
 | **Samples & Validation** | 2 | 500 |
 | **Planning** | 4 | 1,000 |
 | **Sessions** | 6 | 2,000 |
 | **Navigation** | 3 | 800 |
-| **Total** | ~39 | ~14,000+ |
+| **Total** | ~47 | ~13,600+ |
 
 ### Most Connected Documents
 
@@ -187,6 +196,14 @@ Parser Developer Path:
 ---
 
 ## 🎯 Quick Access by Use Case
+
+### I want to visualize network topology ⚡ NEW!
+```
+START: examples/NETWORK_VISUALIZATION.md
+  → Quick: examples/QUICKSTART_PLOT.md
+  → Example: visualize_network_topology.jl
+  → Simple: plot_network_simple.jl
+```
 
 ### I want to parse HIDR.DAT
 ```
@@ -257,8 +274,8 @@ START: QUICK_START_GUIDE.md
 - architecture.md
 - type_system.md
 - REPOSITORY_STRUCTURE.md
-- REORGANIZATION_SUMMARY.md
-- DOCUMENTATION_UPDATE.md
+- DOCUMENTATION_HISTORY.md
+- DOCUMENTATION_CONSOLIDATION_PLAN.md
 - _NAVIGATION_TEMPLATE.md
 
 ### HIDR Cluster (`docs/`)
@@ -346,6 +363,7 @@ START: QUICK_START_GUIDE.md
 ## 🔍 Search Tips
 
 ### Find by Topic
+- **Network Visualization** ⚡: NETWORK_VISUALIZATION.md, QUICKSTART_PLOT.md, visualize_network_topology.jl, plot_network_simple.jl
 - **Cascade Analysis**: ENTITY_RELATIONSHIPS.md, HIDR_ENTITY_DIAGRAM.md, hydro_tree_example.jl
 - **Binary Formats**: HIDR_BINARY_COMPLETE.md, BINARY_FILES.md
 - **Parser Status**: file_formats.md

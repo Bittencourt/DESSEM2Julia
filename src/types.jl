@@ -2109,6 +2109,74 @@ Base.@kwdef struct DeflantData
 end
 
 # ============================================================================
+# Network Topology Types (from PDO files)
+# ============================================================================
+
+"""
+    NetworkBus
+
+Bus (node) in the electrical network topology.
+
+# Fields
+- `bus_number::Int`: Bus identifier
+- `name::String`: Bus name
+- `subsystem::String`: Regional subsystem (SE, S, N, NE)
+- `generation_mw::Union{Float64, Nothing}`: Total generation at bus (MW)
+- `load_mw::Union{Float64, Nothing}`: Load at bus (MW)
+- `voltage_kv::Union{Float64, Nothing}`: Nominal voltage (kV)
+"""
+Base.@kwdef struct NetworkBus
+    bus_number::Int
+    name::String = ""
+    subsystem::String = ""
+    generation_mw::Union{Float64, Nothing} = nothing
+    load_mw::Union{Float64, Nothing} = nothing
+    voltage_kv::Union{Float64, Nothing} = nothing
+end
+
+"""
+    NetworkLine
+
+Transmission line (edge) in the electrical network topology.
+
+# Fields
+- `from_bus::Int`: Origin bus number
+- `to_bus::Int`: Destination bus number
+- `circuit::Int`: Circuit identifier (1, 2, 3... for parallel lines)
+- `flow_mw::Union{Float64, Nothing}`: Power flow (MW)
+- `capacity_mw::Union{Float64, Nothing}`: Line capacity (MW)
+- `constraint_name::String`: Associated constraint name
+"""
+Base.@kwdef struct NetworkLine
+    from_bus::Int
+    to_bus::Int
+    circuit::Int
+    flow_mw::Union{Float64, Nothing} = nothing
+    capacity_mw::Union{Float64, Nothing} = nothing
+    constraint_name::String = ""
+end
+
+"""
+    NetworkTopology
+
+Complete electrical network topology extracted from PDO output files.
+
+# Fields
+- `buses::Vector{NetworkBus}`: All network buses
+- `lines::Vector{NetworkLine}`: All transmission lines
+- `stage::Union{Int, Nothing}`: Time stage (1-48)
+- `load_level::String`: Load level (LEVE, MEDIA, PESADA)
+- `metadata::Dict{String, Any}`: Additional information
+"""
+Base.@kwdef struct NetworkTopology
+    buses::Vector{NetworkBus} = NetworkBus[]
+    lines::Vector{NetworkLine} = NetworkLine[]
+    stage::Union{Int, Nothing} = nothing
+    load_level::String = ""
+    metadata::Dict{String, Any} = Dict{String, Any}()
+end
+
+# ============================================================================
 # Main Container Type
 # ============================================================================
 
@@ -2128,5 +2196,6 @@ end
 export AreaRecord, UsinaRecord, AreaContData
 export CotaR11Record, CotasR11Data
 export CurvTviagRecord, CurvTviagData
+export NetworkBus, NetworkLine, NetworkTopology
 
 end # module

@@ -61,9 +61,17 @@ Pkg.test()
 
 ## Examples
 
+- **Network visualization** 📊 **NEW!**: [`examples/visualize_network_topology.jl`](examples/visualize_network_topology.jl) - Extract and visualize electrical network topology
+  - Create electrical network diagrams (buses & transmission lines)
+  - Color-coded by subsystem (SE/S/NE/N)
+  - Edge thickness by power flow
+  - Network statistics and connectivity analysis
+  - See [`examples/NETWORK_VISUALIZATION.md`](examples/NETWORK_VISUALIZATION.md) for complete guide
 - **Parse sample DESSEM case**: [`examples/parse_sample_case.jl`](examples/parse_sample_case.jl) - Comprehensive demonstration of parsing real CCEE data
 - **ONS compatibility check**: [`examples/verify_ons_compatibility.jl`](examples/verify_ons_compatibility.jl) - Verify parser works with ONS network-enabled cases
 - **OPERUH parser test**: [`examples/test_operuh_parse.jl`](examples/test_operuh_parse.jl) - Simple OPERUH parser demonstration
+
+See [`examples/README.md`](examples/README.md) for a complete list of examples.
 
 ## Sample Data
 
@@ -191,11 +199,26 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - Special handling: 8-byte posto_bdh field, 300-byte reserved block
 - See [`docs/sessions/session14_hidr_complete.md`](docs/sessions/session14_hidr_complete.md) for details
 
+### ✅ Network Topology - Production Ready ⭐ **SESSION 16 - NEW!**
+- Extracts electrical network topology from PDO output files
+- **1,932/1,932 tests passing** (100%)
+- Successfully extracts from real ONS data:
+  - 342 buses with generation/load/voltage data
+  - 629 transmission lines with flow/capacity data
+  - Subsystem mapping (NE, SE, S, N)
+  - Connectivity analysis and graph metrics
+- **Visualization capabilities**:
+  - Interactive network diagrams (buses & lines)
+  - Color-coded by subsystem
+  - Edge thickness by power flow magnitude
+  - Spring layout for natural clustering
+  - See [`examples/NETWORK_VISUALIZATION.md`](examples/NETWORK_VISUALIZATION.md) for guide
+
 ---
 
 ### 📊 Overall Parser Progress
 
-**Completed**: 14/32 parsers (44% coverage) 🎉
+**Completed**: 14/32 parsers (44% coverage) + Network Topology Extraction 🎉
 - ✅ dessem.arq (master file registry)
 - ✅ termdat.dat (thermal plant registry)
 - ✅ entdados.dat (general system data - 30+ record types)
@@ -208,6 +231,7 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - ✅ **areacont.dat (control area assignments)** ⭐ **SESSION 15**
 - ✅ **cotasr11.dat (Itaipu R11 gauge levels)** ⭐ **SESSION 15**
 - ✅ **curvtviag.dat (travel time propagation curves)** ⭐ **SESSION 15**
+- ✅ **Network topology from PDO files** ⭐ **SESSION 16 - NEW!**
 
 **Pending High Priority**:
 - confhd.dat (hydro configuration)
@@ -217,13 +241,21 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### 🧪 Test Coverage
 
-**Total Tests**: 4,258 tests passing ✅ 🎉
+**Total Tests**: 6,189+ tests passing ✅ 🎉
 - ParserCommon utilities: 124 tests
 - TERMDAT parser: 136 tests
 - ENTDADOS parser: 2,362 tests
 - DessemArq parser: 69 tests
 - OPERUT parser: 106 tests
 - DADVAZ parser: 17 tests
+- DEFLANT parser: 1,076 tests
+- DESSELET parser: 15 tests
+- AREACONT parser: 77 tests
+- COTASR11 parser: 107 tests
+- CURVTVIAG parser: 39 tests
+- **Network Topology parser: 1,932 tests** ⭐ **NEW!**
+- **Plot Logic validation: 6 tests** ⭐ **NEW!**
+- ONS Integration tests: 123 tests
 - DEFLANT parser: 1,076 tests
 - DESSELET parser: 15 tests
 - **AREACONT parser**: 77 tests ⭐ **SESSION 15**
