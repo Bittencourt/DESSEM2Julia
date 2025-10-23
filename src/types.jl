@@ -3,6 +3,215 @@ module Types
 using Dates
 
 # ============================================================================
+# Execution Options (DESSOPC.DAT) Types
+# ============================================================================
+
+"""
+    DessOpcData
+
+Execution options and solver configuration for DESSEM (DESSOPC.DAT).
+
+# IDESSEM Reference
+idessem/dessem/modelos/dessopc.py
+idessem/dessem/dessopc.py
+
+# Fields
+
+## Parallel Processing
+- `uctpar::Union{Int, Nothing}`: Number of threads for parallel processing
+
+## Solution Methodology
+- `ucterm::Union{Int, Nothing}`: Methodology for network inclusion and UCT (0-2)
+- `pint::Bool`: Enable interior points methodology
+- `uctbusloc::Bool`: Enable local search
+- `uctheurfp::Union{Vector{Int}, Nothing}`: Feasibility Pump with local search parameters
+- `uctesperto::Union{Int, Nothing}`: UCT expert mode flag
+
+## Hydro Production Function
+- `regranptv::Union{Vector{Int}, Nothing}`: Default values for hydraulic production function
+
+## Output Control
+- `avlcmo::Union{Int, Nothing}`: Print CMO evaluation files (0=no, 1=yes)
+- `cplexlog::Bool`: Enable CPLEX solver log file
+
+## Data Consistency
+- `constdados::Union{Vector{Int}, Nothing}`: Data consistency checks [verification, correction]
+
+## Future Cost Function
+- `ajustefcf::Union{Vector{Int}, Nothing}`: FCF adjustment parameters
+
+## Thermal Generation
+- `trata_term_ton::Bool`: Handle thermal TON (minimum time on) constraints
+
+## Network Constraints
+- `tolerilh::Union{Int, Nothing}`: Island tolerance parameter
+- `engolimento::Union{Int, Nothing}`: Consider maximum engulfment
+- `trata_inviab_ilha::Union{Int, Nothing}`: Handle island infeasibility
+
+## Crossover
+- `crossover::Union{Vector{Int}, Nothing}`: Crossover after interior points [params...]
+
+## Other Options
+- `other_options::Dict{String, Any}`: Storage for unknown/future keywords
+"""
+Base.@kwdef mutable struct DessOpcData
+    # Parallel processing
+    uctpar::Union{Int, Nothing} = nothing
+    
+    # Solution methodology
+    ucterm::Union{Int, Nothing} = nothing
+    pint::Bool = false
+    uctbusloc::Bool = false
+    uctheurfp::Union{Vector{Int}, Nothing} = nothing
+    uctesperto::Union{Int, Nothing} = nothing
+    
+    # Hydro production
+    regranptv::Union{Vector{Int}, Nothing} = nothing
+    
+    # Output control
+    avlcmo::Union{Int, Nothing} = nothing
+    cplexlog::Bool = false
+    
+    # Data consistency
+    constdados::Union{Vector{Int}, Nothing} = nothing
+    
+    # Future cost function
+    ajustefcf::Union{Vector{Int}, Nothing} = nothing
+    
+    # Thermal generation
+    trata_term_ton::Bool = false
+    
+    # Network constraints
+    tolerilh::Union{Int, Nothing} = nothing
+    engolimento::Union{Int, Nothing} = nothing
+    trata_inviab_ilha::Union{Int, Nothing} = nothing
+    
+    # Crossover
+    crossover::Union{Vector{Int}, Nothing} = nothing
+    
+    # Extensibility
+    other_options::Dict{String, Any} = Dict{String, Any}()
+end
+
+# ============================================================================
+# Simulation Data (SIMUL.XXX) Types
+# ============================================================================
+
+"""
+    SimulHeader
+
+Header record from SIMUL.XXX containing simulation start date/time.
+
+# Fields
+- `start_day::Int`: Start day (calendar day)
+- `start_hour::Int`: Start hour (0-23, default 0)
+- `start_half_hour::Int`: Start half-hour flag (0 or 1, default 0)
+- `start_month::Int`: Start month (1-12)
+- `start_year::Int`: Start year
+- `operuh_flag::Union{Int, Nothing}`: OPERUH constraints flag (0=exclude, 1=include)
+"""
+Base.@kwdef struct SimulHeader
+    start_day::Int
+    start_hour::Int = 0
+    start_half_hour::Int = 0
+    start_month::Int
+    start_year::Int
+    operuh_flag::Union{Int, Nothing} = nothing
+end
+
+"""
+    DiscRecord
+
+Time discretization record from DISC block in SIMUL.XXX.
+
+# Fields
+- `day::Int`: Day number (calendar day)
+- `hour::Int`: Hour (0-23, default 0)
+- `half_hour::Int`: Half-hour flag (0 or 1, default 0)
+- `duration::Float64`: Period duration (hours)
+- `constraints_flag::Union{Int, Nothing}`: Period constraints flag (0=exclude, 1=include)
+"""
+Base.@kwdef struct DiscRecord
+    day::Int
+    hour::Int = 0
+    half_hour::Int = 0
+    duration::Float64
+    constraints_flag::Union{Int, Nothing} = nothing
+end
+
+"""
+    VoliRecord
+
+Initial reservoir volume record from VOLI block in SIMUL.XXX.
+
+# Fields
+- `plant_number::Int`: Plant number (per hydro registry)
+- `plant_name::String`: Plant name (reference only)
+- `initial_volume_percent::Float64`: Initial volume (% of useful volume, 0-100)
+"""
+Base.@kwdef struct VoliRecord
+    plant_number::Int
+    plant_name::String
+    initial_volume_percent::Float64
+end
+
+"""
+    OperRecord
+
+Simulation operation data record from OPER block in SIMUL.XXX.
+
+# Fields
+- `plant_number::Int`: Plant number (per registry)
+- `plant_type::String`: Plant type ("H"=hydro, "E"=pumping, default "H")
+- `plant_name::String`: Plant name (reference only)
+- `initial_day::Int`: Initial day (calendar day)
+- `initial_hour::Int`: Initial hour (0-23, default 0)
+- `initial_half_hour::Int`: Initial half-hour (0 or 1, default 0)
+- `final_day::Int`: Final day (calendar day)
+- `final_hour::Int`: Final hour (0-23, default 0)
+- `final_half_hour::Int`: Final half-hour (0 or 1, default 0)
+- `flow_type::Int`: Natural flow type (1=incremental, 2=total)
+- `natural_inflow::Float64`: Natural inflow (m³/s)
+- `withdrawal_type::Union{Int, Nothing}`: Withdrawal type (1=incremental, 2=total)
+- `withdrawal_flow::Float64`: Withdrawal flow (m³/s, default 0.0)
+- `generation_target::Union{Float64, Nothing}`: Generation target (MW)
+"""
+Base.@kwdef struct OperRecord
+    plant_number::Int
+    plant_type::String = "H"
+    plant_name::String
+    initial_day::Int
+    initial_hour::Int = 0
+    initial_half_hour::Int = 0
+    final_day::Int
+    final_hour::Int = 0
+    final_half_hour::Int = 0
+    flow_type::Int
+    natural_inflow::Float64
+    withdrawal_type::Union{Int, Nothing} = nothing
+    withdrawal_flow::Float64 = 0.0
+    generation_target::Union{Float64, Nothing} = nothing
+end
+
+"""
+    SimulData
+
+Container for SIMUL.XXX simulation data.
+
+# Fields
+- `header::SimulHeader`: Simulation start date/time and OPERUH flag
+- `disc_records::Vector{DiscRecord}`: Time discretization periods
+- `voli_records::Vector{VoliRecord}`: Initial reservoir volumes
+- `oper_records::Vector{OperRecord}`: Simulation operation data
+"""
+Base.@kwdef struct SimulData
+    header::SimulHeader
+    disc_records::Vector{DiscRecord} = DiscRecord[]
+    voli_records::Vector{VoliRecord} = VoliRecord[]
+    oper_records::Vector{OperRecord} = OperRecord[]
+end
+
+# ============================================================================
 # Control Areas (AREACONT.DAT) Types
 # ============================================================================
 
@@ -2193,6 +2402,8 @@ Base.@kwdef struct DessemData
 end
 
 # Export new types
+export DessOpcData
+export SimulHeader, DiscRecord, VoliRecord, OperRecord, SimulData
 export AreaRecord, UsinaRecord, AreaContData
 export CotaR11Record, CotasR11Data
 export CurvTviagRecord, CurvTviagData
