@@ -2565,4 +2565,122 @@ export CurvTviagRecord, CurvTviagData
 export NetworkBus, NetworkLine, NetworkTopology
 export RenovaveisRecord, RenovaveisData
 
+# ============================================================================
+# RESPOT.DAT (Power Reserve Requirements) Types
+# ============================================================================
+
+"""
+    RespotRP
+
+Reserve pool definition record (RP) from RESPOT.DAT.
+
+Defines the control area and time window for power reserve requirements.
+
+# IDESSEM Reference
+idessem/dessem/modelos/respot.py - class RP
+
+# Fields
+- `codigo_area::Int`: Control area code (1-based)
+- `dia_inicial::Union{Int, String}`: Initial day or "I"
+- `hora_inicial::Union{Int, Nothing}`: Initial hour (0-23)
+- `meia_hora_inicial::Union{Int, Nothing}`: Initial half-hour (0 or 1)
+- `dia_final::Union{Int, String}`: Final day or "F"
+- `hora_final::Union{Int, Nothing}`: Final hour (0-23)
+- `meia_hora_final::Union{Int, Nothing}`: Final half-hour (0 or 1)
+- `descricao::String`: Description of reserve requirement
+
+# Format
+Fixed-width columns per IDESEM:
+- Columns 5-7 (I3): codigo_area
+- Columns 10-16 (StageDateField): dia_inicial, hora_inicial, meia_hora_inicial
+- Columns 18-24 (StageDateField): dia_final, hora_final, meia_hora_final
+- Columns 31-70 (A40): descricao
+"""
+Base.@kwdef struct RespotRP
+    codigo_area::Int
+    dia_inicial::Union{Int, String}
+    hora_inicial::Union{Int, Nothing} = nothing
+    meia_hora_inicial::Union{Int, Nothing} = nothing
+    dia_final::Union{Int, String}
+    hora_final::Union{Int, Nothing} = nothing
+    meia_hora_final::Union{Int, Nothing} = nothing
+    descricao::String = ""
+end
+
+"""
+    RespotLM
+
+Reserve limit record (LM) from RESPOT.DAT.
+
+Specifies the minimum power reserve requirement for a control area at a specific half-hour.
+
+# IDESSEM Reference
+idessem/dessem/modelos/respot.py - class LM
+
+# Fields
+- `codigo_area::Int`: Control area code (links to RP record)
+- `dia_inicial::Union{Int, String}`: Initial day or "I"
+- `hora_inicial::Union{Int, Nothing}`: Initial hour (0-23)
+- `meia_hora_inicial::Union{Int, Nothing}`: Initial half-hour (0 or 1)
+- `dia_final::Union{Int, String}`: Final day or "F"
+- `hora_final::Union{Int, Nothing}`: Final hour (0-23)
+- `meia_hora_final::Union{Int, Nothing}`: Final half-hour (0 or 1)
+- `limite_inferior::Float64`: Minimum reserve requirement (MW)
+
+# Format
+Fixed-width columns per IDESEM:
+- Columns 5-7 (I3): codigo_area
+- Columns 10-16 (StageDateField): dia_inicial, hora_inicial, meia_hora_inicial
+- Columns 18-24 (StageDateField): dia_final, hora_final, meia_hora_final
+- Columns 26-35 (F10.2): limite_inferior
+"""
+Base.@kwdef struct RespotLM
+    codigo_area::Int
+    dia_inicial::Union{Int, String}
+    hora_inicial::Union{Int, Nothing} = nothing
+    meia_hora_inicial::Union{Int, Nothing} = nothing
+    dia_final::Union{Int, String}
+    hora_final::Union{Int, Nothing} = nothing
+    meia_hora_final::Union{Int, Nothing} = nothing
+    limite_inferior::Float64
+end
+
+"""
+    RespotData
+
+Complete RESPOT.DAT file data structure.
+
+Contains power reserve requirements for control areas, organized as:
+- RP records: Reserve pool definitions with time windows
+- LM records: Half-hourly minimum reserve limits
+
+# Purpose
+Defines system reliability constraints by specifying minimum spinning reserve
+requirements for each control area. Critical for ensuring system security and
+handling unexpected generator outages.
+
+# Structure
+- Each RP record defines a reserve pool with a time window
+- Multiple LM records (typically 48 per day) specify half-hourly requirements
+- LM records link to RP via codigo_area
+
+# Example
+```julia
+data = parse_respot("respot.dat")
+println("Reserve pools: \$(length(data.rp_records))")
+println("Limit records: \$(length(data.lm_records))")
+
+# Find limits for area 1
+area1_limits = filter(lm -> lm.codigo_area == 1, data.lm_records)
+println("Area 1 has \$(length(area1_limits)) half-hourly limits")
+```
+"""
+Base.@kwdef struct RespotData
+    rp_records::Vector{RespotRP} = RespotRP[]
+    lm_records::Vector{RespotLM} = RespotLM[]
+end
+
+# Export RESPOT types
+export RespotRP, RespotLM, RespotData
+
 end # module
