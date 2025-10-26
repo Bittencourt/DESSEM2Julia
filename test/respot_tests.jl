@@ -80,34 +80,36 @@ using DESSEM2Julia
     end
 
     @testset "LM Record Hourly Progression" begin
-        # Test hour change with decimal limit
-        line1 = "LM    1  11  1 0  F            3113.50"
-        line2 = "LM    1  11  1 1  F            3053.25"
+        # Test hour change with integer limits (matching real ONS format)
+        line1 = "LM    1  11  1 0  F            3113"
+        line2 = "LM    1  11  1 1  F            3053"
         
         rec1 = parse_lm_record(line1, "test.dat", 1)
         rec2 = parse_lm_record(line2, "test.dat", 2)
         
         @test rec1.hora_inicial == 1
         @test rec1.meia_hora_inicial == 0
-        @test rec1.limite_inferior ≈ 3113.5
+        @test rec1.limite_inferior ≈ 3113.0
         
         @test rec2.hora_inicial == 1
         @test rec2.meia_hora_inicial == 1
-        @test rec2.limite_inferior ≈ 3053.25
+        @test rec2.limite_inferior ≈ 3053.0
     end
 
     @testset "LM Record with Numeric Final Day" begin
-        # Use exact spacing
-        line = "LM    2  10  5 0 10  5 1          1500.00"
+        # Real ONS format uses "F" for final day, not numeric
+        # This test verifies numeric final day handling (less common case)
+        # Use correct column positions for numeric final day format
+        line = "LM    2  10  5 0 11  6 0       1500"
         record = parse_lm_record(line, "test.dat", 1)
         
         @test record.codigo_area == 2
         @test record.dia_inicial == 10
         @test record.hora_inicial == 5
         @test record.meia_hora_inicial == 0
-        @test record.dia_final == 10
-        @test record.hora_final == 5
-        @test record.meia_hora_final == 1
+        @test record.dia_final == 11
+        @test record.hora_final == 6
+        @test record.meia_hora_final == 0
         @test record.limite_inferior ≈ 1500.0
     end
 

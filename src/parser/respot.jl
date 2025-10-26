@@ -64,30 +64,30 @@ function parse_rp_record(line::AbstractString, filename::AbstractString, line_nu
     # Extract codigo_area (columns 5-7, 1-indexed Julia)
     codigo_area = parse(Int, strip(extract_field(line, 5, 7)))
     
-    # Extract initial stage date (columns 10-16, 1-indexed)
-    # Column 10-11: day or "I"
+    # Extract initial stage date (based on real ONS format analysis)
+    # Columns 10-11: day or "I " (2 chars)
     dia_inicial_str = strip(extract_field(line, 10, 11))
     dia_inicial = isempty(dia_inicial_str) ? 0 : (dia_inicial_str == "I" ? "I" : parse(Int, dia_inicial_str))
     
-    # Columns 14-15: hour (optional)
-    hora_inicial_str = strip(extract_field(line, 14, 15))
+    # Columns 13-14: hour (2 chars, space-padded for single digits)
+    hora_inicial_str = strip(extract_field(line, 13, 14))
     hora_inicial = isempty(hora_inicial_str) ? nothing : parse_int(hora_inicial_str)
     
-    # Column 17: half-hour (optional)
-    meia_hora_inicial_str = strip(extract_field(line, 17, 17))
+    # Column 16: half-hour (1 char: 0 or 1)
+    meia_hora_inicial_str = strip(extract_field(line, 16, 16))
     meia_hora_inicial = isempty(meia_hora_inicial_str) ? nothing : parse_int(meia_hora_inicial_str)
     
-    # Extract final stage date (columns 18-24, 1-indexed)
-    # Columns 18-19: day or "F"
+    # Extract final stage date
+    # Columns 18-19: day or " F" (2 chars)
     dia_final_str = strip(extract_field(line, 18, 19))
     dia_final = isempty(dia_final_str) ? "F" : (dia_final_str == "F" ? "F" : parse(Int, dia_final_str))
     
-    # Columns 22-23: hour (optional)
-    hora_final_str = strip(extract_field(line, 22, 23))
+    # Columns 21-22: hour (2 chars, optional for numeric final day)
+    hora_final_str = strip(extract_field(line, 21, 22))
     hora_final = isempty(hora_final_str) ? nothing : parse_int(hora_final_str)
     
-    # Column 25: half-hour (optional)
-    meia_hora_final_str = strip(extract_field(line, 25, 25))
+    # Column 24: half-hour (1 char, optional for numeric final day)
+    meia_hora_final_str = strip(extract_field(line, 24, 24))
     meia_hora_final = isempty(meia_hora_final_str) ? nothing : parse_int(meia_hora_final_str)
     
     # Extract description (columns 31-70, 1-indexed)
@@ -131,24 +131,30 @@ function parse_lm_record(line::AbstractString, filename::AbstractString, line_nu
     # Extract codigo_area (columns 5-7, 1-indexed Julia)
     codigo_area = parse(Int, strip(extract_field(line, 5, 7)))
     
-    # Extract initial stage date (columns 10-16, 1-indexed)
+    # Extract initial stage date (based on real ONS format analysis)
+    # Columns 10-11: day or "I " (2 chars)
     dia_inicial_str = strip(extract_field(line, 10, 11))
     dia_inicial = isempty(dia_inicial_str) ? 0 : (dia_inicial_str == "I" ? "I" : parse(Int, dia_inicial_str))
     
-    hora_inicial_str = strip(extract_field(line, 14, 15))
+    # Columns 13-14: hour (2 chars, space-padded for single digits)
+    hora_inicial_str = strip(extract_field(line, 13, 14))
     hora_inicial = isempty(hora_inicial_str) ? nothing : parse_int(hora_inicial_str)
     
-    meia_hora_inicial_str = strip(extract_field(line, 17, 17))
+    # Column 16: half-hour (1 char: 0 or 1)
+    meia_hora_inicial_str = strip(extract_field(line, 16, 16))
     meia_hora_inicial = isempty(meia_hora_inicial_str) ? nothing : parse_int(meia_hora_inicial_str)
     
-    # Extract final stage date (columns 18-24, 1-indexed)
+    # Extract final stage date
+    # Columns 18-19: day or " F" (2 chars)
     dia_final_str = strip(extract_field(line, 18, 19))
     dia_final = isempty(dia_final_str) ? "F" : (dia_final_str == "F" ? "F" : parse(Int, dia_final_str))
     
-    hora_final_str = strip(extract_field(line, 22, 23))
+    # Columns 21-22: hour (2 chars, optional for numeric final day)
+    hora_final_str = strip(extract_field(line, 21, 22))
     hora_final = isempty(hora_final_str) ? nothing : parse_int(hora_final_str)
     
-    meia_hora_final_str = strip(extract_field(line, 25, 25))
+    # Column 24: half-hour (1 char, optional for numeric final day)
+    meia_hora_final_str = strip(extract_field(line, 24, 24))
     meia_hora_final = isempty(meia_hora_final_str) ? nothing : parse_int(meia_hora_final_str)
     
     # Extract limite_inferior (columns 26-35, 1-indexed, F10.2)
