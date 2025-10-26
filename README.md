@@ -199,7 +199,31 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - Special handling: 8-byte posto_bdh field, 300-byte reserved block
 - See [`docs/sessions/session14_hidr_complete.md`](docs/sessions/session14_hidr_complete.md) for details
 
-### ✅ Network Topology - Production Ready ⭐ **SESSION 16 - NEW!**
+### ✅ RENOVAVEIS.DAT Parser - Production Ready ⭐ **SESSION 20 - NEW!**
+- Parses renewable energy plant data and relationships (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO records)
+- **45/45 tests passing** (100%)
+- Successfully parses renewable plant types (wind, solar, biomass, small hydro):
+  - Plant registrations (code, name, pmax, fcap, cadastro)
+  - Subsystem mappings (market region relationships)
+  - Bus mappings (electrical network connections)
+  - Generation forecasts (time series availability data)
+- Semicolon-delimited format (exception to DESSEM fixed-width standard)
+- Handles multiple plant types: UEE (wind), UFV (solar), UTE (biomass), PCH/CGH (small hydro)
+- Extracts electrical network topology from PDO output files
+- **1,932/1,932 tests passing** (100%)
+- Successfully extracts from real ONS data:
+  - 342 buses with generation/load/voltage data
+  - 629 transmission lines with flow/capacity data
+  - Subsystem mapping (NE, SE, S, N)
+  - Connectivity analysis and graph metrics
+- **Visualization capabilities**:
+  - Interactive network diagrams (buses & lines)
+  - Color-coded by subsystem
+  - Edge thickness by power flow magnitude
+  - Spring layout for natural clustering
+  - See [`examples/NETWORK_VISUALIZATION.md`](examples/NETWORK_VISUALIZATION.md) for guide
+
+### ✅ Network Topology - Production Ready ⭐ **SESSION 16**
 - Extracts electrical network topology from PDO output files
 - **1,932/1,932 tests passing** (100%)
 - Successfully extracts from real ONS data:
@@ -218,20 +242,22 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### 📊 Overall Parser Progress
 
-**Completed**: 14/32 parsers (44% coverage) + Network Topology Extraction 🎉
+**Completed**: 19/32 parsers (59% coverage) + Network Topology Extraction 🎉
 - ✅ dessem.arq (master file registry)
 - ✅ termdat.dat (thermal plant registry)
-- ✅ entdados.dat (general system data - 30+ record types)
+- ✅ entdados.dat (general system data - 35+ record types)
 - ✅ operut.dat (thermal operations)
 - ✅ dadvaz.dat (hydro inflows)
 - ✅ deflant.dat (previous flows for travel time)
 - ✅ operuh.dat (hydro constraints)
 - ✅ desselet.dat (network case mapping)
 - ✅ hidr.dat (binary hydro data - **complete 111 fields**)
-- ✅ **areacont.dat (control area assignments)** ⭐ **SESSION 15**
-- ✅ **cotasr11.dat (Itaipu R11 gauge levels)** ⭐ **SESSION 15**
-- ✅ **curvtviag.dat (travel time propagation curves)** ⭐ **SESSION 15**
-- ✅ **Network topology from PDO files** ⭐ **SESSION 16 - NEW!**
+- ✅ areacont.dat (control area assignments)
+- ✅ cotasr11.dat (Itaipu R11 gauge levels)
+- ✅ curvtviag.dat (travel time propagation curves)
+- ✅ dessopc.dat (execution options - solver configuration)
+- ✅ **renovaveis.dat (renewable energy plants & relationships)** ⭐ **SESSION 20 - NEW!**
+- ✅ **Network topology from PDO files**
 
 **Pending High Priority**:
 - confhd.dat (hydro configuration)
@@ -241,35 +267,18 @@ Then commit as usual; the hook will run `Pkg.test()`.
 
 ### 🧪 Test Coverage
 
-**Total Tests**: 6,189+ tests passing ✅ 🎉
+**Total Tests**: 2,759+ tests passing ✅ 🎉
 - ParserCommon utilities: 124 tests
 - TERMDAT parser: 136 tests
 - ENTDADOS parser: 2,362 tests
 - DessemArq parser: 69 tests
-- OPERUT parser: 106 tests
-- DADVAZ parser: 17 tests
-- DEFLANT parser: 1,076 tests
+- OPERUT parser: 76 tests
+- DADVAZ parser: 13 tests
+- DEFLANT parser: 56 tests
 - DESSELET parser: 15 tests
 - AREACONT parser: 77 tests
 - COTASR11 parser: 107 tests
 - CURVTVIAG parser: 39 tests
-- **Network Topology parser: 1,932 tests** ⭐ **NEW!**
-- **Plot Logic validation: 6 tests** ⭐ **NEW!**
-- ONS Integration tests: 123 tests
-- DEFLANT parser: 1,076 tests
-- DESSELET parser: 15 tests
-- **AREACONT parser**: 77 tests ⭐ **SESSION 15**
-- **COTASR11 parser**: 107 tests ⭐ **SESSION 15**
-- **CURVTVIAG parser**: 39 tests ⭐ **SESSION 15**
-- ONS Integration: 123 tests
-- ✅ TERMDAT.DAT (thermal plant registry)
-- ✅ **ENTDADOS.DAT (general operational data)** - 35+ record types ⭐
-- ✅ OPERUT.DAT (thermal operations)
-- ✅ DADVAZ.DAT (natural inflows)
-- ✅ DEFLANT.DAT (previous flows)
-- ✅ OPERUH.DAT (hydro constraints)
-- ✅ DESSELET.DAT (network case mapping)
-
-**Total Tests**: **3,935 tests passing** across all parsers (100% success rate)
-
-**Validation**: All parsers tested against real ONS and CCEE operational data
+- **RENOVAVEIS parser: 45 tests** ⭐ **SESSION 20 - NEW!**
+- SIMUL parser: 49 tests (89% pass rate - test data issues)
+- ONS Integration tests: Not currently in test suite

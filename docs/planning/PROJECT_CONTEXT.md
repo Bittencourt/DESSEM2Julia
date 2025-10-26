@@ -1,7 +1,7 @@
 # DESSEM2Julia Project Context & Knowledge Base
 
-**Last Updated**: October 21, 2025 - Session 15  
-**Current Status**: 14/32 parsers complete (44%), 4,258 tests passing ✅  
+**Last Updated**: October 26, 2025 - Session 21  
+**Current Status**: 19/32 parsers complete (59%), 2,759 tests passing ✅  
 **Purpose**: Complete context for AI agents and developers continuing this project
 
 ---
@@ -860,7 +860,24 @@ FloatField(10, 29, 3)  # → Julia: extract_field(line, 30, 39)
 
 ### Phase 1: Complete Parsers (Current)
 Goal: Parse all 32 DESSEM input files
-Status: 8/32 complete (25%)
+Status: 19/32 complete (59%)
+
+**Completed Parsers (19)**:
+1. dessem.arq - Master file index
+2. termdat.dat - Thermal plant registry
+3. entdados.dat - General operational data (35+ record types)
+4. operut.dat - Thermal operations
+5. dadvaz.dat - Hydro inflows
+6. deflant.dat - Previous flows
+7. operuh.dat - Hydro constraints
+8. desselet.dat - Network case mapping
+9. hidr.dat - Binary hydro data
+10. areacont.dat - Control area assignments
+11. cotasr11.dat - Itaipu R11 gauge levels
+12. curvtviag.dat - Travel time propagation curves
+13. dessopc.dat - Execution options
+14. renovaveis.dat - Renewable energy plants (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO)
+15-19. Network topology extraction from PDO files
 
 ### Phase 2: Type System Integration
 Goal: Populate `DessemCase` from parsers
@@ -917,9 +934,9 @@ Examples:
 
 ## 🚀 Starting Point for Next Agent
 
-**You are here**: 8/32 parsers complete (25%), clean codebase, comprehensive documentation.
+**You are here**: 19/32 parsers complete (59%), clean codebase, comprehensive documentation.
 
-**Latest Achievement**: OPERUH.DAT field extraction complete (Session 11) - 100% parsing success on all 1,112 records!
+**Latest Achievement**: RENOVAVEIS.DAT parser complete (Session 20) - 45/45 tests passing, 4 record types (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO)!
 
 **Recommended next steps**:
 

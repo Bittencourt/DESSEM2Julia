@@ -29,6 +29,11 @@ This document describes the relational structure of DESSEM input files, treating
 | **Time Period** | `(day, hour, half_hour)` | ENTDADOS (TM), SIMUL, all operational files | Temporal discretization |
 | **Bus** | `bus_num` | Network files (.pwf), AREACONT | Electrical network node |
 | **Restriction** | `restriction_num` | ENTDADOS (RE), OPERUH, RESTSEG | Operational constraint |
+| **Pump Station** | `plant_num` | ENTDADOS (USIE) | Pumped storage/reversible hydro |
+| **Energy Reservoir (REE)** | `ree_code` | ENTDADOS (REE) | Equivalent energy reservoir group |
+| **Renewable Plant** | `plant_num` | RENOVAVEIS.DAT (EOLICA) | Wind/solar generation plant |
+| **Energy Contract** | `contract_num` | ENTDADOS (CE, CI) | Import/export energy contract |
+| **Special Demand** | `demand_code` | ENTDADOS (DE) | Special load/demand |
 
 ---
 
@@ -368,7 +373,142 @@ NETWORK_BUS (1) ──► (*) LOAD
                        DBAR.load_bus → DBAR.bus_num
 ```
 
-### 8. Restriction/Constraint Relationships
+### 8. Pump Station Relationships
+
+**Entity**: `PUMP_STATION`
+- **Primary Key**: `plant_code`
+- **Defined in**: ENTDADOS.XXX (USIE records)
+- **Parser Implementation**: `src/parser/entdados.jl`
+
+**Foreign Keys**:
+- `subsystem_code` → `SUBSYSTEM.subsystem_num`
+- `upstream_plant` → `HYDRO_PLANT.plant_num`
+- `downstream_plant` → `HYDRO_PLANT.plant_num`
+
+**Relationships**:
+```
+SUBSYSTEM (1) ──► (*) PUMP_STATION
+                     USIE.subsystem_code → SIST.subsystem_num
+
+HYDRO_PLANT (1) ──► (*) PUMP_STATION (upstream)
+                       USIE.upstream_plant → UH.plant_num
+
+HYDRO_PLANT (1) ──► (*) PUMP_STATION (downstream)
+                       USIE.downstream_plant → UH.plant_num
+
+PUMP_STATION (1) ──► (*) PUMPING_CONSTRAINTS
+                        PE.plant_code → USIE.plant_code
+```
+
+**Purpose**: Represents reversible hydro plants that can pump water from downstream to upstream reservoirs, consuming energy to increase upstream storage.
+
+### 9. Energy Reservoir Equivalent (REE) Relationships
+
+**Entity**: `ENERGY_RESERVOIR_EQUIVALENT`
+- **Primary Key**: `ree_code`
+- **Defined in**: ENTDADOS.XXX (REE records)
+- **Parser Implementation**: `src/parser/entdados.jl`
+
+**Foreign Keys**:
+- `subsystem_code` → `SUBSYSTEM.subsystem_num`
+
+**Relationships**:
+```
+SUBSYSTEM (1) ──► (*) REE
+                     REE.subsystem_code → SIST.subsystem_num
+
+REE (1) ──► (*) HYDRO_PLANT
+               UH.ree_code → REE.ree_code (optional grouping)
+```
+
+**Purpose**: Groups hydroelectric plants into equivalent energy reservoirs for coupled operation in medium/long-term planning.
+
+### 10. Renewable Plant Relationships
+
+**Entity**: `RENEWABLE_PLANT`
+- **Primary Key**: `plant_num`
+- **Defined in**: RENOVAVEIS.DAT (EOLICA, EOLICABARRA, EOLICASUBM, EOLICAGERACAO records)
+- **Parser Implementation**: Not yet implemented (TODO)
+
+**Foreign Keys**:
+- `subsystem` → `SUBSYSTEM.subsystem_num`
+- `bus_num` → `NETWORK_BUS.bus_num` (EOLICABARRA)
+
+**Relationships**:
+```
+SUBSYSTEM (1) ──► (*) RENEWABLE_PLANT
+                     EOLICA.subsystem → SIST.subsystem_num
+
+RENEWABLE_PLANT (1) ──► (*) GENERATION_FORECAST
+                           EOLICAGERACAO.plant_num → EOLICA.plant_num
+
+NETWORK_BUS (1) ──► (*) RENEWABLE_PLANT
+                       EOLICABARRA.bus_num → DBAR.bus_num
+```
+
+**Purpose**: Wind and solar generation plants with time-varying forecasts.
+
+### 11. Energy Contract Relationships
+
+**Entity**: `ENERGY_CONTRACT`
+- **Primary Key**: `contract_num`
+- **Defined in**: ENTDADOS.XXX (CE records for export, CI records for import)
+- **Parser Implementation**: `src/parser/entdados.jl`
+
+**Foreign Keys**:
+- `submkt_code` → `SUBSYSTEM.subsystem_num`
+
+**Relationships**:
+```
+SUBSYSTEM (1) ──► (*) EXPORT_CONTRACT
+                     CE.submkt_code → SIST.subsystem_num
+
+SUBSYSTEM (1) ──► (*) IMPORT_CONTRACT
+                     CI.submkt_code → SIST.subsystem_num
+
+ENERGY_CONTRACT (*) ──► (*) RESTRICTION
+                           FC.(restriction_num, contract_num)
+```
+
+**Contract Types**:
+- **CE**: Export contracts (energy sold outside system)
+- **CI**: Import contracts (energy purchased from outside)
+
+### 12. Special Demand Relationships
+
+**Entity**: `SPECIAL_DEMAND`
+- **Primary Key**: `demand_code`
+- **Defined in**: ENTDADOS.XXX (DE records)
+- **Parser Implementation**: `src/parser/entdados.jl`
+
+**Relationships**:
+```
+SPECIAL_DEMAND (*) ──► (*) RESTRICTION
+                          FC.(restriction_num, load_code)
+```
+
+**Purpose**: Special loads that can participate in electrical constraints (e.g., large industrial loads).
+
+### 13. Itaipu Binational Plant Relationships
+
+**Entity**: `ITAIPU_CONSTRAINT`
+- **Primary Key**: (time period)
+- **Defined in**: ENTDADOS.XXX (RI records for restrictions, IT records for binational data, PQ records for reactive power)
+- **Parser Implementation**: `src/parser/entdados.jl`
+
+**Relationships**:
+```
+TIME_PERIOD (1) ──► (*) ITAIPU_RESTRICTION
+                       RI.(start_day, start_hour, start_half) → TM.(day, hour, half)
+
+ITAIPU_PLANT ──► BINATIONAL_CONSTRAINTS
+                   IT: Binational agreement parameters
+                   PQ: Reactive power constraints
+```
+
+**Purpose**: Special constraints for Itaipu binational hydroelectric plant (Brazil-Paraguay).
+
+### 14. Restriction/Constraint Relationships
 
 **Entity**: `RESTRICTION`
 - **Primary Key**: `restriction_num`
@@ -388,22 +528,77 @@ RESTRICTION (*) ◄──► (*) HYDRO_UNIT_SET
 RESTRICTION (*) ◄──► (*) SUBSYSTEM
                         FI.(restriction_num, subsystem_from, subsystem_to)
 
-RESTRICTION (*) ◄──► (*) PUMPING_PLANT
+RESTRICTION (*) ◄──► (*) PUMP_STATION
                         FE.(restriction_num, plant_num)
 
 RESTRICTION (*) ◄──► (*) RENEWABLE_PLANT
                         FR.(restriction_num, plant_num)
+
+RESTRICTION (*) ◄──► (*) ENERGY_CONTRACT
+                        FC.(restriction_num, contract_num)
+
+RESTRICTION (*) ◄──► (*) SPECIAL_DEMAND
+                        FC.(restriction_num, load_code)
 ```
 
 **Constraint Coefficients**:
 - **FH**: Hydro generation coefficients in restriction
 - **FT**: Thermal generation coefficients in restriction
 - **FI**: Interchange coefficients in restriction
-- **FE**: Pumping coefficients in restriction
+- **FE**: Pumping coefficients in restriction (for pump stations)
 - **FR**: Renewable generation coefficients in restriction
-- **FC**: Contract coefficients in restriction
+- **FC**: Contract/special load coefficients in restriction
 
 ---
+
+### 15. Plant Configuration Adjustment Relationships (AC Records)
+
+**Entity**: `PLANT_ADJUSTMENT`
+- **Primary Key**: `(plant_code, ac_type)`
+- **Defined in**: ENTDADOS.XXX (AC records - multiple types)
+- **Parser Implementation**: `src/parser/entdados.jl`
+
+**AC Record Types**:
+- **ACVOLMAX**: Volume maximum adjustment
+- **ACVOLMIN**: Volume minimum adjustment
+- **ACVSVERT**: Spillway volume adjustment
+- **ACVMDESV**: Diversion volume adjustment
+- **ACCOTVAZ**: Head-flow polynomial adjustment
+- **ACCOTVOL**: Head-volume polynomial adjustment
+- **ACCOTTAR**: Tailrace polynomial adjustment
+- **ACNUMCON**: Number of machine sets adjustment
+- **ACNUMJUS**: Downstream plant adjustment
+- **ACNUMPOS**: Station number adjustment
+- **ACJUSENA**: Downstream elevation adjustment
+- **ACJUSMED**: Average tailrace adjustment
+- **ACCOFEVA**: Evaporation coefficient adjustment
+- **ACNUMMAQ**: Number of machines adjustment
+- **ACPOTEFE**: Effective power adjustment
+- **ACDESVIO**: Diversion adjustment
+
+**Relationships**:
+```
+HYDRO_PLANT (1) ──► (*) PLANT_ADJUSTMENT
+                       AC.plant_code → UH.plant_num
+
+PLANT_ADJUSTMENT ──► HIDR.DAT (overrides)
+                       AC records override CADUSIH/polynomial values
+```
+
+**Purpose**: Allows temporary or permanent adjustments to plant characteristics defined in HIDR.DAT without modifying the master registry.
+
+### 16. Network Iteration Control (NI)
+
+**Entity**: `NETWORK_ITERATION`
+- **Primary Key**: (singleton record)
+- **Defined in**: ENTDADOS.XXX (NI record)
+- **Parser Implementation**: `src/parser/entdados.jl`
+
+**Fields**:
+- `tipo_limite`: Iteration limit type (0=maximum, 1=fixed)
+- `iteracoes`: Number of iterations
+
+**Purpose**: Controls the number of power flow iterations when solving the network model with iterative methods (e.g., PDD - Primal-Dual Decomposition).
 
 ## Hierarchical Structures
 
@@ -617,22 +812,43 @@ ENTDADOS.XXX (Master Configuration)
     │       ├─► Referenced by: UH.subsystem
     │       ├─► Referenced by: UT.subsystem
     │       ├─► Referenced by: DP.subsystem
+    │       ├─► Referenced by: USIE.subsystem_code
+    │       ├─► Referenced by: REE.subsystem_code
+    │       ├─► Referenced by: CE/CI.submkt_code
+    │       ├─► Referenced by: EOLICA.subsystem
     │       └─► Referenced by: Network DBAR.subsystem
+    │
+    ├─► REE.ree_code
+    │       └─► Referenced by: UH.ree_code (optional grouping)
     │
     ├─► UH.plant_num
     │       ├─► Referenced by: HIDR.CADUSIH.plant_num
     │       ├─► Referenced by: DADVAZ.plant_num
     │       ├─► Referenced by: OPERUH.plant_num
     │       ├─► Referenced by: DA.plant_num
-    │       └─► Referenced by: VE.plant_num
+    │       ├─► Referenced by: VE.plant_num
+    │       ├─► Referenced by: AC.plant_code
+    │       └─► Referenced by: USIE.upstream_plant, USIE.downstream_plant
     │
     ├─► UT.plant_num
     │       ├─► Referenced by: TERM.CADUSIT.plant_num
     │       └─► Referenced by: OPERUT.plant_num
     │
+    ├─► USIE.plant_code
+    │       └─► Referenced by: PE.plant_code
+    │
+    ├─► DE.demand_code
+    │       └─► Referenced by: FC.load_code
+    │
+    ├─► CE/CI.contract_num
+    │       └─► Referenced by: FC.contract_code
+    │
     └─► TM.(day, hour, half_hour)
             ├─► Referenced by: All time-varying records
-            └─► Referenced by: SIMUL.DISC
+            ├─► Referenced by: SIMUL.DISC
+            ├─► Referenced by: RI (Itaipu restrictions)
+            ├─► Referenced by: IT (Itaipu binational)
+            └─► Referenced by: EOLICAGERACAO (renewable forecasts)
 
 HIDR.DAT (Hydro Registry)
     ├─► Format Detection: Auto-detect binary (792 bytes) or text format
@@ -1128,6 +1344,109 @@ The DESSEM input file system represents a complex relational database distribute
 4. **Many-to-Many Relationships**: Restrictions connect to multiple plants via coefficient tables
 5. **Hierarchical Constraints**: Three-level hierarchy for hydro units (plant → set → unit)
 6. **Cross-File Integrity**: Foreign keys span multiple files requiring coordinated parsing
+
+### Complete Entity Catalog
+
+**Power System Entities** (8):
+- Subsystem (SIST)
+- Energy Reservoir Equivalent (REE)
+- Load Demand (DP)
+- Special Demand (DE)
+- Deficit Cost (CD)
+- Interchange Limits (IA)
+- Export Contract (CE)
+- Import Contract (CI)
+
+**Hydroelectric Entities** (7):
+- Hydro Plant (UH, CADUSIH)
+- Hydro Unit Set (CADCONJ)
+- Hydro Unit (UCH)
+- Pump Station (USIE)
+- Travel Time (USITVIAG, TVIAG)
+- Water Withdrawal (DA)
+- Flood Control Volume (VE)
+
+**Thermal Entities** (4):
+- Thermal Plant (UT, CADUSIT)
+- Thermal Unit (CADUNIDT)
+- Combined-Cycle Configuration (CADCONF)
+- Simple-Cycle Configuration (CADMIN)
+
+**Renewable Entities** (4):
+- Wind Plant (EOLICA)
+- Wind Plant Bus Connection (EOLICABARRA)
+- Wind Plant Subsystem (EOLICASUBM)
+- Wind Generation Forecast (EOLICAGERACAO)
+
+**Network Entities** (3):
+- Network Bus (DBAR)
+- Transmission Line (DLIN)
+- Area Control (AREACONT)
+
+**Operational Constraint Entities** (17):
+- Electrical Restriction (RE)
+- Restriction Limits (LU)
+- Hydro Coefficient (FH)
+- Thermal Coefficient (FT)
+- Interchange Coefficient (FI)
+- Pumping Coefficient (FE)
+- Renewable Coefficient (FR)
+- Contract/Load Coefficient (FC)
+- Hydro Operation Restriction (OPERUH REST)
+- Hydro Operation Element (OPERUH ELEM)
+- Hydro Operation Limit (OPERUH LIM)
+- Hydro Operation Variation (OPERUH VAR)
+- Thermal Ramp (OPERUT RAMP)
+- LPP Constraint (RSTLPP)
+- Security Constraint (RESTSEG)
+- Flow Ramp (RMPFLX)
+- Trajectory Constraint (RAMPAS)
+
+**Temporal Entities** (2):
+- Time Period (TM)
+- Simulation Period (SIMUL DISC)
+
+**Maintenance Entities** (3):
+- Hydro Maintenance (MH)
+- Thermal Maintenance (MT)
+- Pump Maintenance (PE)
+
+**Special Constraint Entities** (5):
+- Itaipu Restriction (RI)
+- Itaipu Binational (IT)
+- Itaipu Reactive Power (PQ)
+- Gauge 11 Constraint (R11)
+- Production Function Parameter (FP)
+
+**River Section Entities** (2):
+- River Section (SECR)
+- Section Head-Flow Polynomial (CR)
+
+**Plant Adjustment Entities** (16 AC types):
+- Volume Maximum (ACVOLMAX)
+- Volume Minimum (ACVOLMIN)
+- Spillway Volume (ACVSVERT)
+- Diversion Volume (ACVMDESV)
+- Head-Flow Polynomial (ACCOTVAZ)
+- Head-Volume Polynomial (ACCOTVOL)
+- Tailrace Polynomial (ACCOTTAR)
+- Number of Sets (ACNUMCON)
+- Downstream Plant (ACNUMJUS)
+- Station Number (ACNUMPOS)
+- Downstream Elevation (ACJUSENA)
+- Average Tailrace (ACJUSMED)
+- Evaporation Coefficient (ACCOFEVA)
+- Number of Machines (ACNUMMAQ)
+- Effective Power (ACPOTEFE)
+- Diversion (ACDESVIO)
+
+**Miscellaneous Entities** (4):
+- Discount Rate (TX)
+- Coupling Volume (EZ)
+- Network Iteration Control (NI)
+- Convergence Gap (GP)
+
+**Total**: **76+ distinct entity types** across 32 DESSEM input files
 
 ### Key Implementation Notes
 

@@ -61,7 +61,8 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| EOLICA.XXX | Wind plant data and forecasts | TODO | § 13 |
+| RENOVAVEIS.DAT | Renewable plant data and forecasts (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO) | ✅ Parser | § 13 |
+| EOLICA.XXX | Legacy wind plant format (superseded by RENOVAVEIS.DAT) | N/A | § 13 |
 | SOLAR.XXX | Solar plant data and forecasts | TODO | § 13 |
 | BATERIA.XXX | Battery storage characteristics and operation | TODO | § 13 |
 

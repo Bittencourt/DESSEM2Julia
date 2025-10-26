@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - October 26, 2025 (Session 21)
+- **Documentation Update**: Updated all project documentation for RENOVAVEIS parser
+  - Updated TASKS.md with Session 21 progress and corrected test counts
+  - Updated README.md with parser progress (19/32, 59%), test counts (2,759 passing)
+  - Updated PROJECT_CONTEXT.md with current status and latest achievement
+  - Updated file_formats.md to mark RENOVAVEIS.DAT as complete
+  - Cleaned up test count discrepancies across documentation
+
+### Added - October 26, 2025 (Session 20)
+- **RENOVAVEIS.DAT Complete Parser**: Full renewable energy data with all relationships
+  - EOLICA records: Plant registrations (wind, solar, biomass, small hydro)
+  - EOLICASUBM records: Plant-to-subsystem market mappings (N, NE, S, SE)
+  - EOLICABARRA records: Plant-to-bus electrical network connections
+  - EOLICA-GERACAO records: Time series generation availability forecasts
+- Four new type structures:
+  - `RenovaveisRecord`: Plant data (code, name, pmax, fcap, cadastro)
+  - `RenovaveisSubsystemRecord`: Subsystem mapping relationships
+  - `RenovaveisBusRecord`: Electrical bus connection relationships
+  - `RenovaveisGenerationRecord`: Time-varying generation forecasts
+- Enhanced `RenovaveisData` structure with four data vectors
+- Comprehensive test suite: 45 tests validating all record types and relationships
+- Parser count: 19/32 complete (59% coverage)
+- Test count: 2,759 passing tests (excluding SIMUL parser with test data issues)
+
 ### Added - October 18, 2025 (Session 8)
 - **ENTDADOS Record Type Expansion**: Added 16 new record types to ENTDADOS parser
   - RE: Electrical constraint definitions

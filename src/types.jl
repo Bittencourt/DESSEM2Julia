@@ -2401,6 +2401,161 @@ Base.@kwdef struct DessemData
     metadata::Dict{String, Any} = Dict{String, Any}()
 end
 
+# ============================================================================
+# Renewable Energy (RENOVAVEIS.DAT) Types
+# ============================================================================
+
+"""
+    RenovaveisRecord
+
+Single renewable energy plant registration record.
+
+# IDESSEM Reference
+idessem/dessem/modelos/renovaveis.py - EOLICA class
+
+# Fields
+- `plant_code::Int`: Plant identification code (5 digits)
+- `plant_name::String`: Plant name including bus and type (40 chars max)
+- `pmax::Float64`: Maximum power capacity in MW
+- `fcap::Float64`: Capacity factor (0.0 to 1.0)
+- `cadastro::Int`: Registration flag (0 = not registered, 1 = registered)
+
+# Format Notes
+- Despite the name "EOLICA" (wind), this includes all renewable types:
+  - UEE: Wind farms (Usina Eólica)
+  - UFV: Solar farms (Usina Fotovoltaica)
+  - UTE: Biomass/thermal
+  - PCH/CGH: Small hydro plants
+  - Others
+- PMAX often set to 9999 as placeholder value
+- FCAP represents expected capacity factor for generation forecasting
+- Plant name format: "CODE _NAME_BUSNUM_TYPE"
+
+# Example
+```julia
+RenovaveisRecord(
+    plant_code=1,
+    plant_name="5G260  _MMGD_F_260_00260_MGD",
+    pmax=9999.0,
+    fcap=1.0,
+    cadastro=0
+)
+```
+"""
+Base.@kwdef struct RenovaveisRecord
+    plant_code::Int
+    plant_name::String
+    pmax::Float64
+    fcap::Float64
+    cadastro::Int
+end
+
+"""
+    RenovaveisSubsystemRecord
+
+Maps a renewable plant to its subsystem/market.
+
+# Fields
+- `plant_code::Int`: 5-digit plant ID
+- `subsystem::String`: Subsystem identifier (e.g., "SE", "S", "NE", "N")
+"""
+Base.@kwdef struct RenovaveisSubsystemRecord
+    plant_code::Int
+    subsystem::String
+end
+
+"""
+    RenovaveisBusRecord
+
+Maps a renewable plant to its electrical bus connection point.
+
+# Fields
+- `plant_code::Int`: 5-digit plant ID
+- `bus_code::Int`: 5-digit bus ID where plant connects
+"""
+Base.@kwdef struct RenovaveisBusRecord
+    plant_code::Int
+    bus_code::Int
+end
+
+"""
+    RenovaveisGenerationRecord
+
+Time series forecast of available generation for renewable plants.
+
+# Fields
+- `plant_code::Int`: 5-digit plant ID
+- `start_day::Int`: Day of validity start
+- `start_hour::Int`: Hour of validity start (0-23)
+- `start_half_hour::Int`: Half-hour flag: 0=:00, 1=:30
+- `end_day::Int`: Day of validity end
+- `end_hour::Int`: Hour of validity end (0-23)
+- `end_half_hour::Int`: Half-hour flag: 0=:00, 1=:30
+- `generation::Float64`: Generation forecast (MW)
+"""
+Base.@kwdef struct RenovaveisGenerationRecord
+    plant_code::Int
+    start_day::Int
+    start_hour::Int
+    start_half_hour::Int
+    end_day::Int
+    end_hour::Int
+    end_half_hour::Int
+    generation::Float64
+end
+
+"""
+    RenovaveisData
+
+Complete renewable energy plant registration data from RENOVAVEIS.DAT.
+
+# IDESSEM Reference
+idessem/dessem/modelos/renovaveis.py
+idessem/dessem/renovaveis.py
+
+# Fields
+- `plants::Vector{RenovaveisRecord}`: Vector of renewable plant records
+- `subsystem_mappings::Vector{RenovaveisSubsystemRecord}`: Plant-to-subsystem mappings
+- `bus_mappings::Vector{RenovaveisBusRecord}`: Plant-to-bus electrical connections
+- `generation_forecasts::Vector{RenovaveisGenerationRecord}`: Time series generation forecasts
+
+# Purpose
+This file registers all renewable energy sources in the system with their:
+- Maximum generation capacity (PMAX)
+- Expected capacity factor (FCAP)
+- Registration status (CADASTRO)
+
+Used by DESSEM for:
+- Renewable generation forecasting
+- Capacity availability modeling
+- Integration with network model
+
+# Statistics from Sample Data
+- CCEE sample: 1,225 renewable plants
+- ONS sample: ~330,000+ records (very large file!)
+- Mix of wind, solar, biomass, small hydro
+- Most have FCAP = 1.0 and PMAX = 9999 (placeholder values)
+
+# Example Usage
+```julia
+data = parse_renovaveis("renovaveis.dat")
+println("Total renewable plants: \$(length(data.plants))")
+
+# Filter by type
+wind_plants = filter(p -> occursin("UEE", p.plant_name), data.plants)
+solar_plants = filter(p -> occursin("UFV", p.plant_name), data.plants)
+
+# Find registered plants
+registered = filter(p -> p.cadastro == 1, data.plants)
+```
+"""
+Base.@kwdef struct RenovaveisData
+    plants::Vector{RenovaveisRecord} = RenovaveisRecord[]
+    subsystem_mappings::Vector{RenovaveisSubsystemRecord} = RenovaveisSubsystemRecord[]
+    bus_mappings::Vector{RenovaveisBusRecord} = RenovaveisBusRecord[]
+    generation_forecasts::Vector{RenovaveisGenerationRecord} = RenovaveisGenerationRecord[]
+end
+
 # Export new types
 export DessOpcData
 export SimulHeader, DiscRecord, VoliRecord, OperRecord, SimulData
@@ -2408,5 +2563,6 @@ export AreaRecord, UsinaRecord, AreaContData
 export CotaR11Record, CotasR11Data
 export CurvTviagRecord, CurvTviagData
 export NetworkBus, NetworkLine, NetworkTopology
+export RenovaveisRecord, RenovaveisData
 
 end # module
