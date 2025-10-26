@@ -4,6 +4,39 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### October 26, 2025 - Session 22: SIMUL.DAT Documented as Legacy ✅
+
+**Achievement**: Investigated SIMUL.DAT parser and documented as legacy/deprecated - **parser removed from test suite**
+
+**Decision**: Based on comprehensive IDESEM investigation:
+- ✅ SIMUL.DAT marked "(F)" = Fixed/not used in modern DESSEM
+- ✅ Not present in ONS or CCEE production samples
+- ✅ IDESEM reference implementation does NOT parse this file
+  - Only has `RegistroSimul` registry entry (description + filename fields)
+  - No `simul.py` parser file exists
+  - Test only validates registry metadata, not file contents
+- ✅ Cannot validate against real data - no production samples available
+- ✅ Parser maintained in codebase for legacy compatibility only
+
+**Actions Taken**:
+1. **Updated parser documentation** (`src/parser/simul.jl`):
+   - Added warning banner about legacy/deprecated status
+   - Referenced IDESEM investigation findings
+   - Documented why file cannot be validated
+
+2. **Removed test suite** (`test/simul_tests.jl`):
+   - Deleted 291-line test file (46 tests)
+   - Removed from `test/runtests.jl`
+   - Rationale: Cannot achieve 100% without real samples
+
+3. **Updated documentation**:
+   - `docs/file_formats.md`: Marked SIMUL.XXX as ⚠️ LEGACY with explanation
+   - `docs/planning/TASKS.md`: Documented investigation and decision
+
+**Next Priority**: **CONFHD.DAT** (high-value hydro configuration parser)
+
+---
+
 ### October 26, 2025 - Session 21: Documentation Update for RENOVAVEIS Parser ✅
 
 **Achievement**: Updated all project documentation to reflect RENOVAVEIS.DAT parser completion

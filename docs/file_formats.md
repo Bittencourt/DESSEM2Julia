@@ -15,7 +15,9 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | DESSEM.ARQ | Index file with case configuration | ✅ Parser | § 2 |
 | DADVAZ.XXX | Case information and natural inflows | ✅ Parser | § 3 |
 | ENTDADOS.XXX | General data file (30+ record types: TM, SIST, UH, UT, DP, DA, MH, MT, RE, LU, FH, FT, FI, FE, FR, FC, TX, EZ, R11, FP, SECR, CR, AC, AG) | ✅ Parser | § 4 |
-| SIMUL.XXX | Simulation data (DISC, VOLI, OPER blocks) | TODO | § 5 |
+| **SIMUL.XXX** | **Simulation data (DISC, VOLI, OPER blocks)** | **⚠️ LEGACY** | **§ 5** |
+
+> **Note on SIMUL.XXX**: File marked "(F)" (Fixed/not used) in modern DESSEM cases. Not present in ONS/CCEE production samples. IDESEM reference implementation does not parse this file (only registry entry exists). Parser maintained for legacy compatibility only, cannot be validated against real data.
 
 ## Plant Registry Files
 
@@ -94,7 +96,7 @@ Priority order for parser implementation based on complexity and dependencies:
 - [ ] **DESSEM.ARQ** - Index file (simple key-value format)
 - [ ] **ENTDADOS.XXX** - General data (multiple record types: TM, SIST, UH, UT, DP, IA, CD, VR, RD, PD)
 - [ ] **DADVAZ.XXX** - Case info and inflows (header + data section)
-- [ ] **SIMUL.XXX** - Simulation data (block structure)
+- [x] **~~SIMUL.XXX~~** - ⚠️ LEGACY: Not used in production, IDESEM doesn't parse, no samples exist
 
 ### Phase 3: Operational Constraints
 **Goal**: Handle time-varying operational data

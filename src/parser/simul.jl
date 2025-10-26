@@ -1,13 +1,21 @@
 """
 SIMUL.XXX Parser
 
+⚠️ **LEGACY/DEPRECATED FILE** ⚠️
+- Not present in production DESSEM samples (marked "(F)" = Fixed/not used in dessem.arq)
+- IDESEM reference implementation does NOT parse this file (only registry entry exists)
+- Cannot validate against real data - no production samples available
+- Parser maintained for legacy compatibility only
+
 Parses simulation data file containing:
 - Header: simulation start date/time and OPERUH flag
 - DISC block: time discretization periods
 - VOLI block: initial reservoir volumes
 - OPER block: simulation operation data for plants
 
-IDESEM Reference: No dedicated simul.py file exists in IDESSEM
+IDESEM Reference: No dedicated simul.py file exists in IDESEM
+  Only RegistroSimul exists with description + filename fields
+  See: https://github.com/rjmalves/idessem/blob/main/idessem/dessem/modelos/dessemarq.py
 Specification: docs/dessem-complete-specs.md lines 325-475
 """
 module SimulParser
@@ -23,12 +31,12 @@ import ..ParserCommon: extract_field, is_comment_line, is_blank, parse_int, pars
 
 Parse the simulation header (Record 3) containing start date/time and OPERUH flag.
 
-# Format (Fixed-width columns)
+# Format (Fixed-width columns) - Per dessem-complete-specs.md
 - Col 5-6: I2 - Start day
 - Col 8-9: I2 - Start hour
 - Col 11: I1 - Start half-hour (0 or 1)
 - Col 14-15: I2 - Start month
-- Col 18-21: I4 - Start year
+- Col 18-21: I4 - Start year (FIXED: was 17-20)
 - Col 23: I1 - OPERUH constraints flag (0=exclude, 1=include)
 
 # IDESEM Reference
@@ -44,9 +52,9 @@ function parse_simul_header(line::AbstractString, filename::AbstractString, line
         start_half_hour = isempty(start_half_hour_str) ? 0 : parse(Int, start_half_hour_str)
         
         start_month = parse(Int, strip(extract_field(line, 14, 15)))  # Per specification
-        start_year = parse(Int, strip(extract_field(line, 17, 20)))  # Per specification
+        start_year = parse(Int, strip(extract_field(line, 18, 21)))  # FIXED: was 17-20, spec says 18-21
         
-        operuh_flag_str = strip(extract_field(line, 22, 22))  # Per specification
+        operuh_flag_str = strip(extract_field(line, 23, 23))  # FIXED: was 22, spec says 23
         operuh_flag = isempty(operuh_flag_str) ? nothing : parse(Int, operuh_flag_str)
         
         return SimulHeader(
@@ -67,12 +75,12 @@ end
 
 Parse a DISC (time discretization) record.
 
-# Format (Fixed-width columns)
+# Format (Fixed-width columns) - Per dessem-complete-specs.md
 - Col 5-6: I2 - Day number
 - Col 8-9: I2 - Hour (0-23)
 - Col 11: I1 - Half-hour flag (0 or 1)
-- Col 15-19: F5.0 - Period duration (hours)
-- Col 21: I1 - Period constraints flag (0=exclude, 1=include)
+- Col 15-19: F5.0 - Period duration (hours) (FIXED: was 14-18)
+- Col 21: I1 - Period constraints flag (0=exclude, 1=include) (FIXED: was 20)
 """
 function parse_disc_record(line::AbstractString, filename::AbstractString, line_num::Int)
     try
@@ -84,9 +92,9 @@ function parse_disc_record(line::AbstractString, filename::AbstractString, line_
         half_hour_str = strip(extract_field(line, 11, 11))
         half_hour = isempty(half_hour_str) ? 0 : parse(Int, half_hour_str)
         
-        duration = parse(Float64, strip(extract_field(line, 14, 18)))  # Adjusted: actual data has duration around 14-18
+        duration = parse(Float64, strip(extract_field(line, 15, 19)))  # FIXED: was 14-18, spec says 15-19
         
-        constraints_flag_str = strip(extract_field(line, 20, 20))  # Adjusted: actual data has flag at position 20
+        constraints_flag_str = strip(extract_field(line, 21, 21))  # FIXED: was 20, spec says 21
         constraints_flag = isempty(constraints_flag_str) ? nothing : parse(Int, constraints_flag_str)
         
         return DiscRecord(
@@ -106,7 +114,7 @@ end
 
 Parse a VOLI (initial reservoir volumes) record.
 
-# Format (Fixed-width columns)
+# Format (Fixed-width columns) - Per dessem-complete-specs.md
 - Col 5-7: I3 - Plant number
 - Col 10-21: A12 - Plant name
 - Col 25-34: F10.0 - Initial volume (% useful)
@@ -114,8 +122,8 @@ Parse a VOLI (initial reservoir volumes) record.
 function parse_voli_record(line::AbstractString, filename::AbstractString, line_num::Int)
     try
         plant_number = parse(Int, strip(extract_field(line, 5, 7)))
-        plant_name = strip(extract_field(line, 9, 20))  # Adjusted: was 10-21
-        initial_volume_percent = parse(Float64, strip(extract_field(line, 26, 34)))  # Adjusted: was 25-34
+        plant_name = strip(extract_field(line, 10, 21))  # FIXED: spec says 10-21, was 9-20
+        initial_volume_percent = parse(Float64, strip(extract_field(line, 25, 34)))  # FIXED: spec says 25-34, was 26-34
         
         return VoliRecord(
             plant_number=plant_number,
@@ -132,10 +140,10 @@ end
 
 Parse an OPER (simulation operation data) record.
 
-# Format (Fixed-width columns)
+# Format (Fixed-width columns) - Per dessem-complete-specs.md
 - Col 5-7: I3 - Plant number
 - Col 8: A1 - Plant type ("H"=hydro, "E"=pumping)
-- Col 10-22: A12 - Plant name
+- Col 10-22: A12 - Plant name (FIXED: was 9-20)
 - Col 24-25: I2 - Initial day
 - Col 27-28: I2 - Initial hour
 - Col 30: I1 - Initial half-hour
@@ -155,34 +163,34 @@ function parse_oper_record(line::AbstractString, filename::AbstractString, line_
         plant_type_str = strip(extract_field(line, 8, 8))
         plant_type = isempty(plant_type_str) ? "H" : plant_type_str
         
-        plant_name = strip(extract_field(line, 9, 20))  # Adjusted: actual data has name at 9-20
+        plant_name = strip(extract_field(line, 10, 22))  # FIXED: spec says 10-22, was 9-20
         
-        initial_day = parse(Int, strip(extract_field(line, 21, 23)))  # Adjusted: actual data has day at 21-23
+        initial_day = parse(Int, strip(extract_field(line, 24, 25)))  # FIXED: spec says 24-25, was 21-23
         
-        initial_hour_str = strip(extract_field(line, 25, 26))  # Adjusted: actual data has hour at 25-26
+        initial_hour_str = strip(extract_field(line, 27, 28))  # FIXED: spec says 27-28, was 25-26
         initial_hour = isempty(initial_hour_str) ? 0 : parse(Int, initial_hour_str)
         
-        initial_half_hour_str = strip(extract_field(line, 28, 28))  # Adjusted: actual data has half-hour at 28
+        initial_half_hour_str = strip(extract_field(line, 30, 30))  # FIXED: spec says 30, was 28
         initial_half_hour = isempty(initial_half_hour_str) ? 0 : parse(Int, initial_half_hour_str)
         
-        final_day = parse(Int, strip(extract_field(line, 30, 31)))  # Adjusted: actual data has final day at 30-31
+        final_day = parse(Int, strip(extract_field(line, 32, 33)))  # FIXED: spec says 32-33, was 30-31
         
-        final_hour_str = strip(extract_field(line, 34, 34))  # Adjusted: actual data has final hour at 34
+        final_hour_str = strip(extract_field(line, 35, 36))  # FIXED: spec says 35-36, was 34
         final_hour = isempty(final_hour_str) ? 0 : parse(Int, final_hour_str)
         
-        final_half_hour_str = strip(extract_field(line, 36, 36))  # Adjusted: actual data has final half-hour at 36
+        final_half_hour_str = strip(extract_field(line, 38, 38))  # FIXED: spec says 38, was 36
         final_half_hour = isempty(final_half_hour_str) ? 0 : parse(Int, final_half_hour_str)
         
-        flow_type = parse(Int, strip(extract_field(line, 38, 38)))  # Adjusted: actual data has flow type at 38
-        natural_inflow = parse(Float64, strip(extract_field(line, 40, 48)))  # Adjusted: actual data has inflow at 40-48
+        flow_type = parse(Int, strip(extract_field(line, 40, 40)))  # FIXED: spec says 40, was 38
+        natural_inflow = parse(Float64, strip(extract_field(line, 42, 51)))  # FIXED: spec says 42-51, was 40-48
         
-        withdrawal_type_str = strip(extract_field(line, 50, 50))  # Adjusted: actual data has withdrawal type at 50
+        withdrawal_type_str = strip(extract_field(line, 53, 53))  # FIXED: spec says 53, was 50
         withdrawal_type = isempty(withdrawal_type_str) ? nothing : parse(Int, withdrawal_type_str)
         
-        withdrawal_flow_str = strip(extract_field(line, 57, 60))  # Adjusted: actual data has withdrawal flow at 57-60
+        withdrawal_flow_str = strip(extract_field(line, 55, 64))  # FIXED: spec says 55-64, was 57-60
         withdrawal_flow = isempty(withdrawal_flow_str) ? 0.0 : parse(Float64, withdrawal_flow_str)
         
-        generation_target_str = strip(extract_field(line, 66, 70))  # Adjusted: actual data has target at 66-70
+        generation_target_str = strip(extract_field(line, 65, 74))  # FIXED: spec says 65-74, was 66-70
         generation_target = isempty(generation_target_str) ? nothing : parse(Float64, generation_target_str)
         
         return OperRecord(

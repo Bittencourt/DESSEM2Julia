@@ -16,7 +16,7 @@ include("dadvaz_tests.jl")
 include("deflant_tests.jl")
 include("desselet_tests.jl")
 include("renovaveis_tests.jl")
-include("simul_tests.jl")
+# include("simul_tests.jl")  # REMOVED: SIMUL is legacy/deprecated, no production samples exist
 include("dessopc_tests.jl")
 include("areacont_tests.jl")
 include("cotasr11_tests.jl")
