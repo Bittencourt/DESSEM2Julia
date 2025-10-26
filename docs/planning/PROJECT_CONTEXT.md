@@ -1,7 +1,7 @@
 # DESSEM2Julia Project Context & Knowledge Base
 
-**Last Updated**: October 26, 2025 - Session 21  
-**Current Status**: 19/32 parsers complete (59%), 2,759 tests passing ✅  
+**Last Updated**: October 26, 2025 - Session 23  
+**Current Status**: 20/32 parsers complete (63%), 2,994 tests passing ✅  
 **Purpose**: Complete context for AI agents and developers continuing this project
 
 ---
@@ -860,9 +860,9 @@ FloatField(10, 29, 3)  # → Julia: extract_field(line, 30, 39)
 
 ### Phase 1: Complete Parsers (Current)
 Goal: Parse all 32 DESSEM input files
-Status: 19/32 complete (59%)
+Status: 20/32 complete (63%)
 
-**Completed Parsers (19)**:
+**Completed Parsers (20)**:
 1. dessem.arq - Master file index
 2. termdat.dat - Thermal plant registry
 3. entdados.dat - General operational data (35+ record types)
@@ -877,7 +877,8 @@ Status: 19/32 complete (59%)
 12. curvtviag.dat - Travel time propagation curves
 13. dessopc.dat - Execution options
 14. renovaveis.dat - Renewable energy plants (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO)
-15-19. Network topology extraction from PDO files
+15. **respot.dat - Power reserve requirements (RP, LM records)** ⭐ **SESSION 23 - NEW**
+16-20. Network topology extraction from PDO files
 
 ### Phase 2: Type System Integration
 Goal: Populate `DessemCase` from parsers
@@ -934,9 +935,16 @@ Examples:
 
 ## 🚀 Starting Point for Next Agent
 
-**You are here**: 19/32 parsers complete (59%), clean codebase, comprehensive documentation.
+**You are here**: 20/32 parsers complete (63%), clean codebase, comprehensive documentation.
 
-**Latest Achievement**: RENOVAVEIS.DAT parser complete (Session 20) - 45/45 tests passing, 4 record types (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO)!
+**Latest Achievement**: RESPOT.DAT parser complete (Session 23) - 235/235 tests passing (fixed from 59/80 after column position corrections)! Critical lesson learned about character-by-character position analysis for fixed-width formats.
+
+**Key Lessons from RESPOT (Session 23)**:
+1. **Always analyze real data character-by-character** - Synthetic tests can mask format issues
+2. **IDESEM positions need careful conversion** - Python 0-indexed → Julia 1-indexed (add 1 to start positions)
+3. **Off by 1 column breaks everything** - Fixed-width formats are precise, hora_inicial was reading 14-15 instead of 13-14
+4. **Real production data is authoritative** - Don't trust synthetic test assumptions, verify with actual ONS/CCEE files
+5. **Test improvements incrementally** - From 59/80 failing → all passing by fixing one field at a time
 
 **Recommended next steps**:
 

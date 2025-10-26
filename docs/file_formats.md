@@ -55,7 +55,7 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
 | AREACONT.DAT | Control area definition | ✅ Parser | § 12 |
-| RESPOT.XXX | Power reserve constraints | TODO | § 12 |
+| RESPOT.XXX | Power reserve constraints (RP: pools, LM: limits) | ✅ Parser (Session 23) | § 12 |
 | RESTSEG.XXX | Dynamic security constraints | TODO | § 12 |
 | RSTLPP.XXX | Linear piecewise security constraints | TODO | § 12 |
 
@@ -100,9 +100,9 @@ Priority order for parser implementation based on complexity and dependencies:
 
 ### Phase 3: Operational Constraints
 **Goal**: Handle time-varying operational data
-- [ ] **OPERUH.XXX** - Hydro constraints (REST, LIM, VAR records)
-- [ ] **OPERUT.XXX** - Thermal operations (INIT, OPER blocks)
-- [ ] **RESPOT.XXX** - Reserve requirements (time-varying)
+- [x] **OPERUH.XXX** - Hydro constraints (REST, LIM, VAR records) ✅
+- [x] **OPERUT.XXX** - Thermal operations (INIT, OPER blocks) ✅
+- [x] **RESPOT.XXX** - Reserve requirements (RP: pools, LM: limits) ✅ **Session 23**
 
 ### Phase 4: Electrical Network
 **Goal**: Parse ANAREDE format network files
