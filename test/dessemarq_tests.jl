@@ -8,8 +8,15 @@ using DESSEM2Julia.DessemArqParser
 
 @testset "DessemArq Parser" begin
     sample_file = joinpath(@__DIR__, "..", "docs", "Sample", "DS_CCEE_102025_SEMREDE_RV0D28", "dessem.arq")
-    
+
+    # Skip sample-dependent tests if the sample file isn't present in CI
+    has_sample = isfile(sample_file)
+
     @testset "Parse sample dessem.arq" begin
+        if !has_sample
+            @info "Sample file not found, skipping DessemArq parsing checks" sample_file
+            return
+        end
         arq = parse_dessemarq(sample_file)
         
         # Test that we got a DessemArq struct
@@ -66,6 +73,10 @@ using DESSEM2Julia.DessemArqParser
     end
     
     @testset "File existence validation" begin
+        if !has_sample
+            @info "Sample file not found, skipping file existence validation" sample_file
+            return
+        end
         # Parse the index
         arq = parse_dessemarq(sample_file)
         

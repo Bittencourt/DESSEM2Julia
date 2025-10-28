@@ -80,12 +80,21 @@ end
 
 Convert filename to uppercase base filename without path.
 
+This function is OS-agnostic: it strips both POSIX ('/') and Windows ('\\')
+separators so tests behave consistently on Linux/macOS/Windows runners.
+
 # Example
 ```julia
-normalize_name("/path/to/hidr.dat") # => "HIDR.DAT"
+normalize_name("/path/to/hidr.dat")      # => "HIDR.DAT"
+normalize_name("C\\\Windows\\Path\\file.xxx") # => "FILE.XXX"
 ```
 """
-normalize_name(fname::AbstractString) = uppercase(Base.basename(String(fname)))
+function normalize_name(fname::AbstractString)
+    # Normalize all separators to '/'
+    s = replace(String(fname), '\\' => '/')
+    # Take the last path component and uppercase
+    return uppercase(last(split(s, '/')))
+end
 
 """
     strip_comments(s; comment_chars=["*", "#", ";"]) -> String

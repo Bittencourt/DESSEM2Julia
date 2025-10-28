@@ -176,7 +176,8 @@ function parse_dessemarq(filepath::String)::DessemArq
         end
     catch e
         if isa(e, SystemError)
-            throw(ParserError("Failed to read dessem.arq file: $filepath", 0, e))
+            # Provide full context to ParserError (message, file, line, content)
+            throw(ParserError("Failed to read dessem.arq file", filepath, 0, string(e)))
         else
             rethrow(e)
         end
