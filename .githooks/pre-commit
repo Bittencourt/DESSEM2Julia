@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "[pre-commit] Running JuliaFormatter check..."
+
+if ! command -v julia >/dev/null 2>&1; then
+  echo "[pre-commit] Julia not found. Skipping formatter check."
+  exit 0
+fi
+
+# Run formatter (in-place)
+julia --color=yes -e 'using Pkg; Pkg.add(;name="JuliaFormatter", version="1"); using JuliaFormatter; format(".", verbose=true)'
+
+# If formatter made changes, stage them and proceed
+if ! git diff --quiet; then
+  echo "[pre-commit] Formatting changes applied; staging updates."
+  git add -A
+fi
+
+echo "[pre-commit] Done."
+#!/usr/bin/env bash
+set -euo pipefail
+
 echo "Running Julia tests before commit..."
 
 # On Windows Git Bash, invoking julia via WindowsApps can fail with Permission denied.

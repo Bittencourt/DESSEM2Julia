@@ -7,6 +7,35 @@ on:
     branches: [ main, dev ]
 
 jobs:
+  lint:
+    name: Lint (JuliaFormatter)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.11'
+      - name: Cache artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.julia/artifacts
+            ~/.julia/compiled
+          key: ${{ runner.os }}-julia-1.11-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-julia-1.11-
+      - name: Run JuliaFormatter (check only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          julia --color=yes -e 'using Pkg; Pkg.add(;name="JuliaFormatter", version="1"); using JuliaFormatter; format(".", verbose=true)'
+          if ! git diff --quiet; then
+            echo "::error::Code is not formatted. Please run locally: using JuliaFormatter; format(\".\")"
+            echo "Changed files:" && git --no-pager diff --name-only
+            exit 1
+          fi
+  
   test:
     runs-on: ${{ matrix.os }}
     strategy:
