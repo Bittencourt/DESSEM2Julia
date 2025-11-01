@@ -85,8 +85,8 @@ separators so tests behave consistently on Linux/macOS/Windows runners.
 
 # Example
 ```julia
-normalize_name("/path/to/hidr.dat")      # => "HIDR.DAT"
-normalize_name("C\\\Windows\\Path\\file.xxx") # => "FILE.XXX"
+normalize_name("/path/to/hidr.dat")        # => "HIDR.DAT"
+normalize_name("C:/Windows/Path/file.xxx") # => "FILE.XXX"
 ```
 """
 function normalize_name(fname::AbstractString)
