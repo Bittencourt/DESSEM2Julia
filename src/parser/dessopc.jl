@@ -53,19 +53,19 @@ function parse_dessopc_line(line::AbstractString)
     # Skip comments and blank lines
     is_comment_line(line) && return nothing
     is_blank(line) && return nothing
-    
+
     # Extract keyword (first word)
     parts = split(strip(line))
     isempty(parts) && return nothing
-    
+
     keyword_str = uppercase(String(parts[1]))  # Normalize to uppercase
     keyword = Symbol(lowercase(keyword_str))
-    
+
     # Flag-only keywords (presence = enabled)
     if keyword_str in ["PINT", "CPLEXLOG", "UCTBUSLOC"]
         return (keyword, true)
     end
-    
+
     # Single-value keywords (but check for extended syntax first)
     if keyword_str in ["UCTPAR", "AVLCMO", "TOLERILH", "ENGOLIMENTO"]
         if length(parts) >= 2
@@ -76,7 +76,7 @@ function parse_dessopc_line(line::AbstractString)
             return nothing
         end
     end
-    
+
     # UCTERM can have 1 or 3 values - treat as multi-value
     if keyword_str == "UCTERM"
         if length(parts) >= 2
@@ -95,11 +95,18 @@ function parse_dessopc_line(line::AbstractString)
             return nothing
         end
     end
-    
+
     # Multi-value keywords
-    if keyword_str in ["REGRANPTV", "CONSTDADOS", "UCTHEURFP", "AJUSTEFCF", 
-                       "CROSSOVER", "TRATA_INVIAB_ILHA", "UCTESPERTO",
-                       "TRATA_TERM_TON"]
+    if keyword_str in [
+        "REGRANPTV",
+        "CONSTDADOS",
+        "UCTHEURFP",
+        "AJUSTEFCF",
+        "CROSSOVER",
+        "TRATA_INVIAB_ILHA",
+        "UCTESPERTO",
+        "TRATA_TERM_TON",
+    ]
         # Parse all remaining integers
         values = Int[]
         for i in 2:length(parts)
@@ -110,15 +117,15 @@ function parse_dessopc_line(line::AbstractString)
                 continue
             end
         end
-        
+
         # Some keywords can be flags OR have values
         if isempty(values) && keyword_str in ["TRATA_TERM_TON"]
             return (keyword, true)
         end
-        
+
         return (keyword, values)
     end
-    
+
     # Unknown keyword - store as true flag for single keywords
     if length(parts) == 1
         # Flag keyword
@@ -144,13 +151,13 @@ Parse complete DESSOPC.DAT file.
 """
 function parse_dessopc(io::IO, filename::AbstractString)
     data = DessOpcData()
-    
+
     for (line_num, line) in enumerate(eachline(io))
         result = parse_dessopc_line(line)
-        
+
         if result !== nothing
             keyword, value = result
-            
+
             # Store in appropriate field
             if keyword == :uctpar
                 data.uctpar = value
@@ -206,7 +213,7 @@ function parse_dessopc(io::IO, filename::AbstractString)
             end
         end
     end
-    
+
     return data
 end
 

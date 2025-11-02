@@ -9,7 +9,7 @@ export save_jld2, load_jld2
 Save DessemData to JLD2 at the given path.
 """
 function save_jld2(path::AbstractString, data::DessemData)
-    jldsave(path; data=data)
+    jldsave(path; data = data)
     return path
 end
 

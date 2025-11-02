@@ -28,21 +28,22 @@ Parse a single base case record from DESSELET.DAT.
 
 Fields: base_id, label, filename_parts...
 """
-function parse_base_case_record(line::AbstractString, filename::AbstractString, line_num::Int)
+function parse_base_case_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)
     parts = split(strip(String(line)))
-    length(parts) >= 3 || error("Invalid base case line at $line_num: requires at least 3 fields")
+    length(parts) >= 3 ||
+        error("Invalid base case line at $line_num: requires at least 3 fields")
 
     base_id = parse(Int, parts[1])
     label = parts[2]
-    
+
     # Combine filename parts (e.g., ["leve", ".pwf"] → "leve.pwf")
     arquivo = join(parts[3:end], "")
-    
-    return DesseletBaseCase(
-        base_id=base_id,
-        label=label,
-        filename=arquivo
-    )
+
+    return DesseletBaseCase(base_id = base_id, label = label, filename = arquivo)
 end
 
 """
@@ -57,13 +58,18 @@ Parse a single modification record from DESSELET.DAT.
 
 Fields: patamar_id, name, date, hour, minute, duration, base_case_id, filename
 """
-function parse_modification_record(line::AbstractString, filename::AbstractString, line_num::Int)
+function parse_modification_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)
     parts = split(strip(String(line)))
-    length(parts) >= 8 || error("Invalid patamar line at $line_num: requires at least 8 fields")
+    length(parts) >= 8 ||
+        error("Invalid patamar line at $line_num: requires at least 8 fields")
 
     patamar_id = parse(Int, parts[1])
     name = parts[2]
-    
+
     # Date parsing
     date_str = parts[3]
     date_val = try
@@ -71,24 +77,24 @@ function parse_modification_record(line::AbstractString, filename::AbstractStrin
     catch e
         error("Invalid date format at line $line_num: '$date_str' - $e")
     end
-    
+
     hour = parse(Int, parts[4])
     minute = parse(Int, parts[5])
     duration_hours = parse(Float64, parts[6])
     base_case_id = parse(Int, parts[7])
-    
+
     # Combine filename parts if split (e.g., ["pat01", ".afp"] → "pat01.afp")
     file_mod = join(parts[8:end], "")
-    
+
     return DesseletPatamar(
-        patamar_id=patamar_id,
-        name=name,
-        date=date_val,
-        hour=hour,
-        minute=minute,
-        duration_hours=duration_hours,
-        base_case_id=base_case_id,
-        filename=file_mod
+        patamar_id = patamar_id,
+        name = name,
+        date = date_val,
+        hour = hour,
+        minute = minute,
+        duration_hours = duration_hours,
+        base_case_id = base_case_id,
+        filename = file_mod,
     )
 end
 
@@ -115,15 +121,15 @@ function parse_desselet(filepath::AbstractString)::DesseletData
             # Skip comments and blank lines first
             is_comment_line(raw_line) && continue
             is_blank(raw_line) && continue
-            
+
             # Skip header lines starting with ### or (###
             stripped = strip(raw_line)
             if startswith(stripped, "###") || startswith(stripped, "(###")
                 continue
             end
-            
+
             # Detect section markers
-            if occursin(r"Arquivos de caso base"i, raw_line) || 
+            if occursin(r"Arquivos de caso base"i, raw_line) ||
                occursin(r"Arquivos com caso base"i, raw_line)
                 section = :base
                 continue
@@ -132,18 +138,18 @@ function parse_desselet(filepath::AbstractString)::DesseletData
                 section = :patamar
                 continue
             end
-            
+
             # Section terminator
             if startswith(stripped, "99999")
                 section = :none
                 continue
             end
-            
+
             # End of file marker
             if occursin(r"^\s*FIM\s*$"i, raw_line)
                 break
             end
-            
+
             # Parse data lines
             try
                 if section == :base
@@ -154,16 +160,17 @@ function parse_desselet(filepath::AbstractString)::DesseletData
                     push!(patamares, record)
                 end
             catch e
-                @warn "Failed to parse DESSELET line" filepath line_num line=raw_line exception=(e, catch_backtrace())
+                @warn "Failed to parse DESSELET line" filepath line_num line = raw_line exception =
+                    (e, catch_backtrace())
                 rethrow()
             end
         end
     end
 
     return DesseletData(
-        base_cases=base_cases,
-        patamares=patamares,
-        metadata=Dict("source" => String(filepath))
+        base_cases = base_cases,
+        patamares = patamares,
+        metadata = Dict("source" => String(filepath)),
     )
 end
 

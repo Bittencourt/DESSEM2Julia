@@ -47,23 +47,23 @@ function parse_simul_header(line::AbstractString, filename::AbstractString, line
         start_day = parse(Int, strip(extract_field(line, 5, 6)))
         start_hour_str = strip(extract_field(line, 8, 9))
         start_hour = isempty(start_hour_str) ? 0 : parse(Int, start_hour_str)
-        
+
         start_half_hour_str = strip(extract_field(line, 11, 11))
         start_half_hour = isempty(start_half_hour_str) ? 0 : parse(Int, start_half_hour_str)
-        
+
         start_month = parse(Int, strip(extract_field(line, 14, 15)))  # Per specification
         start_year = parse(Int, strip(extract_field(line, 18, 21)))  # FIXED: was 17-20, spec says 18-21
-        
+
         operuh_flag_str = strip(extract_field(line, 23, 23))  # FIXED: was 22, spec says 23
         operuh_flag = isempty(operuh_flag_str) ? nothing : parse(Int, operuh_flag_str)
-        
+
         return SimulHeader(
-            start_day=start_day,
-            start_hour=start_hour,
-            start_half_hour=start_half_hour,
-            start_month=start_month,
-            start_year=start_year,
-            operuh_flag=operuh_flag
+            start_day = start_day,
+            start_hour = start_hour,
+            start_half_hour = start_half_hour,
+            start_month = start_month,
+            start_year = start_year,
+            operuh_flag = operuh_flag,
         )
     catch e
         error("Error parsing SIMUL header at $filename:$line_num: $e\nLine: '$line'")
@@ -85,24 +85,25 @@ Parse a DISC (time discretization) record.
 function parse_disc_record(line::AbstractString, filename::AbstractString, line_num::Int)
     try
         day = parse(Int, strip(extract_field(line, 5, 6)))
-        
+
         hour_str = strip(extract_field(line, 8, 9))
         hour = isempty(hour_str) ? 0 : parse(Int, hour_str)
-        
+
         half_hour_str = strip(extract_field(line, 11, 11))
         half_hour = isempty(half_hour_str) ? 0 : parse(Int, half_hour_str)
-        
+
         duration = parse(Float64, strip(extract_field(line, 15, 19)))  # FIXED: was 14-18, spec says 15-19
-        
+
         constraints_flag_str = strip(extract_field(line, 21, 21))  # FIXED: was 20, spec says 21
-        constraints_flag = isempty(constraints_flag_str) ? nothing : parse(Int, constraints_flag_str)
-        
+        constraints_flag =
+            isempty(constraints_flag_str) ? nothing : parse(Int, constraints_flag_str)
+
         return DiscRecord(
-            day=day,
-            hour=hour,
-            half_hour=half_hour,
-            duration=duration,
-            constraints_flag=constraints_flag
+            day = day,
+            hour = hour,
+            half_hour = half_hour,
+            duration = duration,
+            constraints_flag = constraints_flag,
         )
     catch e
         error("Error parsing DISC record at $filename:$line_num: $e\nLine: '$line'")
@@ -124,11 +125,11 @@ function parse_voli_record(line::AbstractString, filename::AbstractString, line_
         plant_number = parse(Int, strip(extract_field(line, 5, 7)))
         plant_name = strip(extract_field(line, 10, 21))  # FIXED: spec says 10-21, was 9-20
         initial_volume_percent = parse(Float64, strip(extract_field(line, 25, 34)))  # FIXED: spec says 25-34, was 26-34
-        
+
         return VoliRecord(
-            plant_number=plant_number,
-            plant_name=plant_name,
-            initial_volume_percent=initial_volume_percent
+            plant_number = plant_number,
+            plant_name = plant_name,
+            initial_volume_percent = initial_volume_percent,
         )
     catch e
         error("Error parsing VOLI record at $filename:$line_num: $e\nLine: '$line'")
@@ -159,55 +160,59 @@ Parse an OPER (simulation operation data) record.
 function parse_oper_record(line::AbstractString, filename::AbstractString, line_num::Int)
     try
         plant_number = parse(Int, strip(extract_field(line, 5, 7)))
-        
+
         plant_type_str = strip(extract_field(line, 8, 8))
         plant_type = isempty(plant_type_str) ? "H" : plant_type_str
-        
+
         plant_name = strip(extract_field(line, 10, 22))  # FIXED: spec says 10-22, was 9-20
-        
+
         initial_day = parse(Int, strip(extract_field(line, 24, 25)))  # FIXED: spec says 24-25, was 21-23
-        
+
         initial_hour_str = strip(extract_field(line, 27, 28))  # FIXED: spec says 27-28, was 25-26
         initial_hour = isempty(initial_hour_str) ? 0 : parse(Int, initial_hour_str)
-        
+
         initial_half_hour_str = strip(extract_field(line, 30, 30))  # FIXED: spec says 30, was 28
-        initial_half_hour = isempty(initial_half_hour_str) ? 0 : parse(Int, initial_half_hour_str)
-        
+        initial_half_hour =
+            isempty(initial_half_hour_str) ? 0 : parse(Int, initial_half_hour_str)
+
         final_day = parse(Int, strip(extract_field(line, 32, 33)))  # FIXED: spec says 32-33, was 30-31
-        
+
         final_hour_str = strip(extract_field(line, 35, 36))  # FIXED: spec says 35-36, was 34
         final_hour = isempty(final_hour_str) ? 0 : parse(Int, final_hour_str)
-        
+
         final_half_hour_str = strip(extract_field(line, 38, 38))  # FIXED: spec says 38, was 36
         final_half_hour = isempty(final_half_hour_str) ? 0 : parse(Int, final_half_hour_str)
-        
+
         flow_type = parse(Int, strip(extract_field(line, 40, 40)))  # FIXED: spec says 40, was 38
         natural_inflow = parse(Float64, strip(extract_field(line, 42, 51)))  # FIXED: spec says 42-51, was 40-48
-        
+
         withdrawal_type_str = strip(extract_field(line, 53, 53))  # FIXED: spec says 53, was 50
-        withdrawal_type = isempty(withdrawal_type_str) ? nothing : parse(Int, withdrawal_type_str)
-        
+        withdrawal_type =
+            isempty(withdrawal_type_str) ? nothing : parse(Int, withdrawal_type_str)
+
         withdrawal_flow_str = strip(extract_field(line, 55, 64))  # FIXED: spec says 55-64, was 57-60
-        withdrawal_flow = isempty(withdrawal_flow_str) ? 0.0 : parse(Float64, withdrawal_flow_str)
-        
+        withdrawal_flow =
+            isempty(withdrawal_flow_str) ? 0.0 : parse(Float64, withdrawal_flow_str)
+
         generation_target_str = strip(extract_field(line, 65, 74))  # FIXED: spec says 65-74, was 66-70
-        generation_target = isempty(generation_target_str) ? nothing : parse(Float64, generation_target_str)
-        
+        generation_target =
+            isempty(generation_target_str) ? nothing : parse(Float64, generation_target_str)
+
         return OperRecord(
-            plant_number=plant_number,
-            plant_type=plant_type,
-            plant_name=plant_name,
-            initial_day=initial_day,
-            initial_hour=initial_hour,
-            initial_half_hour=initial_half_hour,
-            final_day=final_day,
-            final_hour=final_hour,
-            final_half_hour=final_half_hour,
-            flow_type=flow_type,
-            natural_inflow=natural_inflow,
-            withdrawal_type=withdrawal_type,
-            withdrawal_flow=withdrawal_flow,
-            generation_target=generation_target
+            plant_number = plant_number,
+            plant_type = plant_type,
+            plant_name = plant_name,
+            initial_day = initial_day,
+            initial_hour = initial_hour,
+            initial_half_hour = initial_half_hour,
+            final_day = final_day,
+            final_hour = final_hour,
+            final_half_hour = final_half_hour,
+            flow_type = flow_type,
+            natural_inflow = natural_inflow,
+            withdrawal_type = withdrawal_type,
+            withdrawal_flow = withdrawal_flow,
+            generation_target = generation_target,
         )
     catch e
         error("Error parsing OPER record at $filename:$line_num: $e\nLine: '$line'")
@@ -235,30 +240,30 @@ function parse_simul(io::IO, filename::AbstractString)
     disc_records = DiscRecord[]
     voli_records = VoliRecord[]
     oper_records = OperRecord[]
-    
+
     current_block = :none
     header_line_count = 0
-    
+
     for (line_num, line) in enumerate(eachline(io))
         # Skip comments and blank lines
         is_comment_line(line) && continue
         is_blank(line) && continue
-        
+
         # Skip first two header lines
         if header_line_count < 2
             header_line_count += 1
             continue
         end
-        
+
         # Parse simulation header (Record 3)
         if header === nothing && header_line_count == 2
             header = parse_simul_header(line, filename, line_num)
             continue
         end
-        
+
         # Detect block identifiers
         line_upper = uppercase(strip(line))
-        
+
         # Check for block start
         if startswith(line_upper, "DISC")
             current_block = :disc
@@ -270,13 +275,13 @@ function parse_simul(io::IO, filename::AbstractString)
             current_block = :oper
             continue
         end
-        
+
         # Check for block terminator
         if startswith(line_upper, "FIM")
             current_block = :none
             continue
         end
-        
+
         # Parse records based on current block
         if current_block == :disc
             record = parse_disc_record(line, filename, line_num)
@@ -289,22 +294,23 @@ function parse_simul(io::IO, filename::AbstractString)
             push!(oper_records, record)
         end
     end
-    
+
     if header === nothing
         error("SIMUL file $filename does not contain a valid header (Record 3)")
     end
-    
+
     return SimulData(
-        header=header,
-        disc_records=disc_records,
-        voli_records=voli_records,
-        oper_records=oper_records
+        header = header,
+        disc_records = disc_records,
+        voli_records = voli_records,
+        oper_records = oper_records,
     )
 end
 
 # Convenience method for parsing from filename
 parse_simul(filename::AbstractString) = open(io -> parse_simul(io, filename), filename)
 
-export parse_simul, parse_simul_header, parse_disc_record, parse_voli_record, parse_oper_record
+export parse_simul,
+    parse_simul_header, parse_disc_record, parse_voli_record, parse_oper_record
 
 end  # module

@@ -48,7 +48,7 @@ using DESSEM2Julia: parse_dadvaz, DadvazData
             @test first_record.end_day == "F"
             @test first_record.flow_m3s ≈ 37.0
         finally
-            rm(tmp, force=true)
+            rm(tmp, force = true)
         end
     end
 

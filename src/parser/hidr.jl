@@ -52,10 +52,10 @@ Columns 92-101: Productivity (F10.0)
 """
 function parse_cadusih(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 7, String; required=true),
-        FieldSpec(:plant_num, 9, 11, Int; required=true),
-        FieldSpec(:plant_name, 13, 24, String; required=true),
-        FieldSpec(:subsystem, 26, 27, Int; required=true),
+        FieldSpec(:record_type, 1, 7, String; required = true),
+        FieldSpec(:plant_num, 9, 11, Int; required = true),
+        FieldSpec(:plant_name, 13, 24, String; required = true),
+        FieldSpec(:subsystem, 26, 27, Int; required = true),
         FieldSpec(:commission_year, 29, 32, Int),
         FieldSpec(:commission_month, 34, 35, Int),
         FieldSpec(:commission_day, 37, 38, Int),
@@ -68,21 +68,27 @@ function parse_cadusih(line::AbstractString, file::String, line_num::Int)
         FieldSpec(:installed_capacity, 81, 90, Float64),
         FieldSpec(:productivity, 92, 101, Float64),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "CADUSIH"
-        throw(ParserError(file, line_num, line, 
-            "Expected CADUSIH record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected CADUSIH record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant number
     validate_range(data.plant_num, 1, 999, "plant_num")
-    
+
     # Validate subsystem
     validate_positive(data.subsystem, "subsystem")
-    
+
     # Validate optional fields
     if !isnothing(data.commission_month)
         validate_range(data.commission_month, 1, 12, "commission_month")
@@ -90,7 +96,7 @@ function parse_cadusih(line::AbstractString, file::String, line_num::Int)
     if !isnothing(data.commission_day)
         validate_range(data.commission_day, 1, 31, "commission_day")
     end
-    
+
     # Validate numeric fields
     if !isnothing(data.min_volume)
         validate_nonnegative(data.min_volume, "min_volume")
@@ -107,7 +113,7 @@ function parse_cadusih(line::AbstractString, file::String, line_num::Int)
     if !isnothing(data.productivity)
         validate_positive(data.productivity, "productivity")
     end
-    
+
     return CADUSIH(
         data.plant_num,
         data.plant_name,
@@ -122,7 +128,7 @@ function parse_cadusih(line::AbstractString, file::String, line_num::Int)
         data.max_volume,
         data.max_turbine_flow,
         data.installed_capacity,
-        data.productivity
+        data.productivity,
     )
 end
 
@@ -139,32 +145,34 @@ Columns 17-21: Travel time in hours (F5.0)
 """
 function parse_usitviag(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 8, String; required=true),
-        FieldSpec(:plant_num, 10, 12, Int; required=true),
-        FieldSpec(:downstream_plant, 14, 15, Int; required=true),
-        FieldSpec(:travel_time, 17, 21, Float64; required=true),
+        FieldSpec(:record_type, 1, 8, String; required = true),
+        FieldSpec(:plant_num, 10, 12, Int; required = true),
+        FieldSpec(:downstream_plant, 14, 15, Int; required = true),
+        FieldSpec(:travel_time, 17, 21, Float64; required = true),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "USITVIAG"
-        throw(ParserError(file, line_num, line, 
-            "Expected USITVIAG record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected USITVIAG record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant numbers
     validate_range(data.plant_num, 1, 999, "plant_num")
     validate_range(data.downstream_plant, 1, 999, "downstream_plant")
-    
+
     # Validate travel time
     validate_positive(data.travel_time, "travel_time")
-    
-    return USITVIAG(
-        data.plant_num,
-        data.downstream_plant,
-        data.travel_time
-    )
+
+    return USITVIAG(data.plant_num, data.downstream_plant, data.travel_time)
 end
 
 """
@@ -185,31 +193,37 @@ Columns 70-79: Coefficient 5 (F10.0)
 """
 function parse_polcot(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 6, String; required=true),
-        FieldSpec(:plant_num, 8, 10, Int; required=true),
-        FieldSpec(:degree, 12, 13, Int; required=true),
-        FieldSpec(:coef0, 15, 24, Float64; required=true),
-        FieldSpec(:coef1, 26, 35, Float64; required=true),
-        FieldSpec(:coef2, 37, 46, Float64; required=true),
-        FieldSpec(:coef3, 48, 57, Float64; required=true),
-        FieldSpec(:coef4, 59, 68, Float64; required=true),
-        FieldSpec(:coef5, 70, 79, Float64; required=true),
+        FieldSpec(:record_type, 1, 6, String; required = true),
+        FieldSpec(:plant_num, 8, 10, Int; required = true),
+        FieldSpec(:degree, 12, 13, Int; required = true),
+        FieldSpec(:coef0, 15, 24, Float64; required = true),
+        FieldSpec(:coef1, 26, 35, Float64; required = true),
+        FieldSpec(:coef2, 37, 46, Float64; required = true),
+        FieldSpec(:coef3, 48, 57, Float64; required = true),
+        FieldSpec(:coef4, 59, 68, Float64; required = true),
+        FieldSpec(:coef5, 70, 79, Float64; required = true),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "POLCOT"
-        throw(ParserError(file, line_num, line, 
-            "Expected POLCOT record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected POLCOT record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant number
     validate_range(data.plant_num, 1, 999, "plant_num")
-    
+
     # Validate degree
     validate_range(data.degree, 1, 5, "degree")
-    
+
     return POLCOT(
         data.plant_num,
         data.degree,
@@ -218,7 +232,7 @@ function parse_polcot(line::AbstractString, file::String, line_num::Int)
         data.coef2,
         data.coef3,
         data.coef4,
-        data.coef5
+        data.coef5,
     )
 end
 
@@ -240,31 +254,37 @@ Columns 70-79: Coefficient 5 (F10.0)
 """
 function parse_polare(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 6, String; required=true),
-        FieldSpec(:plant_num, 8, 10, Int; required=true),
-        FieldSpec(:degree, 12, 13, Int; required=true),
-        FieldSpec(:coef0, 15, 24, Float64; required=true),
-        FieldSpec(:coef1, 26, 35, Float64; required=true),
-        FieldSpec(:coef2, 37, 46, Float64; required=true),
-        FieldSpec(:coef3, 48, 57, Float64; required=true),
-        FieldSpec(:coef4, 59, 68, Float64; required=true),
-        FieldSpec(:coef5, 70, 79, Float64; required=true),
+        FieldSpec(:record_type, 1, 6, String; required = true),
+        FieldSpec(:plant_num, 8, 10, Int; required = true),
+        FieldSpec(:degree, 12, 13, Int; required = true),
+        FieldSpec(:coef0, 15, 24, Float64; required = true),
+        FieldSpec(:coef1, 26, 35, Float64; required = true),
+        FieldSpec(:coef2, 37, 46, Float64; required = true),
+        FieldSpec(:coef3, 48, 57, Float64; required = true),
+        FieldSpec(:coef4, 59, 68, Float64; required = true),
+        FieldSpec(:coef5, 70, 79, Float64; required = true),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "POLARE"
-        throw(ParserError(file, line_num, line, 
-            "Expected POLARE record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected POLARE record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant number
     validate_range(data.plant_num, 1, 999, "plant_num")
-    
+
     # Validate degree
     validate_range(data.degree, 1, 5, "degree")
-    
+
     return POLARE(
         data.plant_num,
         data.degree,
@@ -273,7 +293,7 @@ function parse_polare(line::AbstractString, file::String, line_num::Int)
         data.coef2,
         data.coef3,
         data.coef4,
-        data.coef5
+        data.coef5,
     )
 end
 
@@ -295,31 +315,37 @@ Columns 70-79: Coefficient 5 (F10.0)
 """
 function parse_poljus(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 6, String; required=true),
-        FieldSpec(:plant_num, 8, 10, Int; required=true),
-        FieldSpec(:degree, 12, 13, Int; required=true),
-        FieldSpec(:coef0, 15, 24, Float64; required=true),
-        FieldSpec(:coef1, 26, 35, Float64; required=true),
-        FieldSpec(:coef2, 37, 46, Float64; required=true),
-        FieldSpec(:coef3, 48, 57, Float64; required=true),
-        FieldSpec(:coef4, 59, 68, Float64; required=true),
-        FieldSpec(:coef5, 70, 79, Float64; required=true),
+        FieldSpec(:record_type, 1, 6, String; required = true),
+        FieldSpec(:plant_num, 8, 10, Int; required = true),
+        FieldSpec(:degree, 12, 13, Int; required = true),
+        FieldSpec(:coef0, 15, 24, Float64; required = true),
+        FieldSpec(:coef1, 26, 35, Float64; required = true),
+        FieldSpec(:coef2, 37, 46, Float64; required = true),
+        FieldSpec(:coef3, 48, 57, Float64; required = true),
+        FieldSpec(:coef4, 59, 68, Float64; required = true),
+        FieldSpec(:coef5, 70, 79, Float64; required = true),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "POLJUS"
-        throw(ParserError(file, line_num, line, 
-            "Expected POLJUS record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected POLJUS record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant number
     validate_range(data.plant_num, 1, 999, "plant_num")
-    
+
     # Validate degree
     validate_range(data.degree, 1, 5, "degree")
-    
+
     return POLJUS(
         data.plant_num,
         data.degree,
@@ -328,7 +354,7 @@ function parse_poljus(line::AbstractString, file::String, line_num::Int)
         data.coef2,
         data.coef3,
         data.coef4,
-        data.coef5
+        data.coef5,
     )
 end
 
@@ -355,33 +381,39 @@ Columns 79-83: December coefficient (F5.0)
 """
 function parse_coefeva(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 7, String; required=true),
-        FieldSpec(:plant_num, 9, 11, Int; required=true),
-        FieldSpec(:jan, 13, 17, Float64; required=true),
-        FieldSpec(:feb, 19, 23, Float64; required=true),
-        FieldSpec(:mar, 25, 29, Float64; required=true),
-        FieldSpec(:apr, 31, 35, Float64; required=true),
-        FieldSpec(:may, 37, 41, Float64; required=true),
-        FieldSpec(:jun, 43, 47, Float64; required=true),
-        FieldSpec(:jul, 49, 53, Float64; required=true),
-        FieldSpec(:aug, 55, 59, Float64; required=true),
-        FieldSpec(:sep, 61, 65, Float64; required=true),
-        FieldSpec(:oct, 67, 71, Float64; required=true),
-        FieldSpec(:nov, 73, 77, Float64; required=true),
-        FieldSpec(:dec, 79, 83, Float64; required=true),
+        FieldSpec(:record_type, 1, 7, String; required = true),
+        FieldSpec(:plant_num, 9, 11, Int; required = true),
+        FieldSpec(:jan, 13, 17, Float64; required = true),
+        FieldSpec(:feb, 19, 23, Float64; required = true),
+        FieldSpec(:mar, 25, 29, Float64; required = true),
+        FieldSpec(:apr, 31, 35, Float64; required = true),
+        FieldSpec(:may, 37, 41, Float64; required = true),
+        FieldSpec(:jun, 43, 47, Float64; required = true),
+        FieldSpec(:jul, 49, 53, Float64; required = true),
+        FieldSpec(:aug, 55, 59, Float64; required = true),
+        FieldSpec(:sep, 61, 65, Float64; required = true),
+        FieldSpec(:oct, 67, 71, Float64; required = true),
+        FieldSpec(:nov, 73, 77, Float64; required = true),
+        FieldSpec(:dec, 79, 83, Float64; required = true),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "COEFEVA"
-        throw(ParserError(file, line_num, line, 
-            "Expected COEFEVA record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected COEFEVA record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant number
     validate_range(data.plant_num, 1, 999, "plant_num")
-    
+
     # Validate all coefficients are non-negative
     validate_nonnegative(data.jan, "jan")
     validate_nonnegative(data.feb, "feb")
@@ -395,7 +427,7 @@ function parse_coefeva(line::AbstractString, file::String, line_num::Int)
     validate_nonnegative(data.oct, "oct")
     validate_nonnegative(data.nov, "nov")
     validate_nonnegative(data.dec, "dec")
-    
+
     return COEFEVA(
         data.plant_num,
         data.jan,
@@ -409,7 +441,7 @@ function parse_coefeva(line::AbstractString, file::String, line_num::Int)
         data.sep,
         data.oct,
         data.nov,
-        data.dec
+        data.dec,
     )
 end
 
@@ -429,44 +461,50 @@ Columns 41-50: Maximum turbine flow (F10.0)
 """
 function parse_cadconj(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 7, String; required=true),
-        FieldSpec(:plant_num, 9, 11, Int; required=true),
-        FieldSpec(:unit_set_num, 13, 14, Int; required=true),
-        FieldSpec(:num_units, 16, 17, Int; required=true),
-        FieldSpec(:unit_capacity, 19, 28, Float64; required=true),
-        FieldSpec(:min_generation, 30, 39, Float64; required=true),
-        FieldSpec(:max_turbine_flow, 41, 50, Float64; required=true),
+        FieldSpec(:record_type, 1, 7, String; required = true),
+        FieldSpec(:plant_num, 9, 11, Int; required = true),
+        FieldSpec(:unit_set_num, 13, 14, Int; required = true),
+        FieldSpec(:num_units, 16, 17, Int; required = true),
+        FieldSpec(:unit_capacity, 19, 28, Float64; required = true),
+        FieldSpec(:min_generation, 30, 39, Float64; required = true),
+        FieldSpec(:max_turbine_flow, 41, 50, Float64; required = true),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "CADCONJ"
-        throw(ParserError(file, line_num, line, 
-            "Expected CADCONJ record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected CADCONJ record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant number
     validate_range(data.plant_num, 1, 999, "plant_num")
-    
+
     # Validate unit set number
     validate_positive(data.unit_set_num, "unit_set_num")
-    
+
     # Validate number of units
     validate_positive(data.num_units, "num_units")
-    
+
     # Validate numeric fields
     validate_positive(data.unit_capacity, "unit_capacity")
     validate_nonnegative(data.min_generation, "min_generation")
     validate_positive(data.max_turbine_flow, "max_turbine_flow")
-    
+
     return CADCONJ(
         data.plant_num,
         data.unit_set_num,
         data.num_units,
         data.unit_capacity,
         data.min_generation,
-        data.max_turbine_flow
+        data.max_turbine_flow,
     )
 end
 
@@ -522,7 +560,7 @@ function parse_hidr(filename::AbstractString)
     if !isfile(filename)
         throw(ArgumentError("File not found: $filename"))
     end
-    
+
     # Detect format
     if is_binary_hidr(filename)
         @info "Detected binary HIDR format (792 bytes/plant)"
@@ -560,24 +598,24 @@ function parse_hidr_text(filename::AbstractString)
     tailrace = POLJUS[]
     evaporation = COEFEVA[]
     unit_sets = CADCONJ[]
-    
+
     # Read all non-blank lines
     lines = read_nonblank_lines(filename)
-    
+
     # Parse each line
     for (line_num, line) in enumerate(lines)
         # Skip comment lines
         if startswith(line, '*') || startswith(line, '&')
             continue
         end
-        
+
         # Determine record type from first 8 characters
         if length(line) < 7
             continue  # Skip lines that are too short
         end
-        
+
         record_type = strip(line[1:min(8, length(line))])
-        
+
         try
             if record_type == "CADUSIH"
                 push!(plants, parse_cadusih(line, filename, line_num))
@@ -600,12 +638,18 @@ function parse_hidr_text(filename::AbstractString)
             if isa(e, ParserError)
                 rethrow(e)
             else
-                throw(ParserError(filename, line_num, line, 
-                    "Unexpected error parsing record type '$record_type': $(sprint(showerror, e))"))
+                throw(
+                    ParserError(
+                        filename,
+                        line_num,
+                        line,
+                        "Unexpected error parsing record type '$record_type': $(sprint(showerror, e))",
+                    ),
+                )
             end
         end
     end
-    
+
     return HidrData(
         plants,
         travel_times,
@@ -613,7 +657,7 @@ function parse_hidr_text(filename::AbstractString)
         volume_area,
         tailrace,
         evaporation,
-        unit_sets
+        unit_sets,
     )
 end
 

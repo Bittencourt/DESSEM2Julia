@@ -13,7 +13,7 @@ using JLD2
         end
 
         outpath = joinpath(tmp, "out.jld2")
-    p = convert_inputs(input_dir, outpath)
+        p = convert_inputs(input_dir, outpath)
         @test p == outpath
         @test isfile(outpath)
 

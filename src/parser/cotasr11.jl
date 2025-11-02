@@ -39,13 +39,8 @@ function parse_cotasr11_record(line::AbstractString)
     hora = parse(Int, strip(extract_field(line, 4, 5)))
     meia_hora = parse(Int, strip(extract_field(line, 7, 7)))
     cota = parse(Float64, strip(extract_field(line, 17, 26)))  # Right-aligned float
-    
-    return CotaR11Record(
-        dia=dia,
-        hora=hora,
-        meia_hora=meia_hora,
-        cota=cota
-    )
+
+    return CotaR11Record(dia = dia, hora = hora, meia_hora = meia_hora, cota = cota)
 end
 
 """
@@ -57,25 +52,27 @@ Returns all R11 gauge level measurements before study start.
 """
 function parse_cotasr11(io::IO, filename::AbstractString)
     records = CotaR11Record[]
-    
+
     for (line_num, line) in enumerate(eachline(io))
         # Skip comments and blank lines
         is_comment_line(line) && continue
         is_blank(line) && continue
-        
+
         try
             record = parse_cotasr11_record(line)
             push!(records, record)
         catch e
-            @warn "Failed to parse cotasr11 record at line $line_num" exception=(e, catch_backtrace())
+            @warn "Failed to parse cotasr11 record at line $line_num" exception =
+                (e, catch_backtrace())
         end
     end
-    
-    return CotasR11Data(records=records)
+
+    return CotasR11Data(records = records)
 end
 
 # Convenience method
-parse_cotasr11(filename::AbstractString) = open(io -> parse_cotasr11(io, filename), filename)
+parse_cotasr11(filename::AbstractString) =
+    open(io -> parse_cotasr11(io, filename), filename)
 
 export parse_cotasr11
 

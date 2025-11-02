@@ -5,9 +5,9 @@
 using DESSEM2Julia
 using Dates
 
-println("=" ^ 80)
+println("="^80)
 println("DESSEM2Julia Parser Test - ONS Sample Data")
-println("=" ^ 80)
+println("="^80)
 println()
 
 # ONS sample directory
@@ -22,29 +22,29 @@ if !isdir(ons_dir)
 end
 
 # Track results
-results = Dict{String, Any}()
-errors = Dict{String, String}()
+results = Dict{String,Any}()
+errors = Dict{String,String}()
 
 # Helper function to test a parser
 function test_parser(name::String, filepath::String, parser_func)
-    println("-" ^ 80)
+    println("-"^80)
     println("Testing: $name")
     println("File: $(basename(filepath))")
-    
+
     if !isfile(filepath)
         println("  ⚠️  File not found")
         errors[name] = "File not found"
         return nothing
     end
-    
+
     try
         println("  📖 Parsing...")
         start_time = time()
         data = parser_func(filepath)
         elapsed = time() - start_time
-        
+
         println("  ✅ Success! ($(round(elapsed, digits=3))s)")
-        
+
         # Print summary based on data type
         if name == "entdados.dat"
             println("  📊 Summary:")
@@ -79,28 +79,28 @@ function test_parser(name::String, filepath::String, parser_func)
             println("  📊 Summary:")
             println("     - File entries: $(length(data.files))")
         end
-        
+
         results[name] = data
         return data
-        
+
     catch e
         println("  ❌ Error: $e")
         errors[name] = string(e)
-        
+
         # Print stack trace for debugging
         println("\n  Stack trace:")
         for (exc, bt) in Base.catch_stack()
             showerror(stdout, exc, bt)
             println()
         end
-        
+
         return nothing
     end
 end
 
-println("=" ^ 80)
+println("="^80)
 println("PARSING FILES")
-println("=" ^ 80)
+println("="^80)
 println()
 
 # Test each parser
@@ -112,9 +112,9 @@ test_parser("operut.dat", joinpath(ons_dir, "operut.dat"), parse_operut)
 test_parser("termdat.dat", joinpath(ons_dir, "termdat.dat"), parse_termdat)
 
 println()
-println("=" ^ 80)
+println("="^80)
 println("FINAL SUMMARY")
-println("=" ^ 80)
+println("="^80)
 println()
 
 total_files = 6
@@ -144,7 +144,7 @@ if error_count > 0
 end
 
 # Calculate success rate
-success_rate = round(success_count / total_files * 100, digits=1)
+success_rate = round(success_count / total_files * 100, digits = 1)
 println("Success rate: $success_rate%")
 println()
 
@@ -157,6 +157,6 @@ else
 end
 
 println()
-println("=" ^ 80)
+println("="^80)
 println("Test completed at: $(now())")
-println("=" ^ 80)
+println("="^80)

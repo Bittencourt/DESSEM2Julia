@@ -37,12 +37,19 @@ using DESSEM2Julia: parse_desselet, DesseletData
             @test first_patamar.base_case_id == 1
             @test first_patamar.filename == "pat01.afp"
         finally
-            rm(tmp, force=true)
+            rm(tmp, force = true)
         end
     end
 
     @testset "ONS Sample" begin
-        sample_path = joinpath(@__DIR__, "..", "docs", "Sample", "DS_ONS_102025_RV2D11", "desselet.dat")
+        sample_path = joinpath(
+            @__DIR__,
+            "..",
+            "docs",
+            "Sample",
+            "DS_ONS_102025_RV2D11",
+            "desselet.dat",
+        )
         if isfile(sample_path)
             data = parse_desselet(sample_path)
             @test length(data.base_cases) >= 4

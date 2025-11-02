@@ -4,7 +4,7 @@ using ..ParserCommon: normalize_name
 
 export register_parser!, get_parser, known_parsers
 
-const _REGISTRY = Dict{String, Function}()
+const _REGISTRY = Dict{String,Function}()
 
 """register_parser!(fname::AbstractString, f::Function)
 Register a parser function for a filename (case-insensitive, normalized).

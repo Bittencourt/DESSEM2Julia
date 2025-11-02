@@ -55,9 +55,10 @@ println()
 # Check network configuration from time periods
 if !isempty(entdados.time_periods)
     first_period = entdados.time_periods[1]
-    network_mode = first_period.network_flag == 0 ? "No network modeling" :
-                   first_period.network_flag == 1 ? "Network without losses" :
-                   first_period.network_flag == 2 ? "Network with losses" : "Unknown"
+    network_mode =
+        first_period.network_flag == 0 ? "No network modeling" :
+        first_period.network_flag == 1 ? "Network without losses" :
+        first_period.network_flag == 2 ? "Network with losses" : "Unknown"
     println("🔌 Network Configuration: $network_mode")
     println()
 end
@@ -69,7 +70,7 @@ subsystem_names = Dict(
     1 => "Southeast/Center-West (SE/CO)",
     2 => "South (S)",
     3 => "Northeast (NE)",
-    4 => "North (N)"
+    4 => "North (N)",
 )
 
 # ============================================================================
@@ -81,26 +82,31 @@ println("="^80)
 println()
 
 # Group thermal plants from TERMDAT
-thermal_by_subsystem = Dict{Int, Vector{Any}}()
+thermal_by_subsystem = Dict{Int,Vector{Any}}()
 for plant in termdat.plants
     subsys = plant.subsystem
     if !haskey(thermal_by_subsystem, subsys)
         thermal_by_subsystem[subsys] = []
     end
-    
+
     # Get capacity from ENTDADOS (has max_generation)
     entdados_plant = findfirst(p -> p.plant_num == plant.plant_num, entdados.thermal_plants)
-    max_gen = !isnothing(entdados_plant) ? entdados.thermal_plants[entdados_plant].max_generation : 0.0
-    
+    max_gen =
+        !isnothing(entdados_plant) ?
+        entdados.thermal_plants[entdados_plant].max_generation : 0.0
+
     # Get number of units
     units = filter(u -> u.plant_num == plant.plant_num, termdat.units)
-    
-    push!(thermal_by_subsystem[subsys], (
-        plant_num = plant.plant_num,
-        name = plant.plant_name,
-        num_units = length(units),
-        capacity = max_gen
-    ))
+
+    push!(
+        thermal_by_subsystem[subsys],
+        (
+            plant_num = plant.plant_num,
+            name = plant.plant_name,
+            num_units = length(units),
+            capacity = max_gen,
+        ),
+    )
 end
 
 # Display thermal plants by subsystem
@@ -108,24 +114,26 @@ for subsys in sort(collect(keys(thermal_by_subsystem)))
     plants = thermal_by_subsystem[subsys]
     name = get(subsystem_names, subsys, "Unknown")
     total_capacity = sum(p.capacity for p in plants)
-    
+
     println("━"^80)
     println("📍 Subsystem $subsys - $name")
     println("━"^80)
     println("   Total Plants: $(length(plants))")
     println("   Total Capacity: $(round(total_capacity, digits=1)) MW")
     println()
-    
+
     # Sort by capacity (descending)
-    sort!(plants, by = p -> p.capacity, rev=true)
-    
+    sort!(plants, by = p -> p.capacity, rev = true)
+
     # Show all plants
     println("   Plant# │ Plant Name           │ Units │ Capacity (MW)")
     println("   ───────┼──────────────────────┼───────┼──────────────")
-    
+
     for plant in plants
         name_str = rpad(plant.name[1:min(length(plant.name), 20)], 20)
-        println("   $(lpad(plant.plant_num, 6)) │ $(name_str) │ $(lpad(plant.num_units, 5)) │ $(lpad(round(plant.capacity, digits=1), 12))")
+        println(
+            "   $(lpad(plant.plant_num, 6)) │ $(name_str) │ $(lpad(plant.num_units, 5)) │ $(lpad(round(plant.capacity, digits=1), 12))",
+        )
     end
     println()
 end
@@ -139,26 +147,31 @@ println("="^80)
 println()
 
 # Group hydro plants
-hydro_by_subsystem = Dict{Int, Vector{Any}}()
+hydro_by_subsystem = Dict{Int,Vector{Any}}()
 for plant in hidr.plants
     if plant.plant_num <= 0  # Skip invalid/padding records
         continue
     end
-    
+
     subsys = plant.subsystem
     if !haskey(hydro_by_subsystem, subsys)
         hydro_by_subsystem[subsys] = []
     end
-    
+
     capacity = plant.installed_capacity !== nothing ? plant.installed_capacity : 0.0
-    
-    push!(hydro_by_subsystem[subsys], (
-        plant_num = plant.plant_num,
-        name = strip(plant.plant_name),
-        capacity = capacity,
-        volume = (plant.min_volume !== nothing ? plant.min_volume : 0.0,
-                  plant.max_volume !== nothing ? plant.max_volume : 0.0)
-    ))
+
+    push!(
+        hydro_by_subsystem[subsys],
+        (
+            plant_num = plant.plant_num,
+            name = strip(plant.plant_name),
+            capacity = capacity,
+            volume = (
+                plant.min_volume !== nothing ? plant.min_volume : 0.0,
+                plant.max_volume !== nothing ? plant.max_volume : 0.0,
+            ),
+        ),
+    )
 end
 
 # Display hydro plants by subsystem (top 10 per subsystem for brevity)
@@ -166,29 +179,31 @@ for subsys in sort(collect(keys(hydro_by_subsystem)))
     plants = hydro_by_subsystem[subsys]
     name = get(subsystem_names, subsys, "Unknown")
     total_capacity = sum(p.capacity for p in plants)
-    
+
     println("━"^80)
     println("📍 Subsystem $subsys - $name")
     println("━"^80)
     println("   Total Plants: $(length(plants))")
     println("   Total Capacity: $(round(total_capacity, digits=1)) MW")
     println()
-    
+
     # Sort by capacity (descending)
-    sort!(plants, by = p -> p.capacity, rev=true)
-    
+    sort!(plants, by = p -> p.capacity, rev = true)
+
     # Show top 10 plants
     display_count = min(10, length(plants))
     println("   Top $display_count Plants by Capacity:")
     println("   Plant# │ Plant Name           │ Capacity (MW) │ Storage (hm³)")
     println("   ───────┼──────────────────────┼───────────────┼──────────────")
-    
+
     for plant in plants[1:display_count]
         name_str = rpad(plant.name[1:min(length(plant.name), 20)], 20)
         storage_str = "$(round(plant.volume[1], digits=0))-$(round(plant.volume[2], digits=0))"
-        println("   $(lpad(plant.plant_num, 6)) │ $(name_str) │ $(lpad(round(plant.capacity, digits=1), 13)) │ $(rpad(storage_str, 14))")
+        println(
+            "   $(lpad(plant.plant_num, 6)) │ $(name_str) │ $(lpad(round(plant.capacity, digits=1), 13)) │ $(rpad(storage_str, 14))",
+        )
     end
-    
+
     if length(plants) > display_count
         println("   ... and $(length(plants) - display_count) more plants")
     end
@@ -203,36 +218,46 @@ println("📊 NETWORK SUMMARY STATISTICS")
 println("="^80)
 println()
 
-total_thermal_capacity = sum(sum(p.capacity for p in plants) 
-                             for plants in values(thermal_by_subsystem))
-total_hydro_capacity = sum(sum(p.capacity for p in plants) 
-                           for plants in values(hydro_by_subsystem))
+total_thermal_capacity =
+    sum(sum(p.capacity for p in plants) for plants in values(thermal_by_subsystem))
+total_hydro_capacity =
+    sum(sum(p.capacity for p in plants) for plants in values(hydro_by_subsystem))
 
 println("System-Wide Totals:")
 println("  Thermal Generation: $(round(total_thermal_capacity, digits=1)) MW")
 println("  Hydro Generation:   $(round(total_hydro_capacity, digits=1)) MW")
-println("  Total Generation:   $(round(total_thermal_capacity + total_hydro_capacity, digits=1)) MW")
+println(
+    "  Total Generation:   $(round(total_thermal_capacity + total_hydro_capacity, digits=1)) MW",
+)
 println()
 
 println("Capacity by Subsystem:")
 for subsys in sort(collect(keys(subsystem_names)))
     name = subsystem_names[subsys]
-    thermal_cap = haskey(thermal_by_subsystem, subsys) ? 
-                  sum(p.capacity for p in thermal_by_subsystem[subsys]) : 0.0
-    hydro_cap = haskey(hydro_by_subsystem, subsys) ? 
-                sum(p.capacity for p in hydro_by_subsystem[subsys]) : 0.0
+    thermal_cap =
+        haskey(thermal_by_subsystem, subsys) ?
+        sum(p.capacity for p in thermal_by_subsystem[subsys]) : 0.0
+    hydro_cap =
+        haskey(hydro_by_subsystem, subsys) ?
+        sum(p.capacity for p in hydro_by_subsystem[subsys]) : 0.0
     total_cap = thermal_cap + hydro_cap
-    
-    thermal_pct = total_thermal_capacity > 0 ? 100 * thermal_cap / total_thermal_capacity : 0.0
+
+    thermal_pct =
+        total_thermal_capacity > 0 ? 100 * thermal_cap / total_thermal_capacity : 0.0
     hydro_pct = total_hydro_capacity > 0 ? 100 * hydro_cap / total_hydro_capacity : 0.0
-    
+
     println()
     println("  Subsystem $subsys - $name:")
-    println("    Thermal: $(rpad(round(thermal_cap, digits=1), 10)) MW ($(round(thermal_pct, digits=1))% of system)")
-    println("    Hydro:   $(rpad(round(hydro_cap, digits=1), 10)) MW ($(round(hydro_pct, digits=1))% of system)")
+    println(
+        "    Thermal: $(rpad(round(thermal_cap, digits=1), 10)) MW ($(round(thermal_pct, digits=1))% of system)",
+    )
+    println(
+        "    Hydro:   $(rpad(round(hydro_cap, digits=1), 10)) MW ($(round(hydro_pct, digits=1))% of system)",
+    )
     println("    Total:   $(rpad(round(total_cap, digits=1), 10)) MW")
-    
-    num_thermal = haskey(thermal_by_subsystem, subsys) ? length(thermal_by_subsystem[subsys]) : 0
+
+    num_thermal =
+        haskey(thermal_by_subsystem, subsys) ? length(thermal_by_subsystem[subsys]) : 0
     num_hydro = haskey(hydro_by_subsystem, subsys) ? length(hydro_by_subsystem[subsys]) : 0
     println("    Plants:  $num_thermal thermal, $num_hydro hydro")
 end

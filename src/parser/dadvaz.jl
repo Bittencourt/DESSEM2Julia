@@ -26,7 +26,7 @@ function _parse_day_token(token::AbstractString)
 end
 
 """Parse optional integer field returning nothing when blank."""
-_parse_optional_int(token::AbstractString) = parse_int(token; allow_blank=true)
+_parse_optional_int(token::AbstractString) = parse_int(token; allow_blank = true)
 
 """Parse a single inflow record line."""
 function _parse_inflow_line(line::AbstractString)
@@ -35,10 +35,10 @@ function _parse_inflow_line(line::AbstractString)
     if line_clean == "FIM" || line_clean == "9999" || isempty(line_clean)
         return nothing
     end
-    
+
     # Skip if line is too short
     length(line) < 53 && return nothing
-    
+
     plant_num = parse(Int, extract_field(line, 1, 3))
     plant_name = extract_field(line, 5, 16)
     inflow_type = parse(Int, extract_field(line, 20, 20))
@@ -58,16 +58,16 @@ function _parse_inflow_line(line::AbstractString)
     end_day === nothing && error("Missing end day in DADVAZ record")
 
     return DadvazInflowRecord(
-        plant_num=plant_num,
-        plant_name=plant_name,
-        inflow_type=inflow_type,
-        start_day=start_day,
-        start_hour=start_hour,
-        start_half_hour=start_half,
-        end_day=end_day,
-        end_hour=end_hour,
-        end_half_hour=end_half,
-        flow_m3s=flow_value
+        plant_num = plant_num,
+        plant_name = plant_name,
+        inflow_type = inflow_type,
+        start_day = start_day,
+        start_hour = start_hour,
+        start_half_hour = start_half,
+        end_day = end_day,
+        end_hour = end_hour,
+        end_half_hour = end_half,
+        flow_m3s = flow_value,
     )
 end
 
@@ -89,13 +89,13 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
     total = length(lines)
     idx = 1
 
-    plant_count::Union{Int, Nothing} = nothing
+    plant_count::Union{Int,Nothing} = nothing
     plant_numbers = Int[]
-    study_start::Union{DateTime, Nothing} = nothing
-    initial_day_code::Union{Int, Nothing} = nothing
-    fcf_week_index::Union{Int, Nothing} = nothing
-    study_weeks::Union{Int, Nothing} = nothing
-    simulation_flag::Union{Int, Nothing} = nothing
+    study_start::Union{DateTime,Nothing} = nothing
+    initial_day_code::Union{Int,Nothing} = nothing
+    fcf_week_index::Union{Int,Nothing} = nothing
+    study_weeks::Union{Int,Nothing} = nothing
+    simulation_flag::Union{Int,Nothing} = nothing
 
     inflow_records = DadvazInflowRecord[]
     in_record_section = false
@@ -160,7 +160,11 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
             in_record_section = true
             idx += 1
             continue
-        elseif in_record_section && (startswith(stripped, "NUM") || startswith(stripped, "XXX") || startswith(stripped, "itp"))
+        elseif in_record_section && (
+            startswith(stripped, "NUM") ||
+            startswith(stripped, "XXX") ||
+            startswith(stripped, "itp")
+        )
             idx += 1
             continue
         elseif in_record_section
@@ -192,20 +196,22 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
     if length(plant_numbers) > plant_count
         plant_numbers = plant_numbers[1:plant_count]
     elseif length(plant_numbers) < plant_count
-        error("Incomplete plant number list in DADVAZ header: expected $plant_count entries, found $(length(plant_numbers))")
+        error(
+            "Incomplete plant number list in DADVAZ header: expected $plant_count entries, found $(length(plant_numbers))",
+        )
     end
 
     header = DadvazHeader(
-        plant_count=plant_count,
-        plant_numbers=plant_numbers,
-        study_start=study_start,
-        initial_day_code=initial_day_code,
-        fcf_week_index=fcf_week_index,
-        study_weeks=study_weeks,
-        simulation_flag=simulation_flag
+        plant_count = plant_count,
+        plant_numbers = plant_numbers,
+        study_start = study_start,
+        initial_day_code = initial_day_code,
+        fcf_week_index = fcf_week_index,
+        study_weeks = study_weeks,
+        simulation_flag = simulation_flag,
     )
 
-    return DadvazData(header=header, records=inflow_records)
+    return DadvazData(header = header, records = inflow_records)
 end
 
 end # module

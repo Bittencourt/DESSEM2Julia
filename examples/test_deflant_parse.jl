@@ -30,7 +30,7 @@ for record in deflant_data.records
 end
 
 println("\nFlow records by initial day:")
-for (day, count) in sort(collect(day_counts), by=x->x[1])
+for (day, count) in sort(collect(day_counts), by = x -> x[1])
     day_str = day isa String ? "\"$day\"" : string(day)
     println("  Day $day_str: $count records")
 end
@@ -60,9 +60,11 @@ println("  Average: $(round(sum(flows) / length(flows), digits=2))")
 
 # Find largest flows
 println("\nTop 5 largest flows:")
-sorted_records = sort(deflant_data.records, by=r->r.flow, rev=true)
+sorted_records = sort(deflant_data.records, by = r -> r.flow, rev = true)
 for (i, record) in enumerate(sorted_records[1:min(5, length(sorted_records))])
-    println("  $i. Plant $(record.upstream_plant) → Element $(record.downstream_element): $(record.flow) m³/s")
+    println(
+        "  $i. Plant $(record.upstream_plant) → Element $(record.downstream_element): $(record.flow) m³/s",
+    )
 end
 
 # Find records for a specific plant (e.g., plant 2)
@@ -70,8 +72,12 @@ plant_2_records = filter(r -> r.upstream_plant == 2, deflant_data.records)
 if !isempty(plant_2_records)
     println("\nPlant 2 flow records:")
     for record in plant_2_records
-        day_str = record.initial_day isa String ? "\"$(record.initial_day)\"" : string(record.initial_day)
-        println("  Day $day_str, $(record.initial_hour):$(record.initial_half*30) → Element $(record.downstream_element) ($(record.element_type)): $(record.flow) m³/s")
+        day_str =
+            record.initial_day isa String ? "\"$(record.initial_day)\"" :
+            string(record.initial_day)
+        println(
+            "  Day $day_str, $(record.initial_hour):$(record.initial_half*30) → Element $(record.downstream_element) ($(record.element_type)): $(record.flow) m³/s",
+        )
     end
 end
 
@@ -84,7 +90,7 @@ for record in deflant_data.records
 end
 
 println("\nFlow records by initial hour:")
-for (hour, count) in sort(collect(hour_counts), by=x->x[1])
+for (hour, count) in sort(collect(hour_counts), by = x -> x[1])
     println("  Hour $hour:00: $count records")
 end
 

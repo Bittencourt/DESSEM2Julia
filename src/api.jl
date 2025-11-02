@@ -14,7 +14,7 @@ into DessemData, and save to JLD2 at output_path. Returns output_path.
 Unknown files are currently stored as raw text content for traceability.
 """
 function convert_inputs(input_dir::AbstractString, output_path::AbstractString)
-    files_map = Dict{String, Any}()
+    files_map = Dict{String,Any}()
 
     for (root, _, files) in walkdir(String(input_dir))
         for f in files
@@ -32,7 +32,10 @@ function convert_inputs(input_dir::AbstractString, output_path::AbstractString)
         break
     end
 
-    data = DessemData(files_map, Dict("input_dir" => String(input_dir), "generated_at" => Dates.now()))
+    data = DessemData(
+        files_map,
+        Dict("input_dir" => String(input_dir), "generated_at" => Dates.now()),
+    )
     return save_jld2(String(output_path), data)
 end
 

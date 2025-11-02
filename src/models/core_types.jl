@@ -119,7 +119,7 @@ Base.@kwdef struct LoadDemand
     start_day::Int
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String}
+    end_day::Union{Int,String}
     end_hour::Int = 0
     end_half::Int = 0
     demand_mw::Float64
@@ -190,13 +190,13 @@ Base.@kwdef struct HydroReservoir
     subsystem::Int
     initial_volume_pct::Float64
     volume_unit::Int = 2
-    min_volume::Union{Float64, Nothing} = nothing
-    max_volume::Union{Float64, Nothing} = nothing
-    initial_volume_abs::Union{Float64, Nothing} = nothing
-    spillway_crest::Union{Float64, Nothing} = nothing
-    diversion_crest::Union{Float64, Nothing} = nothing
-    storage_capacity_hm3::Union{Float64, Nothing} = nothing
-    useful_volume_hm3::Union{Float64, Nothing} = nothing
+    min_volume::Union{Float64,Nothing} = nothing
+    max_volume::Union{Float64,Nothing} = nothing
+    initial_volume_abs::Union{Float64,Nothing} = nothing
+    spillway_crest::Union{Float64,Nothing} = nothing
+    diversion_crest::Union{Float64,Nothing} = nothing
+    storage_capacity_hm3::Union{Float64,Nothing} = nothing
+    useful_volume_hm3::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -225,12 +225,12 @@ Base.@kwdef struct HydroPlant
     status::Int = 0
     installed_capacity_mw::Float64
     num_units::Int = 1
-    turbine_flow_m3s::Union{Float64, Nothing} = nothing
-    min_turbine_flow_m3s::Union{Float64, Nothing} = nothing
-    production_coefficient::Union{Float64, Nothing} = nothing
-    upstream_plant::Union{Int, Nothing} = nothing
-    downstream_plant::Union{Int, Nothing} = nothing
-    cascade_order::Union{Int, Nothing} = nothing
+    turbine_flow_m3s::Union{Float64,Nothing} = nothing
+    min_turbine_flow_m3s::Union{Float64,Nothing} = nothing
+    production_coefficient::Union{Float64,Nothing} = nothing
+    upstream_plant::Union{Int,Nothing} = nothing
+    downstream_plant::Union{Int,Nothing} = nothing
+    cascade_order::Union{Int,Nothing} = nothing
 end
 
 """
@@ -249,8 +249,8 @@ Hydraulic operational constraints (OPERUH.DAT).
 Base.@kwdef struct HydroOperation
     plant_num::Int
     constraint_type::String
-    period_start::Union{Int, Nothing} = nothing
-    period_end::Union{Int, Nothing} = nothing
+    period_start::Union{Int,Nothing} = nothing
+    period_end::Union{Int,Nothing} = nothing
     constraint_value::Float64
     unit::String = ""
 end
@@ -271,8 +271,8 @@ Base.@kwdef struct HydroSystem
     plants::Vector{HydroPlant} = HydroPlant[]
     reservoirs::Vector{HydroReservoir} = HydroReservoir[]
     operations::Vector{HydroOperation} = HydroOperation[]
-    previous_outflows::Dict{Int, Vector{Float64}} = Dict{Int, Vector{Float64}}()
-    natural_inflows::Dict{Int, Vector{Float64}} = Dict{Int, Vector{Float64}}()
+    previous_outflows::Dict{Int,Vector{Float64}} = Dict{Int,Vector{Float64}}()
+    natural_inflows::Dict{Int,Vector{Float64}} = Dict{Int,Vector{Float64}}()
 end
 
 # ============================================================================
@@ -299,7 +299,7 @@ Base.@kwdef struct ThermalPlant
     plant_num::Int
     plant_name::String
     subsystem::Int
-    commission_date::Union{Date, Nothing} = nothing
+    commission_date::Union{Date,Nothing} = nothing
     plant_class::Int = 0
     fuel_type::Int = 0
     num_units::Int
@@ -331,8 +331,8 @@ Thermal generating unit characteristics (CADUNIDT from TERMDAT.DAT).
 Base.@kwdef struct ThermalUnit
     plant_num::Int
     unit_num::Int
-    unit_name::Union{String, Nothing} = nothing
-    commission_date::Union{Date, Nothing} = nothing
+    unit_name::Union{String,Nothing} = nothing
+    commission_date::Union{Date,Nothing} = nothing
     capacity_mw::Float64
     min_generation_mw::Float64 = 0.0
     min_on_time_h::Int = 0
@@ -342,7 +342,7 @@ Base.@kwdef struct ThermalUnit
     shutdown_cost::Float64 = 0.0
     ramp_up_rate_mw_h::Float64 = Inf
     ramp_down_rate_mw_h::Float64 = Inf
-    heat_curve_points::Vector{Tuple{Float64, Float64}} = Tuple{Float64, Float64}[]
+    heat_curve_points::Vector{Tuple{Float64,Float64}} = Tuple{Float64,Float64}[]
 end
 
 """
@@ -366,17 +366,17 @@ Thermal unit operational configuration (UT records from ENTDADOS, OPERUT.DAT).
 """
 Base.@kwdef struct ThermalOperation
     plant_num::Int
-    unit_num::Union{Int, Nothing} = nothing
+    unit_num::Union{Int,Nothing} = nothing
     start_day::Int
     start_hour::Int
     start_half::Int
-    end_day::Union{Int, String}
+    end_day::Union{Int,String}
     end_hour::Int = 0
     end_half::Int = 0
     min_generation_mw::Float64 = 0.0
     max_generation_mw::Float64
     must_run::Bool = false
-    inflexibility_type::Union{Int, Nothing} = nothing
+    inflexibility_type::Union{Int,Nothing} = nothing
 end
 
 """
@@ -546,7 +546,7 @@ Base.@kwdef struct RampConstraint
     period::Int
     min_generation_mw::Float64
     max_generation_mw::Float64
-    target_generation_mw::Union{Float64, Nothing} = nothing
+    target_generation_mw::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -566,7 +566,7 @@ Base.@kwdef struct LPPConstraint
     constraint_name::String = ""
     sense::String
     rhs::Float64
-    coefficients::Dict{Tuple{String, Int}, Float64} = Dict{Tuple{String, Int}, Float64}()
+    coefficients::Dict{Tuple{String,Int},Float64} = Dict{Tuple{String,Int},Float64}()
 end
 
 """
@@ -644,7 +644,7 @@ Base.@kwdef struct FCFCut
     stage::Int
     scenario::Int
     intercept::Float64
-    coefficients::Dict{Int, Float64} = Dict{Int, Float64}()
+    coefficients::Dict{Int,Float64} = Dict{Int,Float64}()
 end
 
 """
@@ -659,8 +659,8 @@ DECOMP cut information.
 """
 Base.@kwdef struct DecompCut
     cuts::Vector{FCFCut} = FCFCut[]
-    cut_map::Union{String, Nothing} = nothing
-    cut_info::Union{String, Nothing} = nothing
+    cut_map::Union{String,Nothing} = nothing
+    cut_info::Union{String,Nothing} = nothing
 end
 
 # ============================================================================
@@ -742,38 +742,38 @@ All fields are optional (Union{String, Nothing}) as files may not be present:
 Reference: src/parser/dessemarq.jl
 """
 Base.@kwdef struct FileRegistry
-    caso::Union{String, Nothing} = nothing
-    titulo::Union{String, Nothing} = nothing
-    vazoes::Union{String, Nothing} = nothing
-    dadger::Union{String, Nothing} = nothing
-    mapfcf::Union{String, Nothing} = nothing
-    cortfcf::Union{String, Nothing} = nothing
-    cadusih::Union{String, Nothing} = nothing
-    operuh::Union{String, Nothing} = nothing
-    deflant::Union{String, Nothing} = nothing
-    cadterm::Union{String, Nothing} = nothing
-    operut::Union{String, Nothing} = nothing
-    indelet::Union{String, Nothing} = nothing
-    ilstri::Union{String, Nothing} = nothing
-    cotasr11::Union{String, Nothing} = nothing
-    simul::Union{String, Nothing} = nothing
-    areacont::Union{String, Nothing} = nothing
-    respot::Union{String, Nothing} = nothing
-    mlt::Union{String, Nothing} = nothing
-    tolperd::Union{String, Nothing} = nothing
-    curvtviag::Union{String, Nothing} = nothing
-    ptoper::Union{String, Nothing} = nothing
-    infofcf::Union{String, Nothing} = nothing
-    meta::Union{String, Nothing} = nothing
-    ree::Union{String, Nothing} = nothing
-    eolica::Union{String, Nothing} = nothing
-    rampas::Union{String, Nothing} = nothing
-    rstlpp::Union{String, Nothing} = nothing
-    restseg::Union{String, Nothing} = nothing
-    respotele::Union{String, Nothing} = nothing
-    ilibs::Union{String, Nothing} = nothing
-    dessopc::Union{String, Nothing} = nothing
-    rmpflx::Union{String, Nothing} = nothing
+    caso::Union{String,Nothing} = nothing
+    titulo::Union{String,Nothing} = nothing
+    vazoes::Union{String,Nothing} = nothing
+    dadger::Union{String,Nothing} = nothing
+    mapfcf::Union{String,Nothing} = nothing
+    cortfcf::Union{String,Nothing} = nothing
+    cadusih::Union{String,Nothing} = nothing
+    operuh::Union{String,Nothing} = nothing
+    deflant::Union{String,Nothing} = nothing
+    cadterm::Union{String,Nothing} = nothing
+    operut::Union{String,Nothing} = nothing
+    indelet::Union{String,Nothing} = nothing
+    ilstri::Union{String,Nothing} = nothing
+    cotasr11::Union{String,Nothing} = nothing
+    simul::Union{String,Nothing} = nothing
+    areacont::Union{String,Nothing} = nothing
+    respot::Union{String,Nothing} = nothing
+    mlt::Union{String,Nothing} = nothing
+    tolperd::Union{String,Nothing} = nothing
+    curvtviag::Union{String,Nothing} = nothing
+    ptoper::Union{String,Nothing} = nothing
+    infofcf::Union{String,Nothing} = nothing
+    meta::Union{String,Nothing} = nothing
+    ree::Union{String,Nothing} = nothing
+    eolica::Union{String,Nothing} = nothing
+    rampas::Union{String,Nothing} = nothing
+    rstlpp::Union{String,Nothing} = nothing
+    restseg::Union{String,Nothing} = nothing
+    respotele::Union{String,Nothing} = nothing
+    ilibs::Union{String,Nothing} = nothing
+    dessopc::Union{String,Nothing} = nothing
+    rmpflx::Union{String,Nothing} = nothing
 end
 
 # ============================================================================
@@ -834,7 +834,7 @@ Base.@kwdef struct DessemCase
     operational_constraints::OperationalConstraints = OperationalConstraints()
     decomp_cuts::DecompCut = DecompCut()
     execution_options::ExecutionOptions = ExecutionOptions()
-    metadata::Dict{String, Any} = Dict{String, Any}()
+    metadata::Dict{String,Any} = Dict{String,Any}()
 end
 
 end # module

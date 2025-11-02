@@ -44,9 +44,13 @@ termdat = parse_termdat(termdat_file)
 operut_file = joinpath(sample_dir, "operut.dat")
 operut = parse_operut(operut_file)
 
-println("✓ ENTDADOS: $(length(entdados.subsystems)) subsystems, $(length(entdados.thermal_plants)) thermal plants")
+println(
+    "✓ ENTDADOS: $(length(entdados.subsystems)) subsystems, $(length(entdados.thermal_plants)) thermal plants",
+)
 println("✓ TERMDAT:  $(length(termdat.plants)) plants, $(length(termdat.units)) units")
-println("✓ OPERUT:   $(length(operut.init_records)) init, $(length(operut.oper_records)) oper records")
+println(
+    "✓ OPERUT:   $(length(operut.init_records)) init, $(length(operut.oper_records)) oper records",
+)
 println()
 
 # ============================================================================
@@ -58,16 +62,19 @@ println("="^80)
 println()
 
 # For each subsystem, find all thermal plants
-subsystem_plants = Dict{Int, Vector{String}}()
+subsystem_plants = Dict{Int,Vector{String}}()
 
 for subsys in entdados.subsystems
     # Find all thermal plants in this subsystem (Foreign Key: UT.subsystem → SIST.subsystem_num)
-    plants_in_subsys = filter(p -> p.subsystem == subsys.subsystem_num, entdados.thermal_plants)
-    
+    plants_in_subsys =
+        filter(p -> p.subsystem == subsys.subsystem_num, entdados.thermal_plants)
+
     plant_names = [p.plant_name for p in plants_in_subsys]
     subsystem_plants[subsys.subsystem_num] = plant_names
-    
-    println("Subsystem $(subsys.subsystem_num) ($(subsys.subsystem_code)): $(length(plant_names)) thermal plants")
+
+    println(
+        "Subsystem $(subsys.subsystem_num) ($(subsys.subsystem_code)): $(length(plant_names)) thermal plants",
+    )
     if length(plant_names) <= 5
         for name in plant_names
             println("    ├─ $name")
@@ -98,24 +105,24 @@ example_plants = entdados.thermal_plants[1:min(3, length(entdados.thermal_plants
 for entdados_plant in example_plants
     # Find corresponding TERMDAT plant record (same plant_num)
     termdat_plant = findfirst(p -> p.plant_num == entdados_plant.plant_num, termdat.plants)
-    
+
     if !isnothing(termdat_plant)
         plant = termdat.plants[termdat_plant]
-        
+
         # Find all units for this plant (Foreign Key: CADUNIDT.plant_num → CADUSIT.plant_num)
         units = filter(u -> u.plant_num == plant.plant_num, termdat.units)
-        
+
         println("Plant $(plant.plant_num): $(plant.plant_name)")
         println("  Subsystem: $(plant.subsystem)")
         println("  Total Units: $(length(units))")
-        
+
         for unit in units[1:min(3, length(units))]
             println("    Unit $(unit.unit_num):")
             println("      - Capacity: $(unit.unit_capacity) MW")
             println("      - Min Gen: $(unit.min_generation) MW")
             println("      - Cold Startup: $(unit.cold_startup_cost) R\$")
         end
-        
+
         if length(units) > 3
             println("    ... ($(length(units) - 3) more units)")
         end
@@ -139,7 +146,7 @@ println("Joining thermal units with their operating costs...")
 println()
 
 # Group OPER records by (plant_num, unit_num)
-unit_costs = Dict{Tuple{Int, Int}, Vector{Float64}}()
+unit_costs = Dict{Tuple{Int,Int},Vector{Float64}}()
 
 for oper in operut.oper_records
     key = (oper.plant_num, oper.unit_num)
@@ -157,21 +164,25 @@ unit_examples = collect(keys(unit_costs))[1:min(5, length(unit_costs))]
 
 for (plant_num, unit_num) in unit_examples
     # Find unit in TERMDAT (referential integrity check)
-    unit_idx = findfirst(u -> u.plant_num == plant_num && u.unit_num == unit_num, termdat.units)
-    
+    unit_idx =
+        findfirst(u -> u.plant_num == plant_num && u.unit_num == unit_num, termdat.units)
+
     if !isnothing(unit_idx)
         unit = termdat.units[unit_idx]
         costs = unit_costs[(plant_num, unit_num)]
-        
+
         # Find plant name from TERMDAT
         plant_idx = findfirst(p -> p.plant_num == plant_num, termdat.plants)
-        plant_name = !isnothing(plant_idx) ? termdat.plants[plant_idx].plant_name : "Unknown"
-        
+        plant_name =
+            !isnothing(plant_idx) ? termdat.plants[plant_idx].plant_name : "Unknown"
+
         println("$(plant_name) - Unit $(unit_num):")
         println("  Capacity: $(unit.unit_capacity) MW")
         println("  Cost records: $(length(costs))")
-        println("  Cost range: $(round(minimum(costs), digits=2)) - $(round(maximum(costs), digits=2)) R\$/MWh")
-        
+        println(
+            "  Cost range: $(round(minimum(costs), digits=2)) - $(round(maximum(costs), digits=2)) R\$/MWh",
+        )
+
         if length(costs) <= 3
             for (i, cost) in enumerate(costs)
                 println("    Period $(i): $(round(cost, digits=2)) R\$/MWh")
@@ -214,7 +225,9 @@ else
         println("    Missing plants: $(collect(missing_in_termdat))")
     end
     if length(extra_in_termdat) > 0
-        println("    Extra plants: $(collect(extra_in_termdat)[1:min(5, length(extra_in_termdat))])...")
+        println(
+            "    Extra plants: $(collect(extra_in_termdat)[1:min(5, length(extra_in_termdat))])...",
+        )
     end
 end
 println()
@@ -225,7 +238,9 @@ operut_unit_keys = Set((o.plant_num, o.unit_num) for o in operut.oper_records)
 
 orphan_oper_records = setdiff(operut_unit_keys, termdat_unit_keys)
 
-println("Foreign Key Validation: OPERUT.OPER.(plant_num, unit_num) → TERMDAT.CADUNIDT.(plant_num, unit_num)")
+println(
+    "Foreign Key Validation: OPERUT.OPER.(plant_num, unit_num) → TERMDAT.CADUNIDT.(plant_num, unit_num)",
+)
 println("  OPERUT units: $(length(operut_unit_keys))")
 println("  TERMDAT units: $(length(termdat_unit_keys))")
 println("  Orphan OPER records: $(length(orphan_oper_records))")
@@ -234,7 +249,9 @@ if length(orphan_oper_records) == 0
     println("  ✓ All operating cost records reference valid units!")
 else
     println("  ⚠ Found orphan operating cost records")
-    println("    Examples: $(collect(orphan_oper_records)[1:min(3, length(orphan_oper_records))])...")
+    println(
+        "    Examples: $(collect(orphan_oper_records)[1:min(3, length(orphan_oper_records))])...",
+    )
 end
 println()
 
@@ -256,13 +273,20 @@ println("                      └─► $(length(operut.oper_records)) Operatin
 println()
 
 println("Cross-File Relationships:")
-println("  SUBSYSTEM (1) ──► (*) THERMAL_PLANT: $(length(entdados.subsystems)) → $(length(entdados.thermal_plants))")
-println("  THERMAL_PLANT (1) ──► (*) THERMAL_UNIT: $(length(termdat.plants)) → $(length(termdat.units))")
-println("  THERMAL_UNIT (1) ──► (*) OPER_RECORD: $(length(termdat.units)) → $(length(operut.oper_records))")
+println(
+    "  SUBSYSTEM (1) ──► (*) THERMAL_PLANT: $(length(entdados.subsystems)) → $(length(entdados.thermal_plants))",
+)
+println(
+    "  THERMAL_PLANT (1) ──► (*) THERMAL_UNIT: $(length(termdat.plants)) → $(length(termdat.units))",
+)
+println(
+    "  THERMAL_UNIT (1) ──► (*) OPER_RECORD: $(length(termdat.units)) → $(length(operut.oper_records))",
+)
 println()
 
 println("Average relationships:")
-avg_plants_per_subsys = length(entdados.thermal_plants) / max(1, length(entdados.subsystems))
+avg_plants_per_subsys =
+    length(entdados.thermal_plants) / max(1, length(entdados.subsystems))
 avg_units_per_plant = length(termdat.units) / max(1, length(termdat.plants))
 avg_cost_records_per_unit = length(operut.oper_records) / max(1, length(unit_costs))
 

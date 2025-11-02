@@ -11,9 +11,9 @@ This script:
 using DESSEM2Julia
 using Dates
 
-println("=" ^ 80)
+println("="^80)
 println("DESSEM2Julia - Sample Data Parsing Demonstration")
-println("=" ^ 80)
+println("="^80)
 println()
 
 # Sample data directory
@@ -22,9 +22,9 @@ println("📁 Sample directory: $sample_dir")
 println()
 
 # Step 1: Parse dessem.arq (master file index)
-println("=" ^ 80)
+println("="^80)
 println("Step 1: Parsing dessem.arq (Master File Index)")
-println("=" ^ 80)
+println("="^80)
 
 arq_path = joinpath(sample_dir, "dessem.arq")
 arq = parse_dessemarq(arq_path)
@@ -46,9 +46,9 @@ println("  EOLICA (renewables):     $(arq.eolica)")
 println()
 
 # Step 2: Parse TERMDAT.DAT (thermal plants)
-println("=" ^ 80)
+println("="^80)
 println("Step 2: Parsing TERMDAT.DAT (Thermal Plant Registry)")
-println("=" ^ 80)
+println("="^80)
 
 termdat_path = joinpath(sample_dir, arq.cadterm)
 thermal_registry = parse_termdat(termdat_path)
@@ -63,46 +63,60 @@ println()
 
 # Show first 5 plants
 println("🏭 First 5 Thermal Plants:")
-println("  " * "─" ^ 76)
-println("  $(rpad("Num", 5)) $(rpad("Name", 14)) $(rpad("Subsys", 8)) $(rpad("Fuel", 6)) $(rpad("Units", 7)) Heat Rate")
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
+println(
+    "  $(rpad("Num", 5)) $(rpad("Name", 14)) $(rpad("Subsys", 8)) $(rpad("Fuel", 6)) $(rpad("Units", 7)) Heat Rate",
+)
+println("  " * "─"^76)
 for (i, plant) in enumerate(thermal_registry.plants[1:min(5, end)])
-    fuel_name = plant.fuel_type == 1 ? "Gas" :
-                plant.fuel_type == 2 ? "Coal" :
-                plant.fuel_type == 3 ? "Oil" :
-                plant.fuel_type == 4 ? "Bio" :
-                plant.fuel_type == 5 ? "Nuc" : "Other"
-    println("  $(rpad(plant.plant_num, 5)) $(rpad(plant.plant_name, 14)) " *
-            "$(rpad(plant.subsystem, 8)) $(rpad(fuel_name, 6)) $(rpad(plant.num_units, 7)) " *
-            "$(round(plant.heat_rate, digits=1)) kJ/kWh")
+    fuel_name =
+        plant.fuel_type == 1 ? "Gas" :
+        plant.fuel_type == 2 ? "Coal" :
+        plant.fuel_type == 3 ? "Oil" :
+        plant.fuel_type == 4 ? "Bio" : plant.fuel_type == 5 ? "Nuc" : "Other"
+    println(
+        "  $(rpad(plant.plant_num, 5)) $(rpad(plant.plant_name, 14)) " *
+        "$(rpad(plant.subsystem, 8)) $(rpad(fuel_name, 6)) $(rpad(plant.num_units, 7)) " *
+        "$(round(plant.heat_rate, digits=1)) kJ/kWh",
+    )
 end
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 println()
 
 # Show sample units for first plant
 first_plant_num = thermal_registry.plants[1].plant_num
 plant_units = filter(u -> u.plant_num == first_plant_num, thermal_registry.units)
 println("⚡ Units for plant $(first_plant_num) ($(thermal_registry.plants[1].plant_name)):")
-println("  " * "─" ^ 76)
-println("  $(rpad("Unit", 6)) $(rpad("Capacity", 12)) $(rpad("Min Gen", 10)) $(rpad("Ramp Up", 12)) Ramp Down")
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
+println(
+    "  $(rpad("Unit", 6)) $(rpad("Capacity", 12)) $(rpad("Min Gen", 10)) $(rpad("Ramp Up", 12)) Ramp Down",
+)
+println("  " * "─"^76)
 for unit in plant_units
-    println("  $(rpad(unit.unit_num, 6)) $(rpad("$(round(unit.unit_capacity, digits=1)) MW", 12)) " *
-            "$(rpad("$(round(unit.min_generation, digits=1)) MW", 10)) " *
-            "$(rpad("$(isinf(unit.ramp_up_rate) ? "∞" : string(round(unit.ramp_up_rate, digits=1))) MW/h", 12)) " *
-            "$(isinf(unit.ramp_down_rate) ? "∞" : string(round(unit.ramp_down_rate, digits=1))) MW/h")
+    println(
+        "  $(rpad(unit.unit_num, 6)) $(rpad("$(round(unit.unit_capacity, digits=1)) MW", 12)) " *
+        "$(rpad("$(round(unit.min_generation, digits=1)) MW", 10)) " *
+        "$(rpad("$(isinf(unit.ramp_up_rate) ? "∞" : string(round(unit.ramp_up_rate, digits=1))) MW/h", 12)) " *
+        "$(isinf(unit.ramp_down_rate) ? "∞" : string(round(unit.ramp_down_rate, digits=1))) MW/h",
+    )
 end
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 println()
 
 # Show fuel type distribution
 println("🔥 Fuel Type Distribution:")
-fuel_counts = Dict{Int, Int}()
+fuel_counts = Dict{Int,Int}()
 for plant in thermal_registry.plants
     fuel_counts[plant.fuel_type] = get(fuel_counts, plant.fuel_type, 0) + 1
 end
-fuel_names = Dict(1 => "Natural Gas", 2 => "Coal", 3 => "Oil/Diesel", 
-                  4 => "Biomass", 5 => "Nuclear", 6 => "Other")
+fuel_names = Dict(
+    1 => "Natural Gas",
+    2 => "Coal",
+    3 => "Oil/Diesel",
+    4 => "Biomass",
+    5 => "Nuclear",
+    6 => "Other",
+)
 for (fuel_type, count) in sort(collect(fuel_counts))
     fuel_name = get(fuel_names, fuel_type, "Unknown")
     println("  $(rpad(fuel_name, 15)): $(count) plants")
@@ -110,9 +124,9 @@ end
 println()
 
 # Step 3: Parse ENTDADOS.DAT (general operational data)
-println("=" ^ 80)
+println("="^80)
 println("Step 3: Parsing ENTDADOS.DAT (General Operational Data)")
-println("=" ^ 80)
+println("="^80)
 
 entdados_path = joinpath(sample_dir, arq.dadger)
 general_data = parse_entdados(entdados_path)
@@ -129,53 +143,68 @@ println()
 
 # Show time periods
 println("⏰ Time Discretization (first 10 periods):")
-println("  " * "─" ^ 76)
-println("  $(rpad("Period", 8)) $(rpad("Day", 5)) $(rpad("Hour", 6)) $(rpad("Half", 6)) " *
-        "$(rpad("Duration", 10)) $(rpad("Network", 9)) Load Level")
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
+println(
+    "  $(rpad("Period", 8)) $(rpad("Day", 5)) $(rpad("Hour", 6)) $(rpad("Half", 6)) " *
+    "$(rpad("Duration", 10)) $(rpad("Network", 9)) Load Level",
+)
+println("  " * "─"^76)
 for (i, tm) in enumerate(general_data.time_periods[1:min(10, end)])
-    network = tm.network_flag == 0 ? "No" :
-              tm.network_flag == 1 ? "Yes" :
-              tm.network_flag == 2 ? "Yes+Loss" : "?"
-    println("  $(rpad(i, 8)) $(rpad(tm.day, 5)) $(rpad(tm.hour, 6)) $(rpad(tm.half_hour, 6)) " *
-            "$(rpad("$(tm.duration) h", 10)) $(rpad(network, 9)) $(tm.load_level)")
+    network =
+        tm.network_flag == 0 ? "No" :
+        tm.network_flag == 1 ? "Yes" : tm.network_flag == 2 ? "Yes+Loss" : "?"
+    println(
+        "  $(rpad(i, 8)) $(rpad(tm.day, 5)) $(rpad(tm.hour, 6)) $(rpad(tm.half_hour, 6)) " *
+        "$(rpad("$(tm.duration) h", 10)) $(rpad(network, 9)) $(tm.load_level)",
+    )
 end
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 println()
 
 # Show subsystems
 println("🗺️  Subsystems:")
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 println("  $(rpad("Num", 5)) $(rpad("Code", 6)) $(rpad("Status", 8)) Name")
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 for sist in general_data.subsystems
-    println("  $(rpad(sist.subsystem_num, 5)) $(rpad(sist.subsystem_code, 6)) " *
-            "$(rpad(sist.status, 8)) $(sist.subsystem_name)")
+    println(
+        "  $(rpad(sist.subsystem_num, 5)) $(rpad(sist.subsystem_code, 6)) " *
+        "$(rpad(sist.status, 8)) $(sist.subsystem_name)",
+    )
 end
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 println()
 
 # Show hydro plants by subsystem
 println("💧 Hydro Plants by Subsystem (first 5 per subsystem):")
 for sist in general_data.subsystems
-    subsys_plants = filter(p -> p.subsystem == sist.subsystem_num, general_data.hydro_plants)
+    subsys_plants =
+        filter(p -> p.subsystem == sist.subsystem_num, general_data.hydro_plants)
     if !isempty(subsys_plants)
         println()
-        println("  $(sist.subsystem_name) ($(sist.subsystem_code)): $(length(subsys_plants)) plants")
-        println("  " * "─" ^ 74)
-        println("    $(rpad("Num", 5)) $(rpad("Name", 14)) $(rpad("Init Vol%", 11)) $(rpad("Min Vol", 10)) Max Vol")
-        println("  " * "─" ^ 74)
+        println(
+            "  $(sist.subsystem_name) ($(sist.subsystem_code)): $(length(subsys_plants)) plants",
+        )
+        println("  " * "─"^74)
+        println(
+            "    $(rpad("Num", 5)) $(rpad("Name", 14)) $(rpad("Init Vol%", 11)) $(rpad("Min Vol", 10)) Max Vol",
+        )
+        println("  " * "─"^74)
         for plant in subsys_plants[1:min(5, end)]
-            min_vol_str = isnothing(plant.min_volume) ? "N/A" : "$(round(plant.min_volume, digits=0))"
-            max_vol_str = isnothing(plant.max_volume) ? "N/A" : "$(round(plant.max_volume, digits=0))"
-            println("    $(rpad(plant.plant_num, 5)) $(rpad(plant.plant_name, 14)) " *
-                    "$(rpad("$(round(plant.initial_volume_pct, digits=1))%", 11)) " *
-                    "$(rpad(min_vol_str, 10)) $(max_vol_str)")
+            min_vol_str =
+                isnothing(plant.min_volume) ? "N/A" : "$(round(plant.min_volume, digits=0))"
+            max_vol_str =
+                isnothing(plant.max_volume) ? "N/A" : "$(round(plant.max_volume, digits=0))"
+            println(
+                "    $(rpad(plant.plant_num, 5)) $(rpad(plant.plant_name, 14)) " *
+                "$(rpad("$(round(plant.initial_volume_pct, digits=1))%", 11)) " *
+                "$(rpad(min_vol_str, 10)) $(max_vol_str)",
+            )
         end
         if length(subsys_plants) > 5
             println("    ... and $(length(subsys_plants) - 5) more plants")
         end
-        println("  " * "─" ^ 74)
+        println("  " * "─"^74)
     end
 end
 println()
@@ -190,24 +219,26 @@ println()
 
 # Demand by subsystem
 println("  Demand by Subsystem (average):")
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 println("  $(rpad("Subsystem", 20)) $(rpad("Records", 10)) Average Demand")
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 for sist in general_data.subsystems
     subsys_demands = filter(d -> d.subsystem == sist.subsystem_num, general_data.demands)
     if !isempty(subsys_demands)
         avg = sum(d.demand for d in subsys_demands) / length(subsys_demands)
-        println("  $(rpad(sist.subsystem_name, 20)) $(rpad(length(subsys_demands), 10)) " *
-                "$(round(avg, digits=1)) MW")
+        println(
+            "  $(rpad(sist.subsystem_name, 20)) $(rpad(length(subsys_demands), 10)) " *
+            "$(round(avg, digits=1)) MW",
+        )
     end
 end
-println("  " * "─" ^ 76)
+println("  " * "─"^76)
 println()
 
 # Step 4: Demonstrate data access patterns
-println("=" ^ 80)
+println("="^80)
 println("Step 4: Data Access Patterns")
-println("=" ^ 80)
+println("="^80)
 println()
 
 # Find specific plant
@@ -238,11 +269,14 @@ if !isempty(thermal_registry.units)
             largest_unit = unit
         end
     end
-    local plant_idx = findfirst(p -> p.plant_num == largest_unit.plant_num, thermal_registry.plants)
+    local plant_idx =
+        findfirst(p -> p.plant_num == largest_unit.plant_num, thermal_registry.plants)
     if !isnothing(plant_idx)
         plant_info = thermal_registry.plants[plant_idx]
         println("  Plant: $(plant_info.plant_name) (plant #$(plant_info.plant_num))")
-        println("  Unit #$(largest_unit.unit_num): $(round(largest_unit.unit_capacity, digits=1)) MW")
+        println(
+            "  Unit #$(largest_unit.unit_num): $(round(largest_unit.unit_capacity, digits=1)) MW",
+        )
         println("  Min generation: $(round(largest_unit.min_generation, digits=1)) MW")
     end
 end
@@ -253,13 +287,15 @@ println("💡 System Capacity Summary:")
 thermal_capacity = sum(u.unit_capacity for u in thermal_registry.units)
 println("  Total thermal capacity: $(round(thermal_capacity, digits=1)) MW")
 println("  Number of thermal units: $(length(thermal_registry.units))")
-println("  Average unit size: $(round(thermal_capacity / length(thermal_registry.units), digits=1)) MW")
+println(
+    "  Average unit size: $(round(thermal_capacity / length(thermal_registry.units), digits=1)) MW",
+)
 println()
 
 # Step 5: Show new core type system integration
-println("=" ^ 80)
+println("="^80)
 println("Step 5: Core Type System Integration")
-println("=" ^ 80)
+println("="^80)
 println()
 
 println("🏗️  Creating DessemCase with new type system:")
@@ -280,13 +316,13 @@ case = DessemCase(
         operuh = arq.operuh,
         operut = arq.operut,
         mapfcf = arq.mapfcf,
-        cortfcf = arq.cortfcf
+        cortfcf = arq.cortfcf,
     ),
     metadata = Dict(
         "parse_time" => now(),
         "sample_dataset" => "DS_CCEE_102025_SEMREDE_RV0D28",
-        "parser_version" => "0.1.0"
-    )
+        "parser_version" => "0.1.0",
+    ),
 )
 
 println("✓ DessemCase created successfully!")
@@ -308,13 +344,15 @@ for (key, value) in case.metadata
 end
 println()
 
-println("=" ^ 80)
+println("="^80)
 println("✅ Demonstration Complete!")
-println("=" ^ 80)
+println("="^80)
 println()
 println("📚 Summary:")
 println("  - Parsed dessem.arq master file index")
-println("  - Loaded thermal plant data ($(length(thermal_registry.plants)) plants, $(length(thermal_registry.units)) units)")
+println(
+    "  - Loaded thermal plant data ($(length(thermal_registry.plants)) plants, $(length(thermal_registry.units)) units)",
+)
 println("  - Loaded general operational data:")
 println("    * $(length(general_data.time_periods)) time periods")
 println("    * $(length(general_data.subsystems)) subsystems")

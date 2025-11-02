@@ -56,41 +56,41 @@ idessem/dessem/dessopc.py
 """
 Base.@kwdef mutable struct DessOpcData
     # Parallel processing
-    uctpar::Union{Int, Nothing} = nothing
-    
+    uctpar::Union{Int,Nothing} = nothing
+
     # Solution methodology
-    ucterm::Union{Int, Nothing} = nothing
+    ucterm::Union{Int,Nothing} = nothing
     pint::Bool = false
     uctbusloc::Bool = false
-    uctheurfp::Union{Vector{Int}, Nothing} = nothing
-    uctesperto::Union{Int, Nothing} = nothing
-    
+    uctheurfp::Union{Vector{Int},Nothing} = nothing
+    uctesperto::Union{Int,Nothing} = nothing
+
     # Hydro production
-    regranptv::Union{Vector{Int}, Nothing} = nothing
-    
+    regranptv::Union{Vector{Int},Nothing} = nothing
+
     # Output control
-    avlcmo::Union{Int, Nothing} = nothing
+    avlcmo::Union{Int,Nothing} = nothing
     cplexlog::Bool = false
-    
+
     # Data consistency
-    constdados::Union{Vector{Int}, Nothing} = nothing
-    
+    constdados::Union{Vector{Int},Nothing} = nothing
+
     # Future cost function
-    ajustefcf::Union{Vector{Int}, Nothing} = nothing
-    
+    ajustefcf::Union{Vector{Int},Nothing} = nothing
+
     # Thermal generation
     trata_term_ton::Bool = false
-    
+
     # Network constraints
-    tolerilh::Union{Int, Nothing} = nothing
-    engolimento::Union{Int, Nothing} = nothing
-    trata_inviab_ilha::Union{Int, Nothing} = nothing
-    
+    tolerilh::Union{Int,Nothing} = nothing
+    engolimento::Union{Int,Nothing} = nothing
+    trata_inviab_ilha::Union{Int,Nothing} = nothing
+
     # Crossover
-    crossover::Union{Vector{Int}, Nothing} = nothing
-    
+    crossover::Union{Vector{Int},Nothing} = nothing
+
     # Extensibility
-    other_options::Dict{String, Any} = Dict{String, Any}()
+    other_options::Dict{String,Any} = Dict{String,Any}()
 end
 
 # ============================================================================
@@ -116,7 +116,7 @@ Base.@kwdef struct SimulHeader
     start_half_hour::Int = 0
     start_month::Int
     start_year::Int
-    operuh_flag::Union{Int, Nothing} = nothing
+    operuh_flag::Union{Int,Nothing} = nothing
 end
 
 """
@@ -136,7 +136,7 @@ Base.@kwdef struct DiscRecord
     hour::Int = 0
     half_hour::Int = 0
     duration::Float64
-    constraints_flag::Union{Int, Nothing} = nothing
+    constraints_flag::Union{Int,Nothing} = nothing
 end
 
 """
@@ -188,9 +188,9 @@ Base.@kwdef struct OperRecord
     final_half_hour::Int = 0
     flow_type::Int
     natural_inflow::Float64
-    withdrawal_type::Union{Int, Nothing} = nothing
+    withdrawal_type::Union{Int,Nothing} = nothing
     withdrawal_flow::Float64 = 0.0
-    generation_target::Union{Float64, Nothing} = nothing
+    generation_target::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -357,9 +357,9 @@ Base.@kwdef struct CADUSIT
     plant_num::Int
     plant_name::String
     subsystem::Int
-    commission_year::Union{Int, Nothing} = nothing
-    commission_month::Union{Int, Nothing} = nothing
-    commission_day::Union{Int, Nothing} = nothing
+    commission_year::Union{Int,Nothing} = nothing
+    commission_month::Union{Int,Nothing} = nothing
+    commission_day::Union{Int,Nothing} = nothing
     plant_class::Int = 0
     fuel_type::Int = 0
     num_units::Int
@@ -391,9 +391,9 @@ Thermal unit characteristics record from TERM.DAT.
 Base.@kwdef struct CADUNIDT
     plant_num::Int
     unit_num::Int
-    unit_name::Union{String, Nothing} = nothing
-    commission_year::Union{Int, Nothing} = nothing
-    commission_month::Union{Int, Nothing} = nothing
+    unit_name::Union{String,Nothing} = nothing
+    commission_year::Union{Int,Nothing} = nothing
+    commission_month::Union{Int,Nothing} = nothing
     unit_capacity::Float64
     min_generation::Float64 = 0.0
     min_on_time::Int = 0
@@ -632,10 +632,10 @@ Base.@kwdef struct RDRecord
     slack_variables::Int
     max_violated_circuits::Int
     load_dbar_register::Int
-    ignore_bars::Union{Int, Nothing} = nothing
-    circuit_limits_drefs::Union{Int, Nothing} = nothing
-    consider_losses::Union{Int, Nothing} = nothing
-    network_file_format::Union{Int, Nothing} = nothing
+    ignore_bars::Union{Int,Nothing} = nothing
+    circuit_limits_drefs::Union{Int,Nothing} = nothing
+    consider_losses::Union{Int,Nothing} = nothing
+    network_file_format::Union{Int,Nothing} = nothing
 end
 
 """
@@ -663,11 +663,11 @@ Base.@kwdef struct UHRecord
     subsystem::Int
     initial_volume_pct::Float64
     volume_unit::Int = 2
-    min_volume::Union{Float64, Nothing} = nothing
-    max_volume::Union{Float64, Nothing} = nothing
-    initial_volume_abs::Union{Float64, Nothing} = nothing
-    spillway_crest::Union{Float64, Nothing} = nothing
-    diversion_crest::Union{Float64, Nothing} = nothing
+    min_volume::Union{Float64,Nothing} = nothing
+    max_volume::Union{Float64,Nothing} = nothing
+    initial_volume_abs::Union{Float64,Nothing} = nothing
+    spillway_crest::Union{Float64,Nothing} = nothing
+    diversion_crest::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -720,7 +720,7 @@ Base.@kwdef struct DPRecord
     start_day::Int
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String}
+    end_day::Union{Int,String}
     end_hour::Int = 0
     end_half::Int = 0
     demand::Float64
@@ -743,10 +743,10 @@ Water withdrawal rate (taxa de desvio de água) record from ENTDADOS.XXX.
 """
 Base.@kwdef struct DARecord
     plant_num::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     withdrawal_rate::Float64
@@ -773,10 +773,10 @@ Base.@kwdef struct MHRecord
     plant_num::Int
     group_code::Int
     unit_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     available_flag::Int = 0
@@ -801,10 +801,10 @@ Thermal unit maintenance record from ENTDADOS.XXX.
 Base.@kwdef struct MTRecord
     plant_num::Int
     unit_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     available_flag::Int = 0
@@ -826,10 +826,10 @@ Electrical constraint definition record from ENTDADOS.XXX.
 """
 Base.@kwdef struct RERecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
 end
@@ -852,14 +852,14 @@ Electrical constraint limits record from ENTDADOS.XXX.
 """
 Base.@kwdef struct LURecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
-    lower_limit::Union{Float64, Nothing} = nothing
-    upper_limit::Union{Float64, Nothing} = nothing
+    lower_limit::Union{Float64,Nothing} = nothing
+    upper_limit::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -881,10 +881,10 @@ Hydro plant coefficient in electrical constraint from ENTDADOS.XXX.
 """
 Base.@kwdef struct FHRecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     plant_code::Int
@@ -910,10 +910,10 @@ Thermal plant coefficient in electrical constraint from ENTDADOS.XXX.
 """
 Base.@kwdef struct FTRecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     plant_code::Int
@@ -939,10 +939,10 @@ Interchange flow coefficient in electrical constraint from ENTDADOS.XXX.
 """
 Base.@kwdef struct FIRecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     from_subsystem::String
@@ -968,10 +968,10 @@ Energy contract coefficient in electrical constraint from ENTDADOS.XXX.
 """
 Base.@kwdef struct FERecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     contract_code::Int
@@ -996,10 +996,10 @@ Renewable plant coefficient in electrical constraint from ENTDADOS.XXX.
 """
 Base.@kwdef struct FRRecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     plant_code::Int
@@ -1024,10 +1024,10 @@ Special load coefficient in electrical constraint from ENTDADOS.XXX.
 """
 Base.@kwdef struct FCRecord
     constraint_code::Int
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     load_code::Int
@@ -1077,10 +1077,10 @@ Gauge 11 level variation constraints from ENTDADOS.XXX.
 - `max_daily_variation::Float64`: Maximum daily level variation (m)
 """
 Base.@kwdef struct R11Record
-    start_day::Union{Int, String, Nothing}
+    start_day::Union{Int,String,Nothing}
     start_hour::Int = 0
     start_half::Int = 0
-    end_day::Union{Int, String, Nothing}
+    end_day::Union{Int,String,Nothing}
     end_hour::Int = 0
     end_half::Int = 0
     initial_level::Float64
@@ -1212,7 +1212,7 @@ AG records are used for various grouping purposes.
 """
 Base.@kwdef struct AGRecord
     group_type::String
-    group_id::Union{Int, Nothing} = nothing
+    group_id::Union{Int,Nothing} = nothing
     description::String
 end
 
@@ -1811,7 +1811,7 @@ Base.@kwdef struct BinaryHidrRecord
     empresa::Int
     jusante::Int
     desvio::Int
-    
+
     # Volume and elevation data (Fields 7-12)
     volume_minimo::Float64
     volume_maximo::Float64
@@ -1819,29 +1819,29 @@ Base.@kwdef struct BinaryHidrRecord
     volume_desvio::Float64
     cota_minima::Float64
     cota_maxima::Float64
-    
+
     # Polynomial coefficients (Fields 13-22)
     polinomio_volume_cota::Vector{Float64}  # 5 coefficients
     polinomio_cota_area::Vector{Float64}    # 5 coefficients
-    
+
     # Evaporation data (Fields 23-34)
     evaporacao::Vector{Int}  # 12 months
-    
+
     # Machine sets (Fields 35-55)
     numero_conjuntos_maquinas::Int
     numero_maquinas_conjunto::Vector{Int}    # 5 sets
     potef_conjunto::Vector{Float64}          # 5 sets (MW)
     hef_conjunto::Vector{Float64}            # 5 sets (m)
     qef_conjunto::Vector{Int}                # 5 sets (m³/s)
-    
+
     # Performance parameters (Fields 56-58)
     produtibilidade_especifica::Float64
     perdas::Float64
     numero_polinomios_jusante::Int
-    
+
     # Tailrace polynomials (Fields 59-95)
     polinomios_jusante::Vector{Float64}  # 36 values (6 families × 6 values)
-    
+
     # Operational parameters (Fields 96-110)
     canal_fuga_medio::Float64
     influencia_vertimento_canal_fuga::Int
@@ -1929,12 +1929,12 @@ Base.@kwdef struct DadvazInflowRecord
     plant_num::Int
     plant_name::String
     inflow_type::Int
-    start_day::Union{Int, String}
-    start_hour::Union{Int, Nothing} = nothing
-    start_half_hour::Union{Int, Nothing} = nothing
-    end_day::Union{Int, String}
-    end_hour::Union{Int, Nothing} = nothing
-    end_half_hour::Union{Int, Nothing} = nothing
+    start_day::Union{Int,String}
+    start_hour::Union{Int,Nothing} = nothing
+    start_half_hour::Union{Int,Nothing} = nothing
+    end_day::Union{Int,String}
+    end_hour::Union{Int,Nothing} = nothing
+    end_half_hour::Union{Int,Nothing} = nothing
     flow_m3s::Float64
 end
 
@@ -2011,7 +2011,7 @@ Container for DESSELET.DAT content.
 Base.@kwdef struct DesseletData
     base_cases::Vector{DesseletBaseCase} = DesseletBaseCase[]
     patamares::Vector{DesseletPatamar} = DesseletPatamar[]
-    metadata::Dict{String, Any} = Dict{String, Any}()
+    metadata::Dict{String,Any} = Dict{String,Any}()
 end
 
 # ============================================================================
@@ -2041,9 +2041,9 @@ Base.@kwdef struct HydroConstraintREST
     type_flag::String  # L or V
     interval_type::String = ""  # P or blank
     variable_code::String  # RHQ, RHV, RHS, etc.
-    initial_value::Union{Float64, Nothing} = nothing
-    variation_type::Union{Int, Nothing} = nothing
-    window_duration::Union{Float64, Nothing} = nothing
+    initial_value::Union{Float64,Nothing} = nothing
+    variation_type::Union{Int,Nothing} = nothing
+    window_duration::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -2093,14 +2093,14 @@ StageDateField format: day (2 chars), hour (2 chars), half-hour (1 char) - speci
 """
 Base.@kwdef struct HydroConstraintLIM
     constraint_id::Int
-    start_day::Union{String, Int}
-    start_hour::Union{Int, Nothing} = nothing
-    start_half::Union{Int, Nothing} = nothing
-    end_day::Union{String, Int}
-    end_hour::Union{Int, Nothing} = nothing
-    end_half::Union{Int, Nothing} = nothing
-    lower_limit::Union{Float64, Nothing} = nothing
-    upper_limit::Union{Float64, Nothing} = nothing
+    start_day::Union{String,Int}
+    start_hour::Union{Int,Nothing} = nothing
+    start_half::Union{Int,Nothing} = nothing
+    end_day::Union{String,Int}
+    end_hour::Union{Int,Nothing} = nothing
+    end_half::Union{Int,Nothing} = nothing
+    lower_limit::Union{Float64,Nothing} = nothing
+    upper_limit::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -2127,16 +2127,16 @@ Column positions: codigo_restricao (14-18), StageDateField(19) for start, StageD
 """
 Base.@kwdef struct HydroConstraintVAR
     constraint_id::Int
-    start_day::Union{String, Int}
-    start_hour::Union{Int, Nothing} = nothing
-    start_half::Union{Int, Nothing} = nothing
-    end_day::Union{String, Int}
-    end_hour::Union{Int, Nothing} = nothing
-    end_half::Union{Int, Nothing} = nothing
-    ramp_down::Union{Float64, Nothing} = nothing
-    ramp_up::Union{Float64, Nothing} = nothing
-    ramp_down_2::Union{Float64, Nothing} = nothing
-    ramp_up_2::Union{Float64, Nothing} = nothing
+    start_day::Union{String,Int}
+    start_hour::Union{Int,Nothing} = nothing
+    start_half::Union{Int,Nothing} = nothing
+    end_day::Union{String,Int}
+    end_hour::Union{Int,Nothing} = nothing
+    end_half::Union{Int,Nothing} = nothing
+    ramp_down::Union{Float64,Nothing} = nothing
+    ramp_up::Union{Float64,Nothing} = nothing
+    ramp_down_2::Union{Float64,Nothing} = nothing
+    ramp_up_2::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -2293,12 +2293,12 @@ Base.@kwdef struct DeflantRecord
     upstream_plant::Int
     downstream_element::Int
     element_type::String
-    initial_day::Union{String, Int}
-    initial_hour::Union{Int, Nothing} = nothing
-    initial_half::Union{Int, Nothing} = nothing
-    final_day::Union{String, Int}
-    final_hour::Union{Int, Nothing} = nothing
-    final_half::Union{Int, Nothing} = nothing
+    initial_day::Union{String,Int}
+    initial_hour::Union{Int,Nothing} = nothing
+    initial_half::Union{Int,Nothing} = nothing
+    final_day::Union{String,Int}
+    final_hour::Union{Int,Nothing} = nothing
+    final_half::Union{Int,Nothing} = nothing
     flow::Float64
 end
 
@@ -2338,9 +2338,9 @@ Base.@kwdef struct NetworkBus
     bus_number::Int
     name::String = ""
     subsystem::String = ""
-    generation_mw::Union{Float64, Nothing} = nothing
-    load_mw::Union{Float64, Nothing} = nothing
-    voltage_kv::Union{Float64, Nothing} = nothing
+    generation_mw::Union{Float64,Nothing} = nothing
+    load_mw::Union{Float64,Nothing} = nothing
+    voltage_kv::Union{Float64,Nothing} = nothing
 end
 
 """
@@ -2360,8 +2360,8 @@ Base.@kwdef struct NetworkLine
     from_bus::Int
     to_bus::Int
     circuit::Int
-    flow_mw::Union{Float64, Nothing} = nothing
-    capacity_mw::Union{Float64, Nothing} = nothing
+    flow_mw::Union{Float64,Nothing} = nothing
+    capacity_mw::Union{Float64,Nothing} = nothing
     constraint_name::String = ""
 end
 
@@ -2380,9 +2380,9 @@ Complete electrical network topology extracted from PDO output files.
 Base.@kwdef struct NetworkTopology
     buses::Vector{NetworkBus} = NetworkBus[]
     lines::Vector{NetworkLine} = NetworkLine[]
-    stage::Union{Int, Nothing} = nothing
+    stage::Union{Int,Nothing} = nothing
     load_level::String = ""
-    metadata::Dict{String, Any} = Dict{String, Any}()
+    metadata::Dict{String,Any} = Dict{String,Any}()
 end
 
 # ============================================================================
@@ -2397,8 +2397,8 @@ Fields
 - metadata: Dict for auxiliary info (e.g., input_dir, timestamp, version)
 """
 Base.@kwdef struct DessemData
-    files::Dict{String, Any} = Dict{String, Any}()
-    metadata::Dict{String, Any} = Dict{String, Any}()
+    files::Dict{String,Any} = Dict{String,Any}()
+    metadata::Dict{String,Any} = Dict{String,Any}()
 end
 
 # ============================================================================
@@ -2598,12 +2598,12 @@ Fixed-width columns per IDESEM:
 """
 Base.@kwdef struct RespotRP
     codigo_area::Int
-    dia_inicial::Union{Int, String}
-    hora_inicial::Union{Int, Nothing} = nothing
-    meia_hora_inicial::Union{Int, Nothing} = nothing
-    dia_final::Union{Int, String}
-    hora_final::Union{Int, Nothing} = nothing
-    meia_hora_final::Union{Int, Nothing} = nothing
+    dia_inicial::Union{Int,String}
+    hora_inicial::Union{Int,Nothing} = nothing
+    meia_hora_inicial::Union{Int,Nothing} = nothing
+    dia_final::Union{Int,String}
+    hora_final::Union{Int,Nothing} = nothing
+    meia_hora_final::Union{Int,Nothing} = nothing
     descricao::String = ""
 end
 
@@ -2636,12 +2636,12 @@ Fixed-width columns per IDESEM:
 """
 Base.@kwdef struct RespotLM
     codigo_area::Int
-    dia_inicial::Union{Int, String}
-    hora_inicial::Union{Int, Nothing} = nothing
-    meia_hora_inicial::Union{Int, Nothing} = nothing
-    dia_final::Union{Int, String}
-    hora_final::Union{Int, Nothing} = nothing
-    meia_hora_final::Union{Int, Nothing} = nothing
+    dia_inicial::Union{Int,String}
+    hora_inicial::Union{Int,Nothing} = nothing
+    meia_hora_inicial::Union{Int,Nothing} = nothing
+    dia_final::Union{Int,String}
+    hora_final::Union{Int,Nothing} = nothing
+    meia_hora_final::Union{Int,Nothing} = nothing
     limite_inferior::Float64
 end
 

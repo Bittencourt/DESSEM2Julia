@@ -73,24 +73,24 @@ function parse_init_record(line::AbstractString)
     status = parse_int(extract_field(line, 25, 26))
     initial_gen = parse_float(extract_field(line, 30, 39))
     hours = parse_int(extract_field(line, 42, 46))
-    
+
     # Optional fields (may be empty)
     mh_flag = tryparse_int(extract_field(line, 49, 49))
     ad_flag = tryparse_int(extract_field(line, 52, 52))
     t_flag = tryparse_int(extract_field(line, 55, 55))
     inflexible_limit = tryparse_float(extract_field(line, 58, 67))
-    
+
     return INITRecord(
-        plant_num=plant_num,
-        plant_name=plant_name,
-        unit_num=unit_num,
-        initial_status=status,
-        initial_generation=initial_gen,
-        hours_in_state=hours,
-        mh_flag=something(mh_flag, 0),
-        ad_flag=something(ad_flag, 0),
-        t_flag=something(t_flag, 0),
-        inflexible_limit=something(inflexible_limit, 0.0)
+        plant_num = plant_num,
+        plant_name = plant_name,
+        unit_num = unit_num,
+        initial_status = status,
+        initial_generation = initial_gen,
+        hours_in_state = hours,
+        mh_flag = something(mh_flag, 0),
+        ad_flag = something(ad_flag, 0),
+        t_flag = something(t_flag, 0),
+        inflexible_limit = something(inflexible_limit, 0.0),
     )
 end
 
@@ -123,38 +123,38 @@ function parse_oper_record(line::AbstractString)
     plant_num = parse_int(extract_field(line, 1, 3))
     plant_name = strip(extract_field(line, 5, 16))
     unit_num = parse_int(extract_field(line, 18, 19))
-    
+
     start_day = parse_int(extract_field(line, 21, 22))
     start_hour = parse_int(extract_field(line, 24, 25))
     start_half = parse_int(extract_field(line, 27, 27))
-    
+
     # End day can be "F" (final) or an integer
     end_day_str = strip(extract_field(line, 29, 30))
     end_day = end_day_str == "F" ? "F" : parse_int(end_day_str)
-    
+
     end_hour = tryparse_int(extract_field(line, 32, 33))
     end_half = tryparse_int(extract_field(line, 35, 35))
-    
+
     # Optional generation limits
     min_gen = tryparse_float(extract_field(line, 37, 46))
     max_gen = tryparse_float(extract_field(line, 47, 56))
-    
+
     # Operating cost (required)
     operating_cost = parse_float(extract_field(line, 57, 66))
-    
+
     return OPERRecord(
-        plant_num=plant_num,
-        plant_name=plant_name,
-        unit_num=unit_num,
-        start_day=start_day,
-        start_hour=start_hour,
-        start_half=start_half,
-        end_day=end_day,
-        end_hour=something(end_hour, 0),
-        end_half=something(end_half, 0),
-        min_generation=min_gen,
-        max_generation=max_gen,
-        operating_cost=operating_cost
+        plant_num = plant_num,
+        plant_name = plant_name,
+        unit_num = unit_num,
+        start_day = start_day,
+        start_hour = start_hour,
+        start_half = start_half,
+        end_day = end_day,
+        end_hour = something(end_hour, 0),
+        end_half = something(end_half, 0),
+        min_generation = min_gen,
+        max_generation = max_gen,
+        operating_cost = operating_cost,
     )
 end
 
@@ -193,7 +193,7 @@ idessem/dessem/modelos/operut.py
 function parse_operut(filepath::AbstractString)
     init_records = INITRecord[]
     oper_records = OPERRecord[]
-    
+
     # Optimization configuration blocks
     uctpar = nothing
     ucterm = nothing
@@ -209,16 +209,16 @@ function parse_operut(filepath::AbstractString)
     crossover = Int[]
     engolimento = nothing
     tratainviabilha = nothing
-    
+
     current_block = :none
-    
+
     open(filepath, "r") do file
         for line in eachline(file)
             # Skip empty lines and comments
             if isempty(strip(line)) || startswith(strip(line), "&")
                 continue
             end
-            
+
             # Configuration blocks (single-line flags)
             if occursin(r"^UCTPAR\s+", line)
                 # UCTPAR <n> - Parallel processing threads
@@ -228,7 +228,7 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^UCTERM\s+", line)
                 # UCTERM <n> - Unit commitment methodology
                 parts = split(strip(line))
@@ -237,13 +237,13 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^PINT\s*$", line)
                 # PINT - Interior points method flag
                 pint = true
                 continue
             end
-            
+
             if occursin(r"^REGRANPTV\s+", line)
                 # REGRANPTV <n1> [n2] [n3] - NPTV hydraulic production defaults
                 parts = split(strip(line))
@@ -257,7 +257,7 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^AVLCMO\s+", line)
                 # AVLCMO <n> - CMO evaluation printing
                 parts = split(strip(line))
@@ -266,19 +266,19 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^CPLEXLOG\s*$", line)
                 # CPLEXLOG - CPLEX logging flag
                 cplexlog = true
                 continue
             end
-            
+
             if occursin(r"^UCTBUSLOC\s*$", line)
                 # UCTBUSLOC - Local search flag
                 uctbusloc = true
                 continue
             end
-            
+
             if occursin(r"^UCTHEURFP\s+", line)
                 # UCTHEURFP <n1> <n2> [n3] - Feasibility Pump heuristic
                 parts = split(strip(line))
@@ -292,7 +292,7 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^CONSTDADOS\s+", line)
                 # CONSTDADOS <n1> [n2] - Data consistency
                 parts = split(strip(line))
@@ -306,13 +306,13 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^AJUSTEFCF\s*$", line)
                 # AJUSTEFCF - FCF adjustments flag
                 ajustefcf = true
                 continue
             end
-            
+
             if occursin(r"^TOLERILH\s+", line)
                 # TOLERILH <n> - Island tolerance
                 parts = split(strip(line))
@@ -321,7 +321,7 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^CROSSOVER\s+", line)
                 # CROSSOVER <n1> <n2> <n3> <n4> - Crossover method
                 parts = split(strip(line))
@@ -335,7 +335,7 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^ENGOLIMENTO\s+", line)
                 # ENGOLIMENTO <n> - Swallowing method
                 parts = split(strip(line))
@@ -344,7 +344,7 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             if occursin(r"^TRATA_INVIAB_ILHA\s+", line)
                 # TRATA_INVIAB_ILHA <n> - Island infeasibility treatment
                 parts = split(strip(line))
@@ -353,7 +353,7 @@ function parse_operut(filepath::AbstractString)
                 end
                 continue
             end
-            
+
             # Block markers
             if occursin(r"^INIT", line)
                 current_block = :init
@@ -365,7 +365,7 @@ function parse_operut(filepath::AbstractString)
                 current_block = :none
                 continue
             end
-            
+
             # Parse data lines
             try
                 if current_block == :init
@@ -374,28 +374,29 @@ function parse_operut(filepath::AbstractString)
                     push!(oper_records, parse_oper_record(line))
                 end
             catch e
-                @warn "Failed to parse line in $current_block block" line exception=(e, catch_backtrace())
+                @warn "Failed to parse line in $current_block block" line exception =
+                    (e, catch_backtrace())
             end
         end
     end
-    
+
     return OperutData(
-        init_records=init_records,
-        oper_records=oper_records,
-        uctpar=uctpar,
-        ucterm=ucterm,
-        pint=pint,
-        regranptv=regranptv,
-        avlcmo=avlcmo,
-        cplexlog=cplexlog,
-        uctbusloc=uctbusloc,
-        uctheurfp=uctheurfp,
-        constdados=constdados,
-        ajustefcf=ajustefcf,
-        tolerilh=tolerilh,
-        crossover=crossover,
-        engolimento=engolimento,
-        tratainviabilha=tratainviabilha
+        init_records = init_records,
+        oper_records = oper_records,
+        uctpar = uctpar,
+        ucterm = ucterm,
+        pint = pint,
+        regranptv = regranptv,
+        avlcmo = avlcmo,
+        cplexlog = cplexlog,
+        uctbusloc = uctbusloc,
+        uctheurfp = uctheurfp,
+        constdados = constdados,
+        ajustefcf = ajustefcf,
+        tolerilh = tolerilh,
+        crossover = crossover,
+        engolimento = engolimento,
+        tratainviabilha = tratainviabilha,
     )
 end
 

@@ -52,13 +52,17 @@ println("  Total:   $(sum(max_generation)) MW")
 println("\n5 Smallest Plants:")
 for i in 1:min(5, length(sorted_numbers))
     plant = thermal_plants[sorted_indices[i]]
-    println("  Plant $(sorted_numbers[i]) ($(plant.plant_name)): $(sorted_capacities[i]) MW")
+    println(
+        "  Plant $(sorted_numbers[i]) ($(plant.plant_name)): $(sorted_capacities[i]) MW",
+    )
 end
 
 println("\n5 Largest Plants:")
-for i in max(1, length(sorted_numbers)-4):length(sorted_numbers)
+for i in max(1, length(sorted_numbers) - 4):length(sorted_numbers)
     plant = thermal_plants[sorted_indices[i]]
-    println("  Plant $(sorted_numbers[i]) ($(plant.plant_name)): $(sorted_capacities[i]) MW")
+    println(
+        "  Plant $(sorted_numbers[i]) ($(plant.plant_name)): $(sorted_capacities[i]) MW",
+    )
 end
 
 # Create the plot
@@ -66,22 +70,25 @@ println("\nGenerating plot...")
 p = plot(
     1:length(sorted_capacities),
     sorted_capacities,
-    seriestype=:bar,
-    title="Thermal Power Plant Maximum Generation Capacity (Ordered)",
-    xlabel="Plant Index (sorted by capacity)",
-    ylabel="Maximum Generation (MW)",
-    legend=false,
-    color=:steelblue,
-    size=(1000, 600),
-    margin=5Plots.mm
+    seriestype = :bar,
+    title = "Thermal Power Plant Maximum Generation Capacity (Ordered)",
+    xlabel = "Plant Index (sorted by capacity)",
+    ylabel = "Maximum Generation (MW)",
+    legend = false,
+    color = :steelblue,
+    size = (1000, 600),
+    margin = 5Plots.mm,
 )
 
 # Add horizontal line for average capacity
-hline!(p, [sum(max_generation)/length(max_generation)], 
-       color=:red, 
-       linestyle=:dash, 
-       linewidth=2,
-       label="Average Capacity")
+hline!(
+    p,
+    [sum(max_generation) / length(max_generation)],
+    color = :red,
+    linestyle = :dash,
+    linewidth = 2,
+    label = "Average Capacity",
+)
 
 # Save the plot
 output_file = joinpath(@__DIR__, "thermal_costs.png")

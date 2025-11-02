@@ -21,7 +21,7 @@ println("Testing: $(basename(ons_dir))\n")
 original_logger = global_logger()
 global_logger(SimpleLogger(stderr, Logging.Error))
 
-results = Dict{String, Bool}()
+results = Dict{String,Bool}()
 
 # Test 1: dessem.arq
 print("1. dessem.arq parsing... ")
@@ -63,11 +63,13 @@ try
     println("   Subsystems: $(length(general.subsystems))")
     println("   Hydro plants: $(length(general.hydro_plants))")
     println("   Demand records: $(length(general.demands))")
-    
+
     # Check network flags
     network_periods = sum(p.network_flag for p in general.time_periods)
     if network_periods > 0
-        println("   ⚠️  Network modeling: $network_periods/$(length(general.time_periods)) periods")
+        println(
+            "   ⚠️  Network modeling: $network_periods/$(length(general.time_periods)) periods",
+        )
     else
         println("   ℹ️  Network modeling: disabled (all periods)")
     end

@@ -40,38 +40,38 @@ access to each mnemonic, while the `files` vector preserves the declaration
 order as `DessemFileRecord` entries for iteration.
 """
 Base.@kwdef struct DessemArq
-    caso::Union{String, Nothing} = nothing
-    titulo::Union{String, Nothing} = nothing
-    vazoes::Union{String, Nothing} = nothing
-    dadger::Union{String, Nothing} = nothing
-    mapfcf::Union{String, Nothing} = nothing
-    cortfcf::Union{String, Nothing} = nothing
-    cadusih::Union{String, Nothing} = nothing
-    operuh::Union{String, Nothing} = nothing
-    deflant::Union{String, Nothing} = nothing
-    cadterm::Union{String, Nothing} = nothing
-    operut::Union{String, Nothing} = nothing
-    indelet::Union{String, Nothing} = nothing
-    ilstri::Union{String, Nothing} = nothing
-    cotasr11::Union{String, Nothing} = nothing
-    simul::Union{String, Nothing} = nothing
-    areacont::Union{String, Nothing} = nothing
-    respot::Union{String, Nothing} = nothing
-    mlt::Union{String, Nothing} = nothing
-    tolperd::Union{String, Nothing} = nothing
-    curvtviag::Union{String, Nothing} = nothing
-    ptoper::Union{String, Nothing} = nothing
-    infofcf::Union{String, Nothing} = nothing
-    meta::Union{String, Nothing} = nothing
-    ree::Union{String, Nothing} = nothing
-    eolica::Union{String, Nothing} = nothing
-    rampas::Union{String, Nothing} = nothing
-    rstlpp::Union{String, Nothing} = nothing
-    restseg::Union{String, Nothing} = nothing
-    respotele::Union{String, Nothing} = nothing
-    ilibs::Union{String, Nothing} = nothing
-    dessopc::Union{String, Nothing} = nothing
-    rmpflx::Union{String, Nothing} = nothing
+    caso::Union{String,Nothing} = nothing
+    titulo::Union{String,Nothing} = nothing
+    vazoes::Union{String,Nothing} = nothing
+    dadger::Union{String,Nothing} = nothing
+    mapfcf::Union{String,Nothing} = nothing
+    cortfcf::Union{String,Nothing} = nothing
+    cadusih::Union{String,Nothing} = nothing
+    operuh::Union{String,Nothing} = nothing
+    deflant::Union{String,Nothing} = nothing
+    cadterm::Union{String,Nothing} = nothing
+    operut::Union{String,Nothing} = nothing
+    indelet::Union{String,Nothing} = nothing
+    ilstri::Union{String,Nothing} = nothing
+    cotasr11::Union{String,Nothing} = nothing
+    simul::Union{String,Nothing} = nothing
+    areacont::Union{String,Nothing} = nothing
+    respot::Union{String,Nothing} = nothing
+    mlt::Union{String,Nothing} = nothing
+    tolperd::Union{String,Nothing} = nothing
+    curvtviag::Union{String,Nothing} = nothing
+    ptoper::Union{String,Nothing} = nothing
+    infofcf::Union{String,Nothing} = nothing
+    meta::Union{String,Nothing} = nothing
+    ree::Union{String,Nothing} = nothing
+    eolica::Union{String,Nothing} = nothing
+    rampas::Union{String,Nothing} = nothing
+    rstlpp::Union{String,Nothing} = nothing
+    restseg::Union{String,Nothing} = nothing
+    respotele::Union{String,Nothing} = nothing
+    ilibs::Union{String,Nothing} = nothing
+    dessopc::Union{String,Nothing} = nothing
+    rmpflx::Union{String,Nothing} = nothing
     files::Vector{DessemFileRecord} = DessemFileRecord[]
 end
 
@@ -108,18 +108,18 @@ println(arq.simul)    # nothing (commented out)
 """
 function parse_dessemarq(filepath::String)::DessemArq
     # Dictionary to collect file mappings and ordered registry
-    files = Dict{Symbol, String}()
+    files = Dict{Symbol,String}()
     records = DessemFileRecord[]
-    
+
     try
         open(filepath, "r") do io
             for (line_num, line) in enumerate(eachline(io))
                 # Skip empty lines
                 isempty(strip(line)) && continue
-                
+
                 # Skip comment lines (starting with &)
                 startswith(line, '&') && continue
-                
+
                 # Parse the line using fixed-width format
                 # Format: MNEMONIC (col 1-10) DESCRIPTION (col 11-50) FILENAME (col 51+)
                 if length(line) < 51
@@ -182,7 +182,7 @@ function parse_dessemarq(filepath::String)::DessemArq
             rethrow(e)
         end
     end
-    
+
     # Construct the DessemArq struct from the parsed files
     return DessemArq(
         caso = get(files, :caso, nothing),

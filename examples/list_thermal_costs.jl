@@ -38,7 +38,7 @@ println("Found $(length(oper_records)) thermal unit operating cost records\n")
 
 # Group by plant+unit and collect cost data
 # Note: OPER records may have time-varying costs, so we take the first record for each unit
-unit_costs = Dict{Tuple{Int,Int}, Tuple{String, Float64}}()  # (plant_num, unit_num) => (plant_name, cost)
+unit_costs = Dict{Tuple{Int,Int},Tuple{String,Float64}}()  # (plant_num, unit_num) => (plant_name, cost)
 
 for record in oper_records
     key = (record.plant_num, record.unit_num)
@@ -48,8 +48,10 @@ for record in oper_records
 end
 
 # Convert to vector for sorting
-cost_data = [(plant_num, unit_num, plant_name, cost) 
-             for ((plant_num, unit_num), (plant_name, cost)) in unit_costs]
+cost_data = [
+    (plant_num, unit_num, plant_name, cost) for
+    ((plant_num, unit_num), (plant_name, cost)) in unit_costs
+]
 
 # Sort by cost (ascending)
 sort!(cost_data, by = x -> x[4])
@@ -66,7 +68,9 @@ println("-"^70)
 for (rank, (plant_num, unit_num, plant_name, cost)) in enumerate(cost_data)
     # Format plant name to 17 characters (pad or truncate)
     name_formatted = rpad(plant_name[1:min(length(plant_name), 17)], 17)
-    println("$(lpad(rank, 4)) | $(lpad(plant_num, 7)) | $(lpad(unit_num, 4)) | $(name_formatted) | $(lpad(round(cost, digits=2), 13))")
+    println(
+        "$(lpad(rank, 4)) | $(lpad(plant_num, 7)) | $(lpad(unit_num, 4)) | $(name_formatted) | $(lpad(round(cost, digits=2), 13))",
+    )
 end
 
 println()
@@ -90,7 +94,9 @@ println("="^70)
 println()
 for i in 1:min(10, length(cost_data))
     plant_num, unit_num, plant_name, cost = cost_data[i]
-    println("  $i. Plant $(plant_num) Unit $(unit_num) - $(plant_name): $(round(cost, digits=2)) R\$/MWh")
+    println(
+        "  $i. Plant $(plant_num) Unit $(unit_num) - $(plant_name): $(round(cost, digits=2)) R\$/MWh",
+    )
 end
 println()
 
@@ -103,7 +109,9 @@ start_idx = max(1, length(cost_data) - 9)
 for i in start_idx:length(cost_data)
     rank = i - start_idx + 1
     plant_num, unit_num, plant_name, cost = cost_data[i]
-    println("  $rank. Plant $(plant_num) Unit $(unit_num) - $(plant_name): $(round(cost, digits=2)) R\$/MWh")
+    println(
+        "  $rank. Plant $(plant_num) Unit $(unit_num) - $(plant_name): $(round(cost, digits=2)) R\$/MWh",
+    )
 end
 println()
 
@@ -120,12 +128,12 @@ ranges = [
     (100.0, 200.0, "Medium (100-200)"),
     (200.0, 300.0, "High (200-300)"),
     (300.0, 500.0, "Very High (300-500)"),
-    (500.0, Inf, "Extreme (> 500)")
+    (500.0, Inf, "Extreme (> 500)"),
 ]
 
 for (low, high, label) in ranges
     count = sum(low ≤ c < high for c in costs)
-    percentage = round(100 * count / length(costs), digits=1)
+    percentage = round(100 * count / length(costs), digits = 1)
     println("  $(rpad(label, 25)): $(lpad(count, 3)) units ($(lpad(percentage, 5))%)")
 end
 

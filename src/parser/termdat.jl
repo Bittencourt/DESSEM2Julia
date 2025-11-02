@@ -41,46 +41,52 @@ function parse_cadusit(line::AbstractString, file::String, line_num::Int)
     # Note: Actual format differs from documentation
     # Documentation says num_units at 44-46, but real files have it at 44-48 (right-aligned)
     # Optional fields (heat_rate, fuel_cost) may or may not be present depending on file version
-    
+
     # Base fields always present
     specs = [
-        FieldSpec(:record_type, 1, 7, String; required=true),
-        FieldSpec(:plant_num, 9, 11, Int; required=true),
-        FieldSpec(:plant_name, 13, 24, String; required=true),
-        FieldSpec(:subsystem, 26, 27, Int; required=true),
+        FieldSpec(:record_type, 1, 7, String; required = true),
+        FieldSpec(:plant_num, 9, 11, Int; required = true),
+        FieldSpec(:plant_name, 13, 24, String; required = true),
+        FieldSpec(:subsystem, 26, 27, Int; required = true),
         FieldSpec(:commission_year, 29, 32, Int),
         FieldSpec(:commission_month, 34, 35, Int),
         FieldSpec(:commission_day, 37, 38, Int),
-        FieldSpec(:plant_class, 40, 40, Int; default=0),
-        FieldSpec(:fuel_type, 42, 42, Int; default=0),
-        FieldSpec(:num_units, 44, 48, Int; required=true),  # Right-aligned in columns 44-48
+        FieldSpec(:plant_class, 40, 40, Int; default = 0),
+        FieldSpec(:fuel_type, 42, 42, Int; default = 0),
+        FieldSpec(:num_units, 44, 48, Int; required = true),  # Right-aligned in columns 44-48
     ]
-    
+
     # Optional fields only if line is long enough
     if length(line) >= 57
-        push!(specs, FieldSpec(:heat_rate, 48, 57, Float64; default=0.0))
+        push!(specs, FieldSpec(:heat_rate, 48, 57, Float64; default = 0.0))
     end
     if length(line) >= 63
-        push!(specs, FieldSpec(:fuel_cost, 59, 63, Float64; default=0.0))
+        push!(specs, FieldSpec(:fuel_cost, 59, 63, Float64; default = 0.0))
     end
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "CADUSIT"
-        throw(ParserError(file, line_num, line, 
-            "Expected CADUSIT record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected CADUSIT record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant number
     validate_range(data.plant_num, 1, 999, "plant_num")
-    
+
     # Validate subsystem
     validate_positive(data.subsystem, "subsystem")
-    
+
     # Validate number of units
     validate_range(data.num_units, 1, 120, "num_units")
-    
+
     # Validate optional fields
     if !isnothing(data.commission_month)
         validate_range(data.commission_month, 1, 12, "commission_month")
@@ -88,16 +94,16 @@ function parse_cadusit(line::AbstractString, file::String, line_num::Int)
     if !isnothing(data.commission_day)
         validate_range(data.commission_day, 1, 31, "commission_day")
     end
-    
+
     # Validate optional numeric fields if present
     heat_rate = hasfield(typeof(data), :heat_rate) ? data.heat_rate : 0.0
     fuel_cost = hasfield(typeof(data), :fuel_cost) ? data.fuel_cost : 0.0
-    
+
     if heat_rate != 0.0
         validate_positive(heat_rate, "heat_rate")
     end
     validate_nonnegative(fuel_cost, "fuel_cost")
-    
+
     return CADUSIT(
         plant_num = data.plant_num,
         plant_name = data.plant_name,
@@ -109,7 +115,7 @@ function parse_cadusit(line::AbstractString, file::String, line_num::Int)
         fuel_type = data.fuel_type,
         num_units = data.num_units,
         heat_rate = heat_rate,
-        fuel_cost = fuel_cost
+        fuel_cost = fuel_cost,
     )
 end
 
@@ -141,63 +147,75 @@ Columns 107-116: Ramp down rate
 function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     # Base fields always present in sample files
     specs = [
-        FieldSpec(:record_type, 1, 8, String; required=true),
-        FieldSpec(:plant_num, 10, 12, Int; required=true),
-        FieldSpec(:unit_num, 14, 16, Int; required=true),
+        FieldSpec(:record_type, 1, 8, String; required = true),
+        FieldSpec(:plant_num, 10, 12, Int; required = true),
+        FieldSpec(:unit_num, 14, 16, Int; required = true),
         FieldSpec(:commission_year, 17, 20, Int),
         FieldSpec(:commission_month, 22, 23, Int),
         FieldSpec(:commission_day, 25, 26, Int),
         FieldSpec(:commission_hour, 28, 29, Int),
-        FieldSpec(:unit_class, 31, 31, Int; default=0),
-        FieldSpec(:unit_capacity, 33, 43, Float64; required=true),
-        FieldSpec(:min_generation, 45, 54, Float64; default=0.0),
-        FieldSpec(:min_on_time, 56, 60, Int; default=0),
-        FieldSpec(:min_off_time, 62, 66, Int; default=0),
+        FieldSpec(:unit_class, 31, 31, Int; default = 0),
+        FieldSpec(:unit_capacity, 33, 43, Float64; required = true),
+        FieldSpec(:min_generation, 45, 54, Float64; default = 0.0),
+        FieldSpec(:min_on_time, 56, 60, Int; default = 0),
+        FieldSpec(:min_off_time, 62, 66, Int; default = 0),
     ]
-    
+
     # Optional fields only if line extends beyond basic format (>70 chars suggests extended format)
     # Note: Sample files are 66 chars; documentation shows extended format with more fields
     if length(line) > 70
-        push!(specs, FieldSpec(:cold_startup_cost, 68, 77, Float64; default=0.0))
+        push!(specs, FieldSpec(:cold_startup_cost, 68, 77, Float64; default = 0.0))
         if length(line) >= 85
-            push!(specs, FieldSpec(:hot_startup_cost, 79, 88, Float64; default=0.0))
+            push!(specs, FieldSpec(:hot_startup_cost, 79, 88, Float64; default = 0.0))
         end
         if length(line) >= 96
-            push!(specs, FieldSpec(:shutdown_cost, 90, 99, Float64; default=0.0))
+            push!(specs, FieldSpec(:shutdown_cost, 90, 99, Float64; default = 0.0))
         end
         if length(line) >= 107
-            push!(specs, FieldSpec(:ramp_up_rate, 101, 110, Float64; default=Inf))
+            push!(specs, FieldSpec(:ramp_up_rate, 101, 110, Float64; default = Inf))
         end
         if length(line) >= 118
-            push!(specs, FieldSpec(:ramp_down_rate, 112, 121, Float64; default=Inf))
+            push!(specs, FieldSpec(:ramp_down_rate, 112, 121, Float64; default = Inf))
         end
     end
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "CADUNIDT"
-        throw(ParserError(file, line_num, line,
-            "Expected CADUNIDT record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected CADUNIDT record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate plant and unit numbers
     validate_range(data.plant_num, 1, 999, "plant_num")
     validate_range(data.unit_num, 1, 120, "unit_num")
-    
+
     # Validate capacity and generation
     validate_positive(data.unit_capacity, "unit_capacity")
     validate_nonnegative(data.min_generation, "min_generation")
-    
+
     if data.min_generation > data.unit_capacity
-        throw(ParserError(file, line_num, line,
-            "Minimum generation ($(data.min_generation) MW) exceeds unit capacity ($(data.unit_capacity) MW)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Minimum generation ($(data.min_generation) MW) exceeds unit capacity ($(data.unit_capacity) MW)",
+            ),
+        )
     end
-    
+
     # Validate time constraints
     validate_nonnegative(data.min_on_time, "min_on_time")
     validate_nonnegative(data.min_off_time, "min_off_time")
-    
+
     # Validate optional fields if present
     if !isnothing(data.commission_month)
         validate_range(data.commission_month, 1, 12, "commission_month")
@@ -208,19 +226,21 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     if !isnothing(data.commission_hour)
         validate_range(data.commission_hour, 0, 23, "commission_hour")
     end
-    
+
     # Extract optional fields with defaults if not present
-    cold_startup_cost = hasfield(typeof(data), :cold_startup_cost) ? data.cold_startup_cost : 0.0
-    hot_startup_cost = hasfield(typeof(data), :hot_startup_cost) ? data.hot_startup_cost : 0.0
+    cold_startup_cost =
+        hasfield(typeof(data), :cold_startup_cost) ? data.cold_startup_cost : 0.0
+    hot_startup_cost =
+        hasfield(typeof(data), :hot_startup_cost) ? data.hot_startup_cost : 0.0
     shutdown_cost = hasfield(typeof(data), :shutdown_cost) ? data.shutdown_cost : 0.0
     ramp_up_rate = hasfield(typeof(data), :ramp_up_rate) ? data.ramp_up_rate : Inf
     ramp_down_rate = hasfield(typeof(data), :ramp_down_rate) ? data.ramp_down_rate : Inf
-    
+
     # Validate costs if present
     validate_nonnegative(cold_startup_cost, "cold_startup_cost")
     validate_nonnegative(hot_startup_cost, "hot_startup_cost")
     validate_nonnegative(shutdown_cost, "shutdown_cost")
-    
+
     # Validate ramp rates if not infinite
     if !isinf(ramp_up_rate)
         validate_nonnegative(ramp_up_rate, "ramp_up_rate")
@@ -228,7 +248,7 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     if !isinf(ramp_down_rate)
         validate_nonnegative(ramp_down_rate, "ramp_down_rate")
     end
-    
+
     return CADUNIDT(
         plant_num = data.plant_num,
         unit_num = data.unit_num,
@@ -242,7 +262,7 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
         hot_startup_cost = hot_startup_cost,
         shutdown_cost = shutdown_cost,
         ramp_up_rate = ramp_up_rate,
-        ramp_down_rate = ramp_down_rate
+        ramp_down_rate = ramp_down_rate,
     )
 end
 
@@ -260,34 +280,40 @@ Columns 25-34: Generation point (MW)
 """
 function parse_curvacomb(line::AbstractString, file::String, line_num::Int)
     specs = [
-        FieldSpec(:record_type, 1, 9, String; required=true),
-        FieldSpec(:plant_num, 11, 13, Int; required=true),
-        FieldSpec(:unit_num, 15, 17, Int; required=true),
-        FieldSpec(:heat_rate, 19, 23, Int; required=true),
-        FieldSpec(:generation, 25, 34, Float64; required=true),
+        FieldSpec(:record_type, 1, 9, String; required = true),
+        FieldSpec(:plant_num, 11, 13, Int; required = true),
+        FieldSpec(:unit_num, 15, 17, Int; required = true),
+        FieldSpec(:heat_rate, 19, 23, Int; required = true),
+        FieldSpec(:generation, 25, 34, Float64; required = true),
     ]
-    
-    data = extract_fields(line, specs, file=file, line_num=line_num)
-    
+
+    data = extract_fields(line, specs, file = file, line_num = line_num)
+
     # Validate record type
     if data.record_type != "CURVACOMB"
-        throw(ParserError(file, line_num, line,
-            "Expected CURVACOMB record, got $(data.record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected CURVACOMB record, got $(data.record_type)",
+            ),
+        )
     end
-    
+
     # Validate identifiers
     validate_range(data.plant_num, 1, 999, "plant_num")
     validate_range(data.unit_num, 1, 120, "unit_num")
-    
+
     # Validate heat rate and generation
     validate_positive(data.heat_rate, "heat_rate")
     validate_nonnegative(data.generation, "generation")
-    
+
     return CURVACOMB(
         plant_num = data.plant_num,
         unit_num = data.unit_num,
         heat_rate = data.heat_rate,
-        generation = data.generation
+        generation = data.generation,
     )
 end
 
@@ -306,34 +332,64 @@ function parse_cadconf(line::AbstractString, file::String, line_num::Int)
     record_type = parts[1]
 
     if record_type != "CADCONF"
-        throw(ParserError(file, line_num, line,
-            "Expected CADCONF record, got $(record_type)"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Expected CADCONF record, got $(record_type)",
+            ),
+        )
     end
 
     if length(parts) < 4
-        throw(ParserError(file, line_num, line,
-            "CADCONF record must include plant, configuration, and unit identifiers"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "CADCONF record must include plant, configuration, and unit identifiers",
+            ),
+        )
     end
 
     plant_num = try
         parse_int(parts[2])
     catch err
-        throw(ParserError(file, line_num, line,
-            "Invalid plant number in CADCONF record: $(parts[2])"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Invalid plant number in CADCONF record: $(parts[2])",
+            ),
+        )
     end
 
     configuration = try
         parse_int(parts[3])
     catch err
-        throw(ParserError(file, line_num, line,
-            "Invalid configuration number in CADCONF record: $(parts[3])"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Invalid configuration number in CADCONF record: $(parts[3])",
+            ),
+        )
     end
 
     unit_num = try
         parse_int(parts[4])
     catch err
-        throw(ParserError(file, line_num, line,
-            "Invalid unit number in CADCONF record: $(parts[4])"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Invalid unit number in CADCONF record: $(parts[4])",
+            ),
+        )
     end
 
     validate_range(plant_num, 1, 999, "plant_num")
@@ -362,45 +418,66 @@ function parse_cadmin(line::AbstractString, file::String, line_num::Int)
     record_type = parts[1]
 
     if record_type != "CADMIN"
-        throw(ParserError(file, line_num, line,
-            "Expected CADMIN record, got $(record_type)"))
+        throw(
+            ParserError(file, line_num, line, "Expected CADMIN record, got $(record_type)"),
+        )
     end
 
     if length(parts) < 4
-        throw(ParserError(file, line_num, line,
-            "CADMIN record must include plant, configuration, and unit identifiers"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "CADMIN record must include plant, configuration, and unit identifiers",
+            ),
+        )
     end
 
     plant_num = try
         parse_int(parts[2])
     catch err
-        throw(ParserError(file, line_num, line,
-            "Invalid plant number in CADMIN record: $(parts[2])"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Invalid plant number in CADMIN record: $(parts[2])",
+            ),
+        )
     end
 
     configuration = try
         parse_int(parts[3])
     catch err
-        throw(ParserError(file, line_num, line,
-            "Invalid configuration number in CADMIN record: $(parts[3])"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Invalid configuration number in CADMIN record: $(parts[3])",
+            ),
+        )
     end
 
     unit_num = try
         parse_int(parts[4])
     catch err
-        throw(ParserError(file, line_num, line,
-            "Invalid unit number in CADMIN record: $(parts[4])"))
+        throw(
+            ParserError(
+                file,
+                line_num,
+                line,
+                "Invalid unit number in CADMIN record: $(parts[4])",
+            ),
+        )
     end
 
     validate_range(plant_num, 1, 999, "plant_num")
     validate_range(configuration, 1, 999, "configuration")
     validate_range(unit_num, 1, 999, "unit_num")
 
-    return CADMIN(
-        plant_num = plant_num,
-        configuration = configuration,
-        unit_num = unit_num,
-    )
+    return CADMIN(plant_num = plant_num, configuration = configuration, unit_num = unit_num)
 end
 
 """
@@ -427,15 +504,15 @@ function parse_termdat(filepath::AbstractString)
     heat_curves = CURVACOMB[]
     combined_configs = CADCONF[]
     simple_configs = CADMIN[]
-    
+
     filename = basename(filepath)
-    lines = read_nonblank_lines(filepath, skip_comments=true)
-    
+    lines = read_nonblank_lines(filepath, skip_comments = true)
+
     for (line_num, line) in enumerate(lines)
         # Determine record type from first word
         # CADUSIT is 7 chars, CADUNIDT is 8 chars, CURVACOMB is 9 chars
         record_type = strip(extract_field(line, 1, 9))
-        
+
         try
             if startswith(record_type, "CADUSIT")
                 push!(plants, parse_cadusit(line, filename, line_num))
@@ -447,7 +524,8 @@ function parse_termdat(filepath::AbstractString)
                 push!(combined_configs, parse_cadconf(line, filename, line_num))
             elseif startswith(record_type, "CADMIN")
                 push!(simple_configs, parse_cadmin(line, filename, line_num))
-            elseif startswith(record_type, "CONFGEST") || startswith(record_type, "RESTRICOES")
+            elseif startswith(record_type, "CONFGEST") ||
+                   startswith(record_type, "RESTRICOES")
                 # These record types not yet implemented - skip for now
                 continue
             else
@@ -461,12 +539,18 @@ function parse_termdat(filepath::AbstractString)
                 rethrow(e)
             else
                 # Wrap other errors with context
-                throw(ParserError(filename, line_num, line,
-                    "Error parsing $record_type record: $(sprint(showerror, e))"))
+                throw(
+                    ParserError(
+                        filename,
+                        line_num,
+                        line,
+                        "Error parsing $record_type record: $(sprint(showerror, e))",
+                    ),
+                )
             end
         end
     end
-    
+
     return ThermalRegistry(
         plants = plants,
         units = units,

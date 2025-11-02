@@ -32,7 +32,12 @@ From IDESEM renovaveis.py:
 
 module RenovaveisParser
 
-using ..DESSEM2Julia: RenovaveisRecord, RenovaveisSubsystemRecord, RenovaveisBusRecord, RenovaveisGenerationRecord, RenovaveisData
+using ..DESSEM2Julia:
+    RenovaveisRecord,
+    RenovaveisSubsystemRecord,
+    RenovaveisBusRecord,
+    RenovaveisGenerationRecord,
+    RenovaveisData
 using ..ParserCommon: is_comment_line, is_blank
 
 """
@@ -64,46 +69,52 @@ EOLICA ;    1 ;5G260  _MMGD_F_260_00260_MGD             ;      9999 ;1.0 ;0;
 # Returns
 - `RenovaveisRecord` with parsed fields
 """
-function parse_renovaveis_record(line::AbstractString, filename::AbstractString, line_num::Int)
+function parse_renovaveis_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)
     # Split by semicolon
     parts = split(line, ';')
-    
+
     # Should have at least 7 parts (record type + 5 fields + trailing empty)
     if length(parts) < 6
-        error("Line $line_num in $filename: Expected at least 6 semicolon-separated fields, got $(length(parts))")
+        error(
+            "Line $line_num in $filename: Expected at least 6 semicolon-separated fields, got $(length(parts))",
+        )
     end
-    
+
     # Extract and parse fields
     record_type = strip(parts[1])
     if record_type != "EOLICA"
         error("Line $line_num in $filename: Expected 'EOLICA', got '$record_type'")
     end
-    
+
     # Plant code (field 2)
     plant_code_str = strip(parts[2])
     plant_code = parse(Int, plant_code_str)
-    
+
     # Plant name (field 3) - keep original spacing
     plant_name = strip(parts[3])
-    
+
     # Maximum power (field 4)
     pmax_str = strip(parts[4])
     pmax = parse(Float64, pmax_str)
-    
+
     # Capacity factor (field 5)
     fcap_str = strip(parts[5])
     fcap = parse(Float64, fcap_str)
-    
+
     # Cadastro flag (field 6)
     cadastro_str = strip(parts[6])
     cadastro = parse(Int, cadastro_str)
-    
+
     return RenovaveisRecord(
-        plant_code=plant_code,
-        plant_name=plant_name,
-        pmax=pmax,
-        fcap=fcap,
-        cadastro=cadastro
+        plant_code = plant_code,
+        plant_name = plant_name,
+        pmax = pmax,
+        fcap = fcap,
+        cadastro = cadastro,
     )
 end
 
@@ -125,20 +136,23 @@ idessem/dessem/modelos/renovaveis.py - EOLICASUBM class
 EOLICASUBM ;    1 ;SE ;
 ```
 """
-function parse_renovaveis_subsystem_record(line::AbstractString, filename::AbstractString, line_num::Int)
+function parse_renovaveis_subsystem_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)
     parts = split(line, ';')
-    
+
     if length(parts) < 3
-        error("Line $line_num in $filename: Expected at least 3 fields for EOLICASUBM, got $(length(parts))")
+        error(
+            "Line $line_num in $filename: Expected at least 3 fields for EOLICASUBM, got $(length(parts))",
+        )
     end
-    
+
     plant_code = parse(Int, strip(parts[2]))
     subsystem = strip(parts[3])
-    
-    return RenovaveisSubsystemRecord(
-        plant_code=plant_code,
-        subsystem=subsystem
-    )
+
+    return RenovaveisSubsystemRecord(plant_code = plant_code, subsystem = subsystem)
 end
 
 """
@@ -159,20 +173,23 @@ idessem/dessem/modelos/renovaveis.py - EOLICABARRA class
 EOLICABARRA ;    1 ;00260 ;
 ```
 """
-function parse_renovaveis_bus_record(line::AbstractString, filename::AbstractString, line_num::Int)
+function parse_renovaveis_bus_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)
     parts = split(line, ';')
-    
+
     if length(parts) < 3
-        error("Line $line_num in $filename: Expected at least 3 fields for EOLICABARRA, got $(length(parts))")
+        error(
+            "Line $line_num in $filename: Expected at least 3 fields for EOLICABARRA, got $(length(parts))",
+        )
     end
-    
+
     plant_code = parse(Int, strip(parts[2]))
     bus_code = parse(Int, strip(parts[3]))
-    
-    return RenovaveisBusRecord(
-        plant_code=plant_code,
-        bus_code=bus_code
-    )
+
+    return RenovaveisBusRecord(plant_code = plant_code, bus_code = bus_code)
 end
 
 """
@@ -199,13 +216,19 @@ idessem/dessem/modelos/renovaveis.py - EOLICAGERACAO class
 EOLICA-GERACAO ;    1 ;28 ; 0 ;0 ;28 ; 6 ;0 ;         0 ;
 ```
 """
-function parse_renovaveis_generation_record(line::AbstractString, filename::AbstractString, line_num::Int)
+function parse_renovaveis_generation_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)
     parts = split(line, ';')
-    
+
     if length(parts) < 9
-        error("Line $line_num in $filename: Expected at least 9 fields for EOLICA-GERACAO, got $(length(parts))")
+        error(
+            "Line $line_num in $filename: Expected at least 9 fields for EOLICA-GERACAO, got $(length(parts))",
+        )
     end
-    
+
     plant_code = parse(Int, strip(parts[2]))
     start_day = parse(Int, strip(parts[3]))
     start_hour = parse(Int, strip(parts[4]))
@@ -214,16 +237,16 @@ function parse_renovaveis_generation_record(line::AbstractString, filename::Abst
     end_hour = parse(Int, strip(parts[7]))
     end_half_hour = parse(Int, strip(parts[8]))
     generation = parse(Float64, strip(parts[9]))
-    
+
     return RenovaveisGenerationRecord(
-        plant_code=plant_code,
-        start_day=start_day,
-        start_hour=start_hour,
-        start_half_hour=start_half_hour,
-        end_day=end_day,
-        end_hour=end_hour,
-        end_half_hour=end_half_hour,
-        generation=generation
+        plant_code = plant_code,
+        start_day = start_day,
+        start_hour = start_hour,
+        start_half_hour = start_half_hour,
+        end_day = end_day,
+        end_hour = end_hour,
+        end_half_hour = end_half_hour,
+        generation = generation,
     )
 end
 
@@ -268,15 +291,15 @@ function parse_renovaveis(io::IO, filename::AbstractString)
     subsystem_mappings = RenovaveisSubsystemRecord[]
     bus_mappings = RenovaveisBusRecord[]
     generation_forecasts = RenovaveisGenerationRecord[]
-    
+
     for (line_num, line) in enumerate(eachline(io))
         # Skip comments and blank lines
         is_comment_line(line) && continue
         is_blank(line) && continue
-        
+
         # Determine record type
         record_type = strip(split(line, ';')[1])
-        
+
         try
             if record_type == "EOLICA"
                 record = parse_renovaveis_record(line, filename, line_num)
@@ -294,16 +317,17 @@ function parse_renovaveis(io::IO, filename::AbstractString)
                 @warn "Unknown record type '$record_type' at line $line_num in $filename"
             end
         catch e
-            @warn "Failed to parse line $line_num in $filename: $line" exception=(e, catch_backtrace())
+            @warn "Failed to parse line $line_num in $filename: $line" exception =
+                (e, catch_backtrace())
             continue
         end
     end
-    
+
     return RenovaveisData(
-        plants=plants,
-        subsystem_mappings=subsystem_mappings,
-        bus_mappings=bus_mappings,
-        generation_forecasts=generation_forecasts
+        plants = plants,
+        subsystem_mappings = subsystem_mappings,
+        bus_mappings = bus_mappings,
+        generation_forecasts = generation_forecasts,
     )
 end
 
@@ -323,6 +347,10 @@ function parse_renovaveis(filename::AbstractString)
     return open(io -> parse_renovaveis(io, filename), filename)
 end
 
-export parse_renovaveis, parse_renovaveis_record, parse_renovaveis_subsystem_record, parse_renovaveis_bus_record, parse_renovaveis_generation_record
+export parse_renovaveis,
+    parse_renovaveis_record,
+    parse_renovaveis_subsystem_record,
+    parse_renovaveis_bus_record,
+    parse_renovaveis_generation_record
 
 end  # module RenovaveisParser
