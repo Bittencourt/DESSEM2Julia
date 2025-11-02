@@ -113,6 +113,29 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - Public API: `src/api.jl`
 - Tests: `test/runtests.jl`, `test/*_tests.jl`
 
+## Linting and formatting
+
+We enforce consistent formatting in CI using JuliaFormatter. The CI lint job runs the formatter and fails if any diffs are produced.
+
+- Config: `.JuliaFormatter.toml`
+- Line endings: `.gitattributes` enforces LF for `.jl`, `.toml`, `.yml`, `.yaml`, `.json` to avoid CRLF/LF drift
+- CI: `.github/workflows/ci.yml` includes a "Lint (JuliaFormatter)" job that prints a unified diff when changes are needed
+
+Run locally in a temporary environment (does not touch `Project.toml`):
+
+```powershell
+julia --project=. scripts/format_ci.jl
+```
+
+Alternatively (will add JuliaFormatter to your active environment):
+
+```powershell
+julia -e "using Pkg; Pkg.add(;name=\"JuliaFormatter\", version=\"1\"); using JuliaFormatter; format(\".\", verbose=true)"
+```
+
+Notes for Windows:
+- The pre-commit hook may not run if `julia.exe` isn’t on the expected path; if needed, commit with `--no-verify` and run the formatter manually.
+- If you see CI lint failures, open the lint job logs; it now prints a unified diff to show exactly what to change.
 ## Current Status
 
 ### ✅ Core Type System - Production Ready ⭐ NEW

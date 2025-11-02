@@ -1,6 +1,6 @@
 # Repository Structure Guide
 
-**Last Updated**: October 12, 2025  
+**Last Updated**: November 2, 2025  
 **Purpose**: This document describes the organized structure of the DESSEM2Julia repository.
 
 ## Directory Organization
@@ -13,6 +13,7 @@ DESSEM2Julia/
 ├── Manifest.toml               # Julia dependency lock file (gitignored)
 ├── .gitignore                  # Git exclusion patterns
 ├── .gitattributes              # Git line-ending configuration
+├── .JuliaFormatter.toml        # JuliaFormatter configuration
 ├── .github/                    # GitHub Actions CI/CD workflows
 ├── .githooks/                  # Git hooks (pre-commit tests)
 ├── .vscode/                    # VS Code workspace settings
@@ -162,13 +163,17 @@ julia --project=. examples/test_operuh_parse.jl
 
 ```
 scripts/
-└── setup-hooks.ps1            # Git hooks installation (pre-commit testing)
+├── setup-hooks.ps1            # Git hooks installation (pre-commit testing)
+└── format_ci.jl               # Run JuliaFormatter in a temp env (mirrors CI, no Project.toml changes)
 ```
 
 **Usage**:
 ```powershell
 # Install pre-commit hook to run tests before commits
 .\scripts\setup-hooks.ps1
+ 
+# Apply CI formatting locally without touching dependencies
+julia --project=. scripts/format_ci.jl
 ```
 
 **Note**: Development scripts like `investigate_*.jl`, `debug_*.jl`, `test_*.jl` are gitignored and not tracked.
@@ -295,6 +300,7 @@ scripts/debug_*.jl
 **New script**:
 1. Utilities → `scripts/` (tracked if valuable)
 2. Temporary/debug → `scripts/` with `test_*`, `debug_*`, or `investigate_*` prefix (gitignored)
+3. Formatting → prefer `scripts/format_ci.jl` to mirror CI behavior
 
 ### When updating references...
 
@@ -323,6 +329,7 @@ scripts/debug_*.jl
 
 **Examples**: 3 working examples
 **Scripts**: 1 utility (git hooks)
+**CI/Lint**: JuliaFormatter enforced in CI; LF line endings via `.gitattributes`
 
 ---
 

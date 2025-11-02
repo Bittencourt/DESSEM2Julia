@@ -1,11 +1,32 @@
 # DESSEM2Julia Documentation History
 
 **Purpose**: Track major documentation updates and repository reorganizations  
-**Last Updated**: October 21, 2025
+**Last Updated**: November 2, 2025
 
 ---
 
 ## 📅 Timeline of Major Documentation Changes
+
+### November 2, 2025 - CI Linting & Formatting Stabilization
+
+**Action**: Added and documented repository-wide code formatting enforcement.
+
+**Changes**:
+- CI lint job now runs JuliaFormatter and prints a unified diff when changes are needed
+- Introduced `.JuliaFormatter.toml` configuration (minimal, conservative)
+- Enforced LF line endings for source/config files via `.gitattributes`
+- Added `scripts/format_ci.jl` to run JuliaFormatter in a temporary environment (mirrors CI without touching `Project.toml`)
+- Reverted accidental addition of JuliaFormatter to `Project.toml` (kept it out of project dependencies)
+
+**Documentation Updated**:
+- `README.md` — Added "Linting and formatting" section with local run commands and Windows notes
+- `docs/README.md` — Added "CI & Linting" section and updated date
+- `docs/REPOSITORY_STRUCTURE.md` — Added `.JuliaFormatter.toml`, `scripts/format_ci.jl`, and CI/Lint notes; updated date
+- `docs/planning/TASKS.md` — Recorded CI/lint progress and outcomes
+
+**Notes**:
+- On some Windows environments, the pre-commit hook may fail to invoke Julia; use `--no-verify` temporarily and run the formatter manually.
+- CI and local formatter use JuliaFormatter v1.x; if CI reports diffs, consult the unified diff in the job log.
 
 ### October 21, 2025 - Documentation Consolidation (Phase 1)
 

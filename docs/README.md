@@ -1,7 +1,7 @@
 # DESSEM2Julia Documentation Hub
 
 **Version**: 0.1.0  
-**Last Updated**: October 19, 2025
+**Last Updated**: November 2, 2025
 
 Welcome to the DESSEM2Julia documentation! This project provides Julia parsers and tools for working with DESSEM (Daily Operation Scheduling Program) input files used in Brazilian power system operations.
 
@@ -130,6 +130,13 @@ Located in `docs/Sample/` directory:
   - Individual parser tests (HIDR, ENTDADOS, DADVAZ, etc.)
   - ONS integration tests
   - Parser common utilities tests
+
+### CI & Linting
+- CI runs on Windows and Linux with Julia 1.11
+- Lint job uses JuliaFormatter and fails on diffs; it prints a unified diff to help apply changes
+- Line endings are enforced as LF for source/config files via `.gitattributes`
+- Run formatter locally without touching the project dependencies:
+  - `julia --project=. scripts/format_ci.jl`
 
 ---
 

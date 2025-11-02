@@ -4,6 +4,25 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### November 2, 2025 - CI Linting & Line Endings Stabilized ✅
+
+**Achievement**: CI lint job stabilized with clear diffs; consistent formatting across platforms.
+
+**What changed**:
+- Added JuliaFormatter-based lint job to CI that prints a unified diff when code isn’t formatted
+- Enforced LF line endings for source and config files via `.gitattributes`
+- Created `scripts/format_ci.jl` to run JuliaFormatter in a temporary environment (avoids modifying `Project.toml`)
+- Reverted accidental dependency additions made by prior local formatter runs
+
+**How to use locally**:
+```powershell
+julia --project=. scripts/format_ci.jl
+```
+
+**Windows note**: If the pre-commit hook fails to find `julia.exe`, commit with `--no-verify` and run the formatter manually. The CI lint job will show a unified diff if anything remains.
+
+**Status**: Lint infrastructure in place; CI now provides actionable diffs for any format drift.
+
 ### October 26, 2025 - Session 23: RESPOT.DAT Parser Column Position Fixes ✅
 
 **Achievement**: Fixed all 21 synthetic test failures in RESPOT parser - **100% tests passing (235/235)**
