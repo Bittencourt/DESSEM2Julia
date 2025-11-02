@@ -85,6 +85,7 @@ function parse_rest_record(line::AbstractString)::Union{HydroConstraintREST,Noth
     Fields: IntegerField(5,14), LiteralField(1,21), LiteralField(1,23), LiteralField(12,27),
             FloatField(10,40,2), IntegerField(1,51), FloatField(5,55,2)
     """
+
     try
         # Add 1 to IDESEM positions for Julia 1-indexing
         constraint_id = parse(Int, strip(extract_field(line, 15, 19)))  # 14+1 to 18+1
@@ -130,6 +131,7 @@ function parse_elem_record(line::AbstractString)::Union{HydroConstraintELEM,Noth
     - variable_type: 41-42 (size 2)
     - coefficient: 44-48 (size 5)
     """
+
     try
         # Add 1 to IDESEM positions for Julia 1-indexing
         constraint_id = parse(Int, strip(extract_field(line, 15, 19)))  # 14+1 to 14+5
@@ -159,6 +161,7 @@ function parse_lim_record(line::AbstractString)::Union{HydroConstraintLIM,Nothin
     Fields: IntegerField(5,14), StageDateField(20,'I'), StageDateField(28,'F'),
             FloatField(10,38,2), FloatField(10,48,2)
     """
+
     try
         # Add 1 to IDESEM positions for Julia 1-indexing
         constraint_id = parse(Int, strip(extract_field(line, 15, 19)))  # 14+1 to 18+1
@@ -198,6 +201,7 @@ function parse_var_record(line::AbstractString)::Union{HydroConstraintVAR,Nothin
     Fields: IntegerField(5,14), StageDateField(19,'I'), StageDateField(27,'F'),
             FloatField(10,37,2), FloatField(10,47,2), FloatField(10,57,2), FloatField(10,67,2)
     """
+
     try
         # Add 1 to IDESEM positions for Julia 1-indexing
         constraint_id = parse(Int, strip(extract_field(line, 15, 19)))  # 14+1 to 18+1
