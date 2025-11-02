@@ -33,6 +33,8 @@ jobs:
           if ! git diff --quiet; then
             echo "::error::Code is not formatted. Please run locally: using JuliaFormatter; format(\".\")"
             echo "Changed files:" && git --no-pager diff --name-only
+            echo "\nUnified diff (context 0):"
+            git --no-pager diff --unified=0 --no-color || true
             exit 1
           fi
   
