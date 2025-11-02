@@ -1,32 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "[pre-commit] Running JuliaFormatter check..."
+echo "[pre-commit] Starting checks..."
 
-if ! command -v julia >/dev/null 2>&1; then
-  echo "[pre-commit] Julia not found. Skipping formatter check."
-  exit 0
+run_with_powershell() {
+  local cmd="$1"
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$cmd"
+}
+
+has_powershell=false
+if command -v powershell.exe >/dev/null 2>&1; then
+  has_powershell=true
 fi
 
-# Run formatter (in-place)
-julia --color=yes -e 'using Pkg; Pkg.add(;name="JuliaFormatter", version="1"); using JuliaFormatter; format(".", verbose=true)'
+echo "[pre-commit] Running JuliaFormatter (CI-mode temp env)..."
+if $has_powershell; then
+  run_with_powershell "julia --project=. scripts/format_ci.jl"
+else
+  julia --project=. scripts/format_ci.jl
+fi
 
-# If formatter made changes, stage them and proceed
+# Stage any formatting changes
 if ! git diff --quiet; then
   echo "[pre-commit] Formatting changes applied; staging updates."
   git add -A
 fi
 
-echo "[pre-commit] Done."
-#!/usr/bin/env bash
-set -euo pipefail
-
-echo "Running Julia tests before commit..."
-
-# On Windows Git Bash, invoking julia via WindowsApps can fail with Permission denied.
-# Prefer running via PowerShell when available.
-if command -v powershell.exe >/dev/null 2>&1; then
-	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "julia --project=. -e \"using Pkg; Pkg.instantiate(); Pkg.test()\""
+echo "[pre-commit] Running Julia tests..."
+if $has_powershell; then
+  run_with_powershell "julia --project=. -e \"using Pkg; Pkg.instantiate(); Pkg.test()\""
 else
-	julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
+  julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
 fi
+
+echo "[pre-commit] Done."
