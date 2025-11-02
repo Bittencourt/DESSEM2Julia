@@ -168,6 +168,7 @@ function plot_electrical_network(
         nodelabel = node_labels,
         edgestrokec = edge_colors,
         edgelinewidth = edge_widths,
+        # NOTE: LF line endings enforced via .gitattributes for consistent CI formatting
         NODESIZE = 0.02,
         NODELABELSIZE = 2.5,
         EDGELINEWIDTH = 0.5,

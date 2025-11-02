@@ -1,6 +1,13 @@
 # Normalize line endings
 * text=auto eol=lf
 
+# Ensure Julia and CI config files always use LF (to avoid CI diffs)
+*.jl text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+
 # Keep Windows scripts with CRLF if needed
 *.bat text eol=crlf
 *.cmd text eol=crlf

@@ -39,6 +39,8 @@ export parse_operuh
 # Helper Functions
 # ============================================================================
 
+# NOTE: LF line endings enforced via .gitattributes for consistent CI formatting
+
 """
 Parse StageDateField - composite field with day, hour, half-hour.
 Format: DD HH M where DD can be 'I', 'F', or day number (1-31)

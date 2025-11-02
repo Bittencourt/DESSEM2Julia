@@ -1,3 +1,4 @@
+# NOTE: LF line endings enforced via .gitattributes for consistent CI formatting
 using Test
 using DESSEM2Julia
 
