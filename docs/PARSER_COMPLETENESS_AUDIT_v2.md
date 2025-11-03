@@ -3,6 +3,8 @@
 **Session**: 10  
 **Status**: 8/32 parsers implemented (25%)
 
+> Update (Nov 2, 2025): RESTSEG.DAT has since been implemented with tests and documentation. See `docs/parsers/RESTSEG_IMPLEMENTATION.md`, `docs/FORMAT_NOTES.md` (RESTSEG section), and `docs/file_formats.md` (marked ✅). Counts in this historical audit were not retroactively adjusted.
+
 ## Executive Summary
 
 This audit compares DESSEM2Julia parsers against the IDESEM v1.0.0 reference implementation to determine completeness. IDESEM is the authoritative Python library for DESSEM file parsing.
@@ -273,10 +275,12 @@ All register types from IDESEM implemented (Session 9-10):
 
 ---
 
-#### 18. RESTSEG.DAT ❌
+#### 18. RESTSEG.DAT ✅ (Updated Nov 2, 2025)
 **Purpose**: Table restrictions  
 **Type**: Unknown  
 **IDESEM**: Check `idessem/dessem/restseg.py`
+
+Current status (post-audit): Implemented as a tokenized TABSEG parser (INDICE, TABELA, LIMITE, CELULA). See `docs/parsers/RESTSEG_IMPLEMENTATION.md`.
 
 ---
 

@@ -44,6 +44,8 @@ export RenovaveisRecord,
 export RespotRP, RespotLM, RespotData, parse_respot, parse_rp_record, parse_lm_record
 export NetworkBus,
     NetworkLine, NetworkTopology, parse_network_topology, parse_pdo_somflux_topology
+export RestsegIndice,
+    RestsegTabela, RestsegLimite, RestsegCelula, RestsegData, parse_restseg
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -119,7 +121,12 @@ using .Types:
     RespotData,
     NetworkBus,
     NetworkLine,
-    NetworkTopology
+    NetworkTopology,
+    RestsegIndice,
+    RestsegTabela,
+    RestsegLimite,
+    RestsegCelula,
+    RestsegData
 include("models/core_types.jl")
 using .CoreTypes
 include("io.jl")
@@ -165,6 +172,8 @@ include("parser/respot.jl")
 using .RespotParser: parse_respot, parse_rp_record, parse_lm_record
 include("parser/network_topology.jl")
 using .NetworkTopologyParser: parse_network_topology, parse_pdo_somflux_topology
+include("parser/restseg.jl")
+using .RestsegParser: parse_restseg
 include("parser/registry.jl")
 using .ParserRegistry
 include("api.jl")

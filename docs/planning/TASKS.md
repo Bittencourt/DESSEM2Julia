@@ -4,6 +4,23 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### November 2, 2025 - RESTSEG.DAT Parser Implemented ✅
+
+Achievement: Added full RESTSEG parser (dynamic security table constraints) with unit and integration tests.
+
+What changed:
+- Types: Added `RestsegIndice`, `RestsegTabela`, `RestsegLimite`, `RestsegCelula`, and `RestsegData` (Union types for optional/mixed tokens)
+- Parser: `src/parser/restseg.jl` using keyword/token parsing for `TABSEG INDICE|TABELA|LIMITE|CELULA` lines
+- Handling: Supports both TABELA variants (numeric form and `CARGA <token>` form), UTF‑8 descriptions preserved
+- Tests: `test/restseg_tests.jl` — 17/17 passing (unit + sample-backed integration)
+- Docs: Updated `docs/file_formats.md` (status ✅), added notes in `docs/FORMAT_NOTES.md`, and created `docs/parsers/RESTSEG_IMPLEMENTATION.md`
+
+Validation:
+- Real CCEE sample detected at `docs/Sample/DS_CCEE_102025_SEMREDE_RV0D28/restseg.dat` (integration test loads when present)
+
+Notes:
+- RESTSEG is intentionally parsed with tokens (exception to fixed-width) due to keyworded structure and variable spacing; mirrors DESSELET rationale.
+
 ### November 2, 2025 - CI Linting & Line Endings Stabilized ✅
 
 **Achievement**: CI lint job stabilized with clear diffs; consistent formatting across platforms.
@@ -86,7 +103,8 @@ result = parse_respot("docs/Sample/DS_ONS_102025_RV2D11/respot.dat")
 
 **Status**: RESPOT parser **production-ready and fully tested**
 
-**Next Priority**: MODIF.DAT, RESPOTELE.DAT, or RESTSEG.DAT (high-priority operational files)
+**Next Priority**: MODIF.DAT or RESPOTELE.DAT (high-priority operational files)  
+(RESTSEG.DAT implemented on Nov 2, 2025)
 
 ---
 
@@ -306,7 +324,7 @@ result = parse_respot("docs/Sample/DS_ONS_102025_RV2D11/respot.dat")
 **Parser Status Update**: 19/32 parsers (59%)
 - **Complete (19)**: AREACONT, COTASR11, CURVTVIAG, DADVAZ, DEFLANT, DESSEM.ARQ, DESSOPC, DESSELET, ENTDADOS, HIDR, OPERUH, OPERUT, RENOVAVEIS ✅, TERMDAT, Network Topology
 - **Partial (1)**: SIMUL (test data issues, 49/55 passing - 89%)
-- **High Priority Remaining (12)**: RESPOT, CONFHD, MODIF, RESPOTELE, RESTSEG, RAMPAS, PTOPER, INFOFCF, MLT, ILS_TRI, RSTLPP, RMPFLX
+- **High Priority Remaining (11)**: RESPOT, CONFHD, MODIF, RESPOTELE, RAMPAS, PTOPER, INFOFCF, MLT, ILS_TRI, RSTLPP, RMPFLX
 - **Next Target**: CONFHD.DAT (hydro configuration) or RESPOT.DAT (power reserves)
 
 ---

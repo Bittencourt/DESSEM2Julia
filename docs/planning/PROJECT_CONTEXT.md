@@ -2,6 +2,7 @@
 
 **Last Updated**: October 26, 2025 - Session 23  
 **Current Status**: 20/32 parsers complete (63%), 2,994 tests passing ✅  
+Note: Status figures here are a historical snapshot. For the up-to-date parser coverage and counts, see File Formats Overview (docs/file_formats.md).
 **Purpose**: Complete context for AI agents and developers continuing this project
 
 ---

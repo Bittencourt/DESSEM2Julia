@@ -283,7 +283,7 @@ Notes for Windows:
 
 ### 📊 Overall Parser Progress
 
-**Completed**: 20/32 parsers (63% coverage) + Network Topology Extraction 🎉
+For current parser counts and coverage, see File Formats Overview (docs/file_formats.md). The list below reflects implemented capabilities; the authoritative status lives in that document.
 - ✅ dessem.arq (master file registry)
 - ✅ termdat.dat (thermal plant registry)
 - ✅ entdados.dat (general system data - 35+ record types)
@@ -299,6 +299,7 @@ Notes for Windows:
 - ✅ dessopc.dat (execution options - solver configuration)
 - ✅ renovaveis.dat (renewable energy plants & relationships)
 - ✅ **respot.dat (power reserve requirements)** ⭐ **SESSION 23 - NEW!**
+- ✅ restseg.dat (dynamic security constraints)
 - ✅ **Network topology from PDO files**
 
 **Pending High Priority**:

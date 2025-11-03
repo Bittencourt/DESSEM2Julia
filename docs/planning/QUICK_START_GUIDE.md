@@ -8,7 +8,7 @@
 
 Parse Brazilian power system DESSEM files (32 complex text/binary formats) into clean Julia objects.
 
-**Status**: 5/32 parsers complete, 2,513+ tests passing
+Status: See File Formats Overview (docs/file_formats.md) for the up-to-date parser coverage and tests; values in other docs may be historical snapshots.
 
 ---
 

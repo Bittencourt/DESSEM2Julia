@@ -56,7 +56,7 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 |------|-------------|--------|--------------|
 | AREACONT.DAT | Control area definition | ✅ Parser | § 12 |
 | RESPOT.XXX | Power reserve constraints (RP: pools, LM: limits) | ✅ Parser (Session 23) | § 12 |
-| RESTSEG.XXX | Dynamic security constraints | TODO | § 12 |
+| RESTSEG.XXX | Dynamic security constraints | ✅ Parser | § 12 |
 | RSTLPP.XXX | Linear piecewise security constraints | TODO | § 12 |
 
 ## Renewable Energy Files
@@ -124,7 +124,7 @@ Priority order for parser implementation based on complexity and dependencies:
 - [ ] **MAPCUT.DEC** - DECOMP mapping (binary)
 - [ ] **CORTES.DEC** - Benders cuts (binary)
 - [ ] **INFOFCF.DEC** - FCF info (binary)
-- [ ] **RESTSEG.XXX** - Security constraints (tabular)
+- [x] **RESTSEG.XXX** - Security constraints (tabular)
 - [ ] **RSTLPP.XXX** - Piecewise constraints
 
 ## Model Capacity Reference

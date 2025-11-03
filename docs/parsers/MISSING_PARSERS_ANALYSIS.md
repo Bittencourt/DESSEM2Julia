@@ -23,7 +23,8 @@
 2. **renovaveis.dat** - Renewable energy plants (wind/solar) ⭐ HIGH PRIORITY
 3. **respot.dat** - Reserve/spinning reserve data ⭐ MEDIUM PRIORITY
 4. **respotele.dat** - Reserve/spinning reserve electrical data
-5. **restseg.dat** - Security constraints
+5. ~~**restseg.dat** - Security constraints~~  
+   Implemented on Nov 2, 2025. See `docs/parsers/RESTSEG_IMPLEMENTATION.md` and `docs/file_formats.md`.
 6. **rampas.dat** - Generation ramp rates
 7. **ptoper.dat** - Operating points
 8. **infofcf.dat** - FCF (fuel cost function) info
@@ -70,7 +71,7 @@ Based on:
 ### Deferred:
 - **cortdeco.rv0, mapcut.rv0**: Binary/custom formats, low priority
 - **CSV files**: Can use standard CSV parsing libraries
-- **Advanced constraint files**: restseg, rampas, rstlpp (complex, low immediate value)
+- **Advanced constraint files**: rampas, rstlpp (complex, low immediate value)
 
 ## Decision: DESSOPC.DAT
 

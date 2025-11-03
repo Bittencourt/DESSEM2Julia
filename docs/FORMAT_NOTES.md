@@ -714,6 +714,60 @@ This is why tests must match the truncated names!
 
 **Production Ready:** YES ✅
 
+## RESTSEG.DAT - Dynamic Security Table Constraints
+
+### Summary
+Parser implemented based on real CCEE/ONS samples. Unlike most DESSEM inputs, RESTSEG uses keyworded, tokenized lines under a common TABSEG header rather than fixed-width columns. We treat it as a safe exception to the fixed-width rule (similar to DESSELET) because field boundaries are inherently delimited by keywords and ordering.
+
+### Real-world Format
+
+Each line begins with the literal `TABSEG` followed by a record kind and its tokens:
+
+- `TABSEG INDICE <idx> <descricao...>`
+- `TABSEG TABELA <idx> <tipo1> <tipo2> <num?> <pcarg?>`
+- `TABSEG LIMITE <idx> <limite>`
+- `TABSEG CELULA <idx> <limite> [<flag>] [<par1_inf> <par1_sup>]`
+
+Notes and quirks from samples:
+- Spacing is variable; descriptions can include spaces and UTF‑8 accents (keep source/tests UTF‑8).
+- TABELA records appear in two variants:
+    - Numeric form: `<tipo1> <tipo2> <num:int> [<pcarg:int?>]`
+    - Carga form: `<tipo1> <tipo2> CARGA <S|SIN|SE|SUL|...>` where the “num” field is absent and `pcarg` is a String token.
+- Optional fields should be represented as `nothing` when omitted.
+
+### Type Choices (public API)
+
+- `RestsegIndice(indice::Int, descricao::String)`
+- `RestsegTabela(indice::Int, tipo1::String, tipo2::String, num::Union{Int,Nothing}, pcarg::Union{Int,String,Nothing})`
+- `RestsegLimite(indice::Int, limite::Int)`
+- `RestsegCelula(indice::Int, limite::Int; flag::Union{String,Nothing}=nothing, par1_inf::Union{Int,Nothing}=nothing, par1_sup::Union{Int,Nothing}=nothing)`
+- `RestsegData(indices::Vector, tabelas::Vector, limites::Vector, celulas::Vector)`
+
+Rationale:
+- Union types capture the mixed numeric/string nature of TABELA parameters seen in production files.
+- All optional tokens use `Union{T,Nothing}` and default to `nothing`.
+- Explicit `String(...)` conversion is applied during parsing to normalize SubString values for Union fields.
+
+### Parsing Strategy
+
+- Tokenize after stripping comments/blank lines; first two tokens must be `TABSEG` and the record kind.
+- Branch by kind and consume tokens positionally; the remainder of the INDICE line is the description (joined and preserved as UTF‑8).
+- Robust to extra whitespace; does not rely on column positions.
+
+### Tests and Validation
+
+- Unit tests cover all four record kinds, including both TABELA variants and optional CELULA parameters.
+- Integration test loads `docs/Sample/DS_CCEE_102025_SEMREDE_RV0D28/restseg.dat` when present and asserts non-empty collections.
+
+### Why tokenized (not fixed-width)?
+
+RESTSEG lines are semantically delimited by keywords and variable tokens; plant or category identifiers may be words and are not aligned to fixed columns in samples. Using fixed-width extraction would be brittle. This mirrors the documented DESSELET split exception.
+
+### Reference
+
+- IDESEM reference: `idessem/dessem/modelos/restseg.py` (positions expressed as token order; Python 0-indexed where applicable)
+- See also: `docs/parsers/RESTSEG_IMPLEMENTATION.md` for a compact implementation guide
+
 ## References
 
 - Specification: `docs/dessem-complete-specs.md`

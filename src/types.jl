@@ -2683,4 +2683,84 @@ end
 # Export RESPOT types
 export RespotRP, RespotLM, RespotData
 
+# ============================================================================
+# RESTSEG.DAT (Table constraints) Types
+# ============================================================================
+
+"""
+    RestsegIndice
+
+Index record for a RESTSEG table constraint block. Maps an index number to a
+human-readable description.
+
+# Example
+TABSEG INDICE     7 Fluxo Ji-Paraná - Pimenta Bueno em função do back-to-back
+"""
+Base.@kwdef struct RestsegIndice
+    indice::Int
+    descricao::String
+end
+
+"""
+    RestsegTabela
+
+Table descriptor for a RESTSEG block. Defines the controlling and parameter
+variables that the table depends on, plus an auxiliary numeric code.
+
+# Example
+TABSEG TABELA     7 CONTR  DREF    9004
+"""
+Base.@kwdef struct RestsegTabela
+    indice::Int
+    tipo1::String
+    tipo2::String
+    num::Union{Int,Nothing}
+    pcarg::Union{Int,String,Nothing} = nothing
+end
+
+"""
+    RestsegLimite
+
+A table breakpoint entry (limit value) associated with an index. Multiple
+limits form the rows/columns thresholds used in CELULA definitions.
+
+# Example
+TABSEG LIMITE     7        800
+"""
+Base.@kwdef struct RestsegLimite
+    indice::Int
+    limite::Int
+end
+
+"""
+    RestsegCelula
+
+Cell definition for a RESTSEG table. Associates a limit value to a range of the
+parameter (Par.1) with optional flag column.
+
+# Example
+TABSEG CELULA     7        300             700         800
+"""
+Base.@kwdef struct RestsegCelula
+    indice::Int
+    limite::Int
+    flag::Union{String,Nothing} = nothing
+    par1_inf::Union{Int,Nothing} = nothing
+    par1_sup::Union{Int,Nothing} = nothing
+end
+
+"""
+    RestsegData
+
+Container for all RESTSEG records in a file.
+"""
+Base.@kwdef struct RestsegData
+    indices::Vector{RestsegIndice} = RestsegIndice[]
+    tabelas::Vector{RestsegTabela} = RestsegTabela[]
+    limites::Vector{RestsegLimite} = RestsegLimite[]
+    celulas::Vector{RestsegCelula} = RestsegCelula[]
+end
+
+export RestsegIndice, RestsegTabela, RestsegLimite, RestsegCelula, RestsegData
+
 end # module

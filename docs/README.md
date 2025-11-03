@@ -80,6 +80,12 @@ Welcome to the DESSEM2Julia documentation! This project provides Julia parsers a
 
 **Status**: ✅ Complete
 
+#### RESTSEG.XXX - Dynamic Security Constraints
+- **[Implementation Guide](parsers/RESTSEG_IMPLEMENTATION.md)** - Tokenized TABSEG records (INDICE, TABELA, LIMITE, CELULA)
+- **[Parser Status](file_formats.md#optional-constraint-files)** - File coverage matrix
+
+**Status**: ✅ Complete
+
 #### TERMDAT.XXX - Thermal Registry
 - **[Parser Status](file_formats.md#termdatxxx)** - Implementation details
 - **[Entity Relationships § Thermal Units](ENTITY_RELATIONSHIPS.md#5-hydro-unit-hierarchy)** - Unit hierarchy
@@ -213,7 +219,7 @@ L.N. GARCEZ → CANOAS II → CANOAS I → CAPIVARA → TAQUARUCU → ROSANA
 | OPERUH.XXX | ✅ Complete | Multiple | ❌ No |
 | TERMDAT.XXX | ✅ Complete | 2 types | ❌ No |
 
-**Total Parsers**: 7 complete / ~40 files (~18% coverage)
+For up-to-date parser coverage and counts, see File Formats Overview (docs/file_formats.md).
 
 ### Test Coverage
 
