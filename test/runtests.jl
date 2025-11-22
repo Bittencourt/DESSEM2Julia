@@ -22,6 +22,7 @@ include("dessopc_tests.jl")
 include("areacont_tests.jl")
 include("cotasr11_tests.jl")
 include("curvtviag_tests.jl")
+include("rampas_tests.jl")
 include("network_topology_tests.jl")
 
 # Integration tests with real ONS sample data

@@ -768,6 +768,29 @@ RESTSEG lines are semantically delimited by keywords and variable tokens; plant 
 - IDESEM reference: `idessem/dessem/modelos/restseg.py` (positions expressed as token order; Python 0-indexed where applicable)
 - See also: `docs/parsers/RESTSEG_IMPLEMENTATION.md` for a compact implementation guide
 
+## RAMPAS.DAT - Thermal Unit Ramp Trajectories
+
+### Summary
+Parser implemented in Session 24. Handles fixed-width format with "FIM" footer marker.
+
+**Test Results:**
+- ✅ Parsed 2,426 records from CCEE sample (`DS_CCEE_102025_SEMREDE_RV0D28/rampas.dat`)
+- ✅ 27/27 tests passing (100%)
+
+### Format Observations
+
+| Field | Documentation | Actual Sample Format | Notes |
+|-------|---------------|---------------------|-------|
+| Footer | Not documented | `FIM` | File ends with "FIM" line which must be detected |
+| Config | Col 14 | `S` or `C` | Single character flag |
+| Type | Col 18 | `A` or `D` | Single character flag |
+| Flag | Col 38 | `0` or `1` | Optional half-hour flag |
+
+**Parser Strategy:**
+- Explicit check for `startswith(line, "FIM")` to break loop
+- Fixed-width extraction for all fields
+- `Union{String, Nothing}` for optional flags
+
 ## References
 
 - Specification: `docs/dessem-complete-specs.md`

@@ -2087,7 +2087,7 @@ StageDateField format: day (2 chars), hour (2 chars), half-hour (1 char) - speci
 - `start_half::Union{Int, Nothing}`: Initial half-hour (0-1)
 - `end_day::Union{String, Int}`: Final day (F=final or day 1-31)
 - `end_hour::Union{Int, Nothing}`: Final hour (0-23)
-- `end_half::Union{Int, Nothing}`: Final half-hour (0-1)
+- `end_half::Union{Int, Nothing}`: Final half-hour (0 or 1)
 - `lower_limit::Union{Float64, Nothing}`: Lower bound (10.2 format)
 - `upper_limit::Union{Float64, Nothing}`: Upper bound (10.2 format)
 """
@@ -2119,7 +2119,7 @@ Column positions: codigo_restricao (14-18), StageDateField(19) for start, StageD
 - `start_half::Union{Int, Nothing}`: Initial half-hour (0-1)
 - `end_day::Union{String, Int}`: Final day (F=final or day 1-31)
 - `end_hour::Union{Int, Nothing}`: Final hour (0-23)
-- `end_half::Union{Int, Nothing}`: Final half-hour (0-1)
+- `end_half::Union{Int, Nothing}`: Final half-hour (0 or 1)
 - `ramp_down::Union{Float64, Nothing}`: Maximum decrease rate (10.2 format)
 - `ramp_up::Union{Float64, Nothing}`: Maximum increase rate (10.2 format)
 - `ramp_down_2::Union{Float64, Nothing}`: Secondary decrease rate (10.2 format)
@@ -2762,5 +2762,45 @@ Base.@kwdef struct RestsegData
 end
 
 export RestsegIndice, RestsegTabela, RestsegLimite, RestsegCelula, RestsegData
+
+# ============================================================================
+# RAMPAS.DAT - Thermal Unit Ramp Trajectories
+# ============================================================================
+
+"""
+    RampasRecord
+
+Thermal unit ramp trajectory point from RAMPAS.DAT.
+
+# Fields
+- `usina::Int`: Plant identifier
+- `unidade::Int`: Unit identifier
+- `configuracao::String`: Configuration type ("S"=Simple, "C"=Combined)
+- `tipo::String`: Ramp type ("A"=Ascending/Up, "D"=Descending/Down)
+- `potencia::Float64`: Power output (MW)
+- `tempo::Int`: Time elapsed (minutes)
+- `flag_meia_hora::Int`: Half-hour flag (0 or 1)
+"""
+Base.@kwdef struct RampasRecord
+    usina::Int
+    unidade::Int
+    configuracao::String
+    tipo::String
+    potencia::Float64
+    tempo::Int
+    flag_meia_hora::Int
+end
+
+"""
+    RampasData
+
+Container for RAMPAS.DAT data (thermal unit ramp trajectories).
+
+# Fields
+- `records::Vector{RampasRecord}`: Ramp trajectory points
+"""
+Base.@kwdef struct RampasData
+    records::Vector{RampasRecord} = RampasRecord[]
+end
 
 end # module

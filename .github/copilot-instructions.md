@@ -337,6 +337,7 @@ When implementing a new parser:
 - [ ] 8. **Document quirks**: Add findings to `docs/FORMAT_NOTES.md`
 - [ ] 9. **Update progress**: Edit `docs/planning/TASKS.md`
 - [ ] 10. **100% tests passing**: Verify all tests pass before PR
+- [ ] 11. **Cleanup & Commit**: Update all docs (file_formats.md, FORMAT_NOTES.md), erase temp files, and commit changes
 
 ## Quick Reference
 

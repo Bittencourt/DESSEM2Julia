@@ -46,6 +46,7 @@ export NetworkBus,
     NetworkLine, NetworkTopology, parse_network_topology, parse_pdo_somflux_topology
 export RestsegIndice,
     RestsegTabela, RestsegLimite, RestsegCelula, RestsegData, parse_restseg
+export RampasRecord, RampasData, parse_rampas
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -126,7 +127,9 @@ using .Types:
     RestsegTabela,
     RestsegLimite,
     RestsegCelula,
-    RestsegData
+    RestsegData,
+    RampasRecord,
+    RampasData
 include("models/core_types.jl")
 using .CoreTypes
 include("io.jl")
@@ -174,6 +177,8 @@ include("parser/network_topology.jl")
 using .NetworkTopologyParser: parse_network_topology, parse_pdo_somflux_topology
 include("parser/restseg.jl")
 using .RestsegParser: parse_restseg
+include("parser/rampas.jl")
+using .RampasParser: parse_rampas
 include("parser/registry.jl")
 using .ParserRegistry
 include("api.jl")

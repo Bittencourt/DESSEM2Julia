@@ -4,6 +4,41 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ## Recent Progress
 
+### November 2, 2025 - RAMPAS.DAT Parser Implemented ✅
+
+**Achievement**: Implemented complete RAMPAS.DAT parser for thermal unit ramp trajectories - **100% tests passing (27/27)**
+
+**Status Change**: RAMPAS parser: 0% → **100% complete** (production ready ✅)
+
+**What Was Implemented**:
+
+1. **RAMPAS.DAT Parser** (`src/parser/rampas.jl`):
+   - **Purpose**: Defines ramp up/down trajectories for thermal units
+   - **Format**: Fixed-width columns with "FIM" footer marker
+   - **Fields**: Plant ID, Unit ID, Config (S/C), Type (A/D), Power (MW), Time (min), Flag (half-hour)
+   - **Types**: `RampasRecord`, `RampasData`
+
+2. **Technical Implementation**:
+   - **Fixed-width parsing**: Used `extract_field` with precise column positions
+   - **Footer handling**: Explicit check for "FIM" marker to prevent parsing errors
+   - **Type safety**: `Union{String, Nothing}` for optional flags, `Float64` for power/time
+
+3. **Test Results**:
+   - ✅ **27/27 RAMPAS tests passing** (100%)
+   - ✅ **Real Sample**: 2,426 records parsed successfully from `docs/Sample/DS_CCEE_102025_SEMREDE_RV0D28/rampas.dat`
+   - ✅ Validated against synthetic data covering all field combinations
+
+4. **Code Changes**:
+   - **src/types.jl**: Added `RampasRecord` and `RampasData`
+   - **src/parser/rampas.jl**: New parser implementation
+   - **src/DESSEM2Julia.jl**: Exported new types and function
+   - **test/rampas_tests.jl**: Comprehensive test suite
+   - **test/runtests.jl**: Added to main test runner
+
+**Next Priority**: **RSTLPP.DAT** (piecewise-linear power limits)
+
+---
+
 ### November 2, 2025 - RESTSEG.DAT Parser Implemented ✅
 
 Achievement: Added full RESTSEG parser (dynamic security table constraints) with unit and integration tests.
@@ -467,14 +502,14 @@ result = parse_respot("docs/Sample/DS_ONS_102025_RV2D11/respot.dat")
    ✅ TERMDAT:            136/136 tests pass
    ✅ ENTDADOS:         2,362/2,362 tests pass
    ✅ DessemArq:           69/69 tests pass
-   ✅ OPERUT:             106/106 tests pass
-   ✅ DADVAZ:              17/17 tests pass
+   ✅ OPERUT:            106/106 tests pass
+   ✅ DADVAZ:             17/17 tests pass
    ✅ DEFLANT:          1,076/1,076 tests pass
    ✅ DESSELET:            15/15 tests pass
-   ✅ AREACONT:            77/77 tests pass (NEW!)
-   ✅ COTASR11:           107/107 tests pass (NEW!)
-   ✅ CURVTVIAG:           39/39 tests pass (NEW!)
-   ✅ ONS Integration:    123/123 tests pass
+   ✅ AREACONT:           77/77 tests pass (NEW!)
+   ✅ COTASR11:          107/107 tests pass (NEW!)
+   ✅ CURVTVIAG:          39/39 tests pass (NEW!)
+   ✅ ONS Integration:   123/123 tests pass
    
    TOTAL: 4,258 tests passing ✅ (+323 from session 13)
    ```
@@ -770,7 +805,7 @@ record_type_raw = uppercase(strip(extract_field(line, 1, 6)))
 7. Fixed RD optional fields with length checks
 8. **All 2,362 tests passing** ✅
 
-**IDESEM Reference Specifications**:
+**IDESSEM Reference Specifications**:
 - **RD**: IntegerField(1,4), IntegerField(3,9), IntegerField(1,14), IntegerField(1,16), IntegerField(1,18), IntegerField(1,20), IntegerField(1,22)
 - **RIVAR**: IntegerField(3,7), IntegerField(3,12), IntegerField(2,15), FloatField(10,19)
 - **REE**: IntegerField(2,6), IntegerField(2,9), LiteralField(10,12)
@@ -1282,13 +1317,13 @@ These are test artifacts, not parser bugs. All real-world formatted data parses 
       - Minor cosmetic warnings only (TVIAG display, non-blocking)
   - [x] **OPERUT.DAT** - Thermal unit operational data ✅ **COMPLETED**
     - **Parser Implementation:**
-      - Fixed-width column format (not space-separated!)
-      - Based on IDESEM Python library specification
-      - Handles INIT block (initial conditions: status, generation, hours, flags)
-      - Handles OPER block (operational limits: time periods, min/max gen, costs)
-      - Plant names fixed 12-character field (positions 5-16)
-      - Special handling for "F" (final) in end_day field
-    - **Test Coverage:** 72/72 tests passing (100%) ✅
+      - Fixed-width column format based on IDESEM reference
+      - INIT block: 387 records (47 ON, 340 OFF)
+      - OPER block: 422 operational constraint records
+      - All real CCEE production data parsing successfully
+      - Handles truncated plant names (12-char limit)
+      - Special "F" (final) end_day handling
+    - **Test Coverage:** 72/72 tests passing - 100% complete
       - INIT records: 25 tests (all field types, optional fields)
       - OPER records: 20 tests (time periods, generation limits, costs)
       - Full file integration: 13 tests
@@ -1301,16 +1336,19 @@ These are test artifacts, not parser bugs. All real-world formatted data parses 
       - Handles truncated plant names correctly (12-char limit)
    - [x] **DADVAZ.DAT** - Natural inflows ✅ **COMPLETED**
       - **Parser Implementation:**
-         - Parses header metadata (plant roster, study start, FCF configuration)
-         - Handles symbolic day markers ("I"/"F") and optional hour/half-hour fields
-         - Fixed-width extraction for flow column (cols 45-53) per IDESEM specification
-         - **Test Coverage:** `test/dadvaz_tests.jl` (synthetic + real sample) ✅
-            - Validates header parsing and inflow record extraction
-            - Real CCEE dataset (`DS_CCEE_102025_SEMREDE_RV0D28`) parsed without errors
+         - Parses header metadata plus daily natural inflow slices
+         - Supports symbolic period markers and optional hours
+         - Validated on synthetic fixtures and real CCEE dataset
       - **Production Status:** READY ✅
          - Natural inflows now available via `DadvazData` for `HydroSystem.natural_inflows`
-  - [x] **OPERUH.DAT** - Hydro operational constraints ✅ **COMPLETED**
-    - Parser implemented in Session 4 (details in previous sessions)
+  - [x] **RAMPAS.DAT** - Thermal unit ramp trajectories ✅ **COMPLETED**
+    - **Parser Implementation:**
+      - Fixed-width columns with precise positions
+      - Handles "FIM" footer marker to terminate parsing
+      - Validated against synthetic data and real CCEE sample
+    - **Test Coverage:** 27/27 tests passing (100%) ✅
+      - All field combinations covered in synthetic tests
+      - Real data: 2,426 records parsed successfully
 
 See docs/file_formats.md for complete file list and priority order.
 
@@ -1357,7 +1395,7 @@ See docs/file_formats.md for complete file list and priority order.
   - Comprehensive field extraction (no raw text lines)
 - ✅ **OPERUT.DAT parser** (72/72 tests passing - 100% complete)
   - Fixed-width column format based on IDESEM reference
-  - INIT block: 387 records (47 ON, 340 OFF units)
+  - INIT block: 387 records (47 ON, 340 OFF)
   - OPER block: 422 operational constraint records
   - All real CCEE production data parsing successfully
   - Handles truncated plant names (12-char limit)
@@ -1366,6 +1404,9 @@ See docs/file_formats.md for complete file list and priority order.
    - Parses header metadata plus daily natural inflow slices
    - Supports symbolic period markers and optional hours
    - Validated on synthetic fixtures and real CCEE dataset
+- ✅ **RAMPAS.DAT parser** (new) ⭐
+   - Parses thermal unit ramp trajectories from fixed-width data
+   - Validated against synthetic data and real CCEE dataset
 
 **In Progress:**
 - 🎯 **Phase 1 - Parser Implementation** (Next Priority):
@@ -1385,9 +1426,9 @@ See docs/file_formats.md for complete file list and priority order.
      - [ ] Integration tests with real CCEE data
   
 **Major Progress This Session:**
-- ✅ Implemented DADVAZ.DAT parser with full header + record coverage
-- ✅ Added DADVAZ data structures to core type system and public API
-- ✅ Established regression tests (synthetic + CCEE sample) for natural inflows
+- ✅ Implemented RAMPAS.DAT parser with full coverage
+- ✅ Added RAMPAS data structures to core type system and public API
+- ✅ Established regression tests (synthetic + CCEE sample) for ramp trajectories
 
 **Immediate Next Steps:**
 1. **Implement remaining high-priority parsers**:
@@ -1492,3 +1533,56 @@ LINE = Line([
 - Parsing coverage documented and tested for all chosen files
 - Deterministic output JLD2 schema with versioning
 - Tests green on CI (Windows and Linux)
+
+## Roadmap – November 22, 2025
+
+This roadmap reflects the current post-RESTSEG state and guides upcoming work.
+
+### R1. Align Planning Docs with Current State
+
+- Update `docs/file_formats.md` "Implementation Priority" section so it only lists genuinely pending files, grouped by theme (constraints, DEC/DECOMP, renewables, misc), and no longer mentions already-complete parsers.
+- Refresh `docs/parsers/MISSING_PARSERS_ANALYSIS.md` to move completed items (`dessopc`, `renovaveis`, `respot`, `restseg`) into a "Completed since original analysis" section and focus the remaining analysis on truly missing parsers.
+- Add lightweight notes in `docs/planning/PROJECT_CONTEXT.md` and here in `TASKS.md` that live parser coverage and up-to-date status are maintained in `docs/file_formats.md` (these documents remain historical logs).
+
+### R2. Constraint Parser Cluster (Post-RESPOT/RESTSEG)
+
+Implement the remaining operational-constraint-related text files, using IDESEM as the reference and following the standard parser pattern (types → parser → tests → docs → exports):
+
+1. `RAMPAS.DAT` – ramp constraints for units/flows (high impact on time-coupled operation).
+2. `RSTLPP.DAT` – piecewise-linear power limits (LPP-style constraints).
+3. `RMPFLX.DAT` – ramp/flow-related constraints, if still active in current DESSEM.
+4. `PTOPER.DAT` – operational point/schedule definitions (thermal/hydro as per IDESEM).
+5. `RESPOTELE.DAT` – electrical counterpart / complement to RESPOT where applicable.
+
+For each file:
+- Research IDESEM model (`idessem/dessem/modelos/<file>.py`) and confirm record types, fixed-width columns vs token formats, and special values.
+- Add corresponding record and container types to `src/types.jl` using `Base.@kwdef` and `Union{T,Nothing}` for optional fields.
+- Implement `src/parser/<file>.jl` using fixed-width parsing via `extract_field` unless real data and IDESEM clearly justify token-based parsing.
+- Add `test/<file>_tests.jl` with both unit tests and integration tests against real ONS/CCEE samples when available.
+- Wire exports in `src/DESSEM2Julia.jl` and update `docs/file_formats.md` and `docs/FORMAT_NOTES.md` for each new parser.
+
+### R3. DEC/DECOMP and Auxiliary Parsers
+
+Once the constraint cluster is largely covered, tackle the remaining DEC/DECOMP and auxiliary inputs (if kept in scope):
+
+- DEC/DECOMP-related files: `MAPCUT.DEC`, `CORTES.DEC`, `INFOFCF.DEC` (or their current DESSEM counterparts). These may be binary or semi-structured; follow `docs/parsers/BINARY_FILES.md` patterns and IDESEM guidance.
+- Auxiliary text inputs: `MLT.DAT`, `ILS_TRI.DAT`, `RIVAR`-style auxiliaries not already fully handled, and any renewable auxiliaries such as `SOLAR.*` and `BATERIA.*` if they remain relevant.
+
+For each:
+- Confirm format (binary vs text) via IDESEM and existing docs.
+- Define minimal but complete types in `src/types.jl`.
+- Implement parsers with tests and doc updates, mirroring the approach used for HIDR, DEFLANT, and RESTSEG.
+
+### R4. Type-System Integration and High-Level API
+
+After high-value parsers are implemented:
+
+- Enhance `DessemCase` wiring so that a single high-level loader (e.g. `load_dessem_case(dir)`) uses `dessem.arq` and the individual `parse_*` functions to populate `HydroSystem`, `ThermalSystem`, `RenewableSystem`, `NetworkSystem`, and `OperationalConstraints` with real data.
+- Refactor existing parser outputs where needed so they populate the core subsystem types rather than ad-hoc containers.
+- Add convenience query helpers (e.g. `list_hydro_plants(case)`, `constraints_for_branch(case, id)`) and consider optional table exports compatible with Tables.jl / DataFrames.jl.
+
+### R5. Documentation, Examples, and Polishing
+
+- Add concise implementation notes for new parsers (RAMPAS/RSTLPP/etc.) under `docs/parsers/` following the style of `RESTSEG_IMPLEMENTATION.md`.
+- Extend example scripts to showcase constraint inspection and visualization, complementing existing network and cost examples.
+- Keep CI and pre-commit hooks up to date so that new parsers and tests are automatically formatted and validated on both Windows and Linux.

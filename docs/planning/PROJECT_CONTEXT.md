@@ -1,8 +1,8 @@
 # DESSEM2Julia Project Context & Knowledge Base
 
 **Last Updated**: October 26, 2025 - Session 23  
-**Current Status**: 20/32 parsers complete (63%), 2,994 tests passing ✅  
-Note: Status figures here are a historical snapshot. For the up-to-date parser coverage and counts, see File Formats Overview (docs/file_formats.md).
+**Snapshot Status (at that time)**: 20/32 parsers complete (63%), 2,994 tests passing ✅  
+Note: These figures are intentionally preserved as a historical snapshot. For the up-to-date parser coverage, remaining targets, and counts (including post-RESPOT/RESTSEG work), see the File Formats Overview in `docs/file_formats.md`.
 **Purpose**: Complete context for AI agents and developers continuing this project
 
 ---

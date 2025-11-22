@@ -18,22 +18,27 @@
 13. PDO files → network_topology.jl ✅
 14. (SIMUL.XXX → simul.jl ✅ - but no sample file exists)
 
-### ❌ Not Yet Implemented (14 files):
-1. **dessopc.dat** - DESSEM solver options ⭐ HIGH PRIORITY
-2. **renovaveis.dat** - Renewable energy plants (wind/solar) ⭐ HIGH PRIORITY
-3. **respot.dat** - Reserve/spinning reserve data ⭐ MEDIUM PRIORITY
-4. **respotele.dat** - Reserve/spinning reserve electrical data
-5. ~~**restseg.dat** - Security constraints~~  
-   Implemented on Nov 2, 2025. See `docs/parsers/RESTSEG_IMPLEMENTATION.md` and `docs/file_formats.md`.
-6. **rampas.dat** - Generation ramp rates
-7. **ptoper.dat** - Operating points
-8. **infofcf.dat** - FCF (fuel cost function) info
-9. **mlt.dat** - MLT (long-term marginal) data
-10. **ils_tri.dat** - ILS triangular data
-11. **rstlpp.dat** - LPP restart data
-12. **rmpflx.dat** - Flux ramp data
-13. **cortdeco.rv0** - Decomposition cuts (binary/custom format)
-14. **mapcut.rv0** - Cut mapping (binary/custom format)
+### ✅ Implemented Since Original Analysis
+
+These files were missing when this analysis was first written but now have production-ready parsers. See `docs/file_formats.md` for authoritative status.
+
+1. **dessopc.dat** – DESSEM solver/execution options.
+2. **renovaveis.dat** – Renewable energy plants and relationships (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO).
+3. **respot.dat** – Reserve/spinning reserve requirements (RP, LM records).
+4. **restseg.dat** – Dynamic security table constraints (TABSEG INDICE/TABELA/LIMITE/CELULA); implemented Nov 2, 2025.
+
+### ❌ Still Not Implemented (updated list)
+
+1. **respotele.dat** – Reserve/spinning reserve electrical data.
+2. **rampas.dat** – Generation ramp rates / trajectories.
+3. **ptoper.dat** – Operating points.
+4. **infofcf.dat** – FCF (fuel cost function) info.
+5. **mlt.dat** – MLT (long-term marginal) data.
+6. **ils_tri.dat** – ILS triangular data.
+7. **rstlpp.dat** – LPP restart / piecewise constraint data.
+8. **rmpflx.dat** – Flux ramp data.
+9. **cortdeco.rv0** – Decomposition cuts (binary/custom format).
+10. **mapcut.rv0** – Cut mapping (binary/custom format).
 
 ### 📊 CSV Files (3):
 1. polinjus.csv - Downstream polynomials
