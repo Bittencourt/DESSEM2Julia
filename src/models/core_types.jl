@@ -9,7 +9,7 @@ This module defines the complete type hierarchy for all DESSEM input files based
 Organization:
 - Master file index types
 - Hydro-related types
-- Thermal-related types  
+- Thermal-related types
 - Network-related types
 - Operational constraint types
 - System configuration types
@@ -26,7 +26,9 @@ export HydroSystem, HydroPlant, HydroOperation, HydroReservoir
 export ThermalSystem, ThermalPlant, ThermalUnit, ThermalOperation
 export PowerSystem, Subsystem, LoadDemand, PowerReserve
 export NetworkSystem, ElectricBus, TransmissionLine
-export OperationalConstraints, RampConstraint, LPPConstraint, TableConstraint
+export OperationalConstraints,
+    RampConstraint, LPPConstraint, TableConstraint, FlowRampConstraint
+export RmpflxRest, RmpflxLimi, RmpflxData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
@@ -557,14 +559,18 @@ Linear piecewise constraints (RSTLPP.DAT).
 # Fields
 - `constraint_id::Int`: Constraint identification
 - `constraint_name::String`: Constraint name
+- `period::Int`: Time period (0 for all?)
+- `segment::Int`: Segment number
 - `sense::String`: Constraint sense ("<=", ">=", "=")
-- `rhs::Float64`: Right-hand side value
+- `rhs::Float64`: Right-hand side value (Linear Coefficient)
 - `coefficients::Dict{Tuple{String, Int}, Float64}`: (unit_type, unit_num) => coefficient
 """
 Base.@kwdef struct LPPConstraint
     constraint_id::Int
     constraint_name::String = ""
-    sense::String
+    period::Int = 0
+    segment::Int = 0
+    sense::String = "<="
     rhs::Float64
     coefficients::Dict{Tuple{String,Int},Float64} = Dict{Tuple{String,Int},Float64}()
 end
@@ -603,6 +609,66 @@ Base.@kwdef struct FlowRampConstraint
     line_num::Int
     max_increase_mw::Float64
     max_decrease_mw::Float64
+end
+
+"""
+    RmpflxRest
+
+Initial condition or reference value for flow ramp constraint (RMPFLX.DAT).
+
+# Fields
+- `constraint_id::Int`: Constraint identifier (DREF)
+- `initial_value::Float64`: Initial value or reference value
+- `status::Union{Int, Nothing}`: Optional status flag
+"""
+Base.@kwdef struct RmpflxRest
+    constraint_id::Int
+    initial_value::Float64
+    status::Union{Int,Nothing} = nothing
+end
+
+"""
+    RmpflxLimi
+
+Flow ramp limit definition (RMPFLX.DAT).
+
+# Fields
+- `constraint_id::Int`: Constraint identifier (DREF)
+- `start_day::Union{Int, String}`: Start day or "I"
+- `start_hour::Int`: Start hour (0-23)
+- `start_half::Int`: Start half-hour (0 or 1)
+- `end_day::Union{Int, String}`: End day or "F"
+- `end_hour::Int`: End hour (0-23)
+- `end_half::Int`: End half-hour (0 or 1)
+- `ramp_down::Float64`: Maximum ramp down (decrease)
+- `ramp_up::Float64`: Maximum ramp up (increase)
+- `status::Union{Int, Nothing}`: Optional status flag
+"""
+Base.@kwdef struct RmpflxLimi
+    constraint_id::Int
+    start_day::Union{Int,String}
+    start_hour::Int = 0
+    start_half::Int = 0
+    end_day::Union{Int,String}
+    end_hour::Int = 0
+    end_half::Int = 0
+    ramp_down::Float64
+    ramp_up::Float64
+    status::Union{Int,Nothing} = nothing
+end
+
+"""
+    RmpflxData
+
+Container for RMPFLX.DAT data (flow ramp constraints).
+
+# Fields
+- `rest_records::Vector{RmpflxRest}`: Initial conditions
+- `limi_records::Vector{RmpflxLimi}`: Limit definitions
+"""
+Base.@kwdef struct RmpflxData
+    rest_records::Vector{RmpflxRest} = RmpflxRest[]
+    limi_records::Vector{RmpflxLimi} = RmpflxLimi[]
 end
 
 """

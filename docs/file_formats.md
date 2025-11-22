@@ -57,7 +57,8 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | AREACONT.DAT | Control area definition | ✅ Parser | § 12 |
 | RESPOT.XXX | Power reserve constraints (RP: pools, LM: limits) | ✅ Parser (Session 23) | § 12 |
 | RESTSEG.XXX | Dynamic security constraints | ✅ Parser | § 12 |
-| RSTLPP.XXX | Linear piecewise security constraints | TODO | § 12 |
+| RSTLPP.XXX | Linear piecewise security constraints | ✅ Parser | § 12 |
+| RMPFLX.DAT | Flow ramp constraints | ✅ Parser | § 12 |
 
 ## Renewable Energy Files
 
@@ -87,7 +88,6 @@ With most core files implemented, remaining parser work is concentrated in a sma
 
 ### Constraint & Operational Files
 
-- `RSTLPP.XXX` – Linear piecewise security constraints (LPP-style); complements `RESTSEG.XXX`.
 - `PTOPER.DAT` – Operating-point / schedule definitions (see IDESEM for exact scope).
 - `RESPOTELE.DAT` – Electrical counterpart/complement to `RESPOT.XXX` when present.
 

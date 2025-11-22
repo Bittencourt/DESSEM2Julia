@@ -47,6 +47,8 @@ export NetworkBus,
 export RestsegIndice,
     RestsegTabela, RestsegLimite, RestsegCelula, RestsegData, parse_restseg
 export RampasRecord, RampasData, parse_rampas
+export parse_rstlpp
+export parse_rmpflx
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -179,6 +181,10 @@ include("parser/restseg.jl")
 using .RestsegParser: parse_restseg
 include("parser/rampas.jl")
 using .RampasParser: parse_rampas
+include("parser/rstlpp.jl")
+using .RstlppParser: parse_rstlpp
+include("parser/rmpflx.jl")
+using .RmpflxParser: parse_rmpflx
 include("parser/registry.jl")
 using .ParserRegistry
 include("api.jl")

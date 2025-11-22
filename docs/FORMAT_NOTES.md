@@ -789,7 +789,59 @@ Parser implemented in Session 24. Handles fixed-width format with "FIM" footer m
 **Parser Strategy:**
 - Explicit check for `startswith(line, "FIM")` to break loop
 - Fixed-width extraction for all fields
-- `Union{String, Nothing}` for optional flags
+
+## RSTLPP.DAT - Piecewise Linear Constraints
+
+### Summary
+Parser implemented in Session 25. Handles fixed-width format.
+
+**Test Results:**
+- ✅ Parsed 10 records from CCEE sample (`DS_CCEE_102025_SEMREDE_RV0D28/rstlpp.dat`)
+- ✅ 17/17 tests passing (100%)
+
+### Format Observations
+
+| Field | Columns | Description |
+|-------|---------|-------------|
+| Mnemonic | 1-6 | "RSTLPP" |
+| Type | 8-11 | "LPP" |
+| Index | 13-17 | Integer index |
+| Flag | 19-21 | Integer flag |
+| Value | 23-32 | Float value |
+
+## RMPFLX.DAT - Flow Ramp Constraints
+
+### Summary
+Parser implemented in Session 25. Handles fixed-width format with REST and LIMI records.
+
+**Test Results:**
+- ✅ Parsed 2 records from CCEE sample (`DS_CCEE_102025_SEMREDE_RV0D28/rmpflx.dat`)
+- ✅ 28/28 tests passing (100%)
+
+### Format Observations
+
+**REST Record:**
+| Field | Columns | Description |
+|-------|---------|-------------|
+| Mnemonic | 1-6 | "REST" |
+| Type | 8-11 | "RMP" |
+| DREF | 13-16 | Constraint ID |
+| Value | 18-27 | Initial Value |
+
+**LIMI Record:**
+| Field | Columns | Description |
+|-------|---------|-------------|
+| Mnemonic | 1-6 | "LIMI" |
+| Type | 8-11 | "RMP" |
+| Start Time | 13-19 | StageDate (Day/Hour/Half) |
+| End Time | 21-27 | StageDate (Day/Hour/Half) |
+| DREF | 29-32 | Constraint ID |
+| Desc | 34-43 | Description |
+| Sub | 45-54 | Subsystem |
+
+**Parser Strategy:**
+- Uses `parse_stage_date` for time fields in LIMI records
+- Fixed-width extraction for all fields
 
 ## References
 

@@ -506,9 +506,9 @@ result = parse_respot("docs/Sample/DS_ONS_102025_RV2D11/respot.dat")
    ✅ DADVAZ:             17/17 tests pass
    ✅ DEFLANT:          1,076/1,076 tests pass
    ✅ DESSELET:            15/15 tests pass
-   ✅ AREACONT:           77/77 tests pass (NEW!)
-   ✅ COTASR11:          107/107 tests pass (NEW!)
-   ✅ CURVTVIAG:          39/39 tests pass (NEW!)
+   ✅ AREACONT:          77/77 tests pass (NEW!)
+   ✅ COTASR11:         107/107 tests pass (NEW!)
+   ✅ CURVTVIAG:         39/39 tests pass (NEW!)
    ✅ ONS Integration:   123/123 tests pass
    
    TOTAL: 4,258 tests passing ✅ (+323 from session 13)
@@ -1349,6 +1349,16 @@ These are test artifacts, not parser bugs. All real-world formatted data parses 
     - **Test Coverage:** 27/27 tests passing (100%) ✅
       - All field combinations covered in synthetic tests
       - Real data: 2,426 records parsed successfully
+  - [x] **RSTLPP.DAT** - Piecewise linear power limits ✅ **COMPLETED**
+    - **Parser Implementation:**
+      - Fixed-width columns with precise positions
+      - Type safety with `Union{String, Nothing}` for optional fields
+    - **Test Coverage:** 17/17 tests passing (100%) ✅
+  - [x] **RMPFLX.DAT** - Flow ramp constraints ✅ **COMPLETED**
+    - **Parser Implementation:**
+      - Fixed-width columns with precise positions
+      - Type safety with `Union{String, Nothing}` for optional fields
+    - **Test Coverage:** 28/28 tests passing (100%) ✅
 
 See docs/file_formats.md for complete file list and priority order.
 
@@ -1400,21 +1410,27 @@ See docs/file_formats.md for complete file list and priority order.
   - All real CCEE production data parsing successfully
   - Handles truncated plant names (12-char limit)
   - Special "F" (final) end_day handling
-- ✅ **DADVAZ.DAT parser** (new) ⭐
+   - ✅ **DADVAZ.DAT parser** (new) ⭐
    - Parses header metadata plus daily natural inflow slices
    - Supports symbolic period markers and optional hours
    - Validated on synthetic fixtures and real CCEE dataset
-- ✅ **RAMPAS.DAT parser** (new) ⭐
+   - ✅ **RAMPAS.DAT parser** (new) ⭐
    - Parses thermal unit ramp trajectories from fixed-width data
+   - Validated against synthetic data and real CCEE dataset
+   - ✅ **RSTLPP.DAT parser** (new) ⭐
+   - Parses piecewise linear power limits from fixed-width data
+   - Validated against synthetic data and real CCEE dataset
+   - ✅ **RMPFLX.DAT parser** (new) ⭐
+   - Parses flow ramp constraints from fixed-width data
    - Validated against synthetic data and real CCEE dataset
 
 **In Progress:**
 - 🎯 **Phase 1 - Parser Implementation** (Next Priority):
   1. Implement parsers for remaining core files using new type system:
-     - [ ] hidr.dat → HydroPlant (CADUSIH records)
-     - [ ] deflant.dat → previous_outflows (outflow time series)
-     - [ ] renovaveis.dat → WindPlant, SolarPlant (renewable forecasts)
-     - [ ] dessopc.dat → ExecutionOptions (solver config)
+     - [ ] HIDR.DAT → HydroPlant (CADUSIH records)
+     - [ ] DEFLANT.DAT → previous_outflows (outflow time series)
+     - [ ] RENOVAVEIS.DAT → WindPlant, SolarPlant (renewable forecasts)
+     - [ ] DESSOPC.DAT → ExecutionOptions (solver config)
   2. Update existing parsers to populate new types:
      - [ ] Refactor termdat.jl to use ThermalPlant/ThermalUnit
      - [ ] Refactor entdados.jl to use TimePeriod/Subsystem/LoadDemand
@@ -1429,6 +1445,8 @@ See docs/file_formats.md for complete file list and priority order.
 - ✅ Implemented RAMPAS.DAT parser with full coverage
 - ✅ Added RAMPAS data structures to core type system and public API
 - ✅ Established regression tests (synthetic + CCEE sample) for ramp trajectories
+- ✅ Implemented RSTLPP.DAT parser with full coverage
+- ✅ Implemented RMPFLX.DAT parser with full coverage
 
 **Immediate Next Steps:**
 1. **Implement remaining high-priority parsers**:
