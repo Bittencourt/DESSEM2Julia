@@ -70,6 +70,30 @@ Pkg.test()
   - Edge thickness by power flow
   - Network statistics and connectivity analysis
   - See [`examples/NETWORK_VISUALIZATION.md`](examples/NETWORK_VISUALIZATION.md) for complete guide
+
+- **Transmission Analysis** ⚡ **NEW!**: [`examples/analyze_transmission.jl`](examples/analyze_transmission.jl)
+  - Analyze network congestion and identify bottlenecks
+  - List critical aggregate constraints (Sum of Flows)
+  - Identify backbone transmission lines (highest flow)
+
+- **Renewable Energy Analysis** ☀️ **NEW!**: [`examples/analyze_renewables.jl`](examples/analyze_renewables.jl)
+  - Analyze wind and solar generation profiles
+  - Aggregate generation by subsystem
+  - Identify top renewable plants
+
+- **Demand Analysis** 📉 **NEW!**: [`examples/analyze_demand.jl`](examples/analyze_demand.jl)
+  - Visualize system demand blocks
+  - Group demand by subsystem
+  - Show daily load profiles
+
+- **Thermal Cost Ranking** 💰 **NEW!**: [`examples/rank_thermal_costs.jl`](examples/rank_thermal_costs.jl)
+  - Rank thermal units by operating cost
+  - Identify cheapest and most expensive generation
+
+- **Hydro Cascades** 💧 **NEW!**: [`examples/visualize_hydro_cascades.jl`](examples/visualize_hydro_cascades.jl)
+  - Visualize hydro basins and upstream/downstream relationships
+  - Calculate total capacity per basin
+
 - **Parse sample DESSEM case**: [`examples/parse_sample_case.jl`](examples/parse_sample_case.jl) - Comprehensive demonstration of parsing real CCEE data
 - **ONS compatibility check**: [`examples/verify_ons_compatibility.jl`](examples/verify_ons_compatibility.jl) - Verify parser works with ONS network-enabled cases
 - **OPERUH parser test**: [`examples/test_operuh_parse.jl`](examples/test_operuh_parse.jl) - Simple OPERUH parser demonstration

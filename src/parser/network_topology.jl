@@ -46,6 +46,7 @@ PDO_SOMFLUX.DAT - Line flow summary by electrical constraint
 function parse_pdo_somflux_topology(filepath::AbstractString; stage::Int = 1)
     lines = NetworkLine[]
     buses_set = Set{Int}()
+    constraints = Dict{String,Any}()
     load_level = ""
     in_data = false
 
@@ -82,22 +83,8 @@ function parse_pdo_somflux_topology(filepath::AbstractString; stage::Int = 1)
                     load_level = load_level_str
                 end
 
-                # Extract bus numbers (fields 8 and 9)
-                from_bus_str = strip(parts[8])
-                to_bus_str = strip(parts[9])
-
-                # Skip summary rows (no bus numbers)
-                (from_bus_str == "-" || to_bus_str == "-") && continue
-                (isempty(from_bus_str) || isempty(to_bus_str)) && continue
-
-                from_bus = parse(Int, from_bus_str)
-                to_bus = parse(Int, to_bus_str)
-
-                # Extract circuit ID (field 10)
-                circuit_str = strip(parts[10])
-                circuit =
-                    (circuit_str == "-" || isempty(circuit_str)) ? 1 :
-                    parse(Int, circuit_str)
+                # Extract constraint name
+                constraint_name = strip(parts[6])
 
                 # Extract flow value (field 11)
                 flow_str = strip(parts[11])
@@ -113,8 +100,35 @@ function parse_pdo_somflux_topology(filepath::AbstractString; stage::Int = 1)
                     capacity = parse(Float64, replace(capacity_str, "," => "."))
                 end
 
-                # Constraint name
-                constraint_name = strip(parts[6])
+                # Extract Linf (field 12)
+                linf_str = strip(parts[12])
+                linf = nothing
+                if !isempty(linf_str) && linf_str != "-"
+                    linf = parse(Float64, replace(linf_str, "," => "."))
+                end
+
+                # Extract bus numbers (fields 8 and 9)
+                from_bus_str = strip(parts[8])
+                to_bus_str = strip(parts[9])
+
+                # Check if summary row (no bus numbers)
+                if (from_bus_str == "-" || to_bus_str == "-")
+                    # Store constraint info
+                    constraints[constraint_name] =
+                        Dict("flow" => flow, "Linf" => linf, "Lsup" => capacity)
+                    continue
+                end
+
+                (isempty(from_bus_str) || isempty(to_bus_str)) && continue
+
+                from_bus = parse(Int, from_bus_str)
+                to_bus = parse(Int, to_bus_str)
+
+                # Extract circuit ID (field 10)
+                circuit_str = strip(parts[10])
+                circuit =
+                    (circuit_str == "-" || isempty(circuit_str)) ? 1 :
+                    parse(Int, circuit_str)
 
                 # Add line
                 push!(
@@ -149,7 +163,11 @@ function parse_pdo_somflux_topology(filepath::AbstractString; stage::Int = 1)
         lines = lines,
         stage = stage,
         load_level = load_level,
-        metadata = Dict("source" => "pdo_somflux.dat", "stage" => stage),
+        metadata = Dict(
+            "source" => "pdo_somflux.dat",
+            "stage" => stage,
+            "constraints" => constraints,
+        ),
     )
 end
 
@@ -264,6 +282,68 @@ function parse_pdo_operacao_buses(filepath::AbstractString; stage::Int = 1)
 end
 
 # ============================================================================
+# PWF Parser - Bus Names (Fallback)
+# ============================================================================
+
+"""
+    parse_pwf_bus_names(filepath) -> Dict{Int, String}
+
+Extract bus names from a PWF (Power Flow) file.
+Used as a fallback when PDO_OPERACAO.DAT doesn't contain all bus names.
+
+# Arguments
+- `filepath`: Path to .pwf file
+
+# Returns
+- `Dict{Int, String}`: Map of bus_number => bus_name
+"""
+function parse_pwf_bus_names(filepath::AbstractString)
+    bus_names = Dict{Int,String}()
+    in_dbar = false
+
+    open(filepath, "r") do io
+        for line in eachline(io)
+            if startswith(line, "DBAR")
+                in_dbar = true
+                continue
+            end
+
+            if in_dbar
+                if startswith(line, "99999") ||
+                   startswith(line, "GLIN") ||
+                   startswith(line, "DGER")
+                    in_dbar = false
+                    continue
+                end
+
+                if startswith(line, "(") # Skip header
+                    continue
+                end
+
+                # Fixed width parsing for DBAR
+                # Num: 1-5
+                # Name: 11-22
+                if length(line) >= 22
+                    try
+                        num_str = strip(line[1:5])
+                        name_str = strip(line[11:22])
+
+                        if !isempty(num_str)
+                            num = parse(Int, num_str)
+                            bus_names[num] = name_str
+                        end
+                    catch
+                        continue
+                    end
+                end
+            end
+        end
+    end
+
+    return bus_names
+end
+
+# ============================================================================
 # Combined Topology Extraction
 # ============================================================================
 
@@ -275,6 +355,7 @@ Extract complete network topology from DESSEM case directory.
 Combines data from:
 1. PDO_SOMFLUX.DAT - Line connectivity and flows
 2. PDO_OPERACAO.DAT - Bus attributes (generation, load, names)
+3. *.PWF - Bus names (fallback for transmission buses)
 
 # Arguments
 - `case_dir`: Path to DESSEM case directory
@@ -297,29 +378,69 @@ function parse_network_topology(case_dir::AbstractString; stage::Int = 1)
 
     # Parse bus attributes from PDO_OPERACAO
     operacao_path = joinpath(case_dir, "pdo_operacao.dat")
+    bus_attrs = Dict{Int,NetworkBus}()
     if isfile(operacao_path)
         bus_attrs = parse_pdo_operacao_buses(operacao_path, stage = stage)
+    end
 
-        # Enrich topology buses with attributes
-        enriched_buses = NetworkBus[]
-        for bus in topology.buses
-            if haskey(bus_attrs, bus.bus_number)
-                # Use enriched version
-                push!(enriched_buses, bus_attrs[bus.bus_number])
-            else
-                # Keep original
-                push!(enriched_buses, bus)
+    # Parse bus names from PWF (if available)
+    pwf_names = Dict{Int,String}()
+    # Look for any .pwf file
+    for file in readdir(case_dir)
+        if endswith(lowercase(file), ".pwf")
+            pwf_path = joinpath(case_dir, file)
+            try
+                new_names = parse_pwf_bus_names(pwf_path)
+                merge!(pwf_names, new_names)
+                # If we found one, that's usually enough (base case)
+                break
+            catch e
+                @warn "Failed to parse PWF file: $file"
             end
         end
-
-        topology = NetworkTopology(
-            buses = enriched_buses,
-            lines = topology.lines,
-            stage = topology.stage,
-            load_level = topology.load_level,
-            metadata = merge(topology.metadata, Dict("enriched" => true)),
-        )
     end
+
+    # Enrich topology buses with attributes
+    enriched_buses = NetworkBus[]
+    for bus in topology.buses
+        new_bus = bus
+
+        # 1. Apply PDO_OPERACAO attributes (Generation, Load, Name)
+        if haskey(bus_attrs, bus.bus_number)
+            attr_bus = bus_attrs[bus.bus_number]
+            new_bus = NetworkBus(
+                bus_number = bus.bus_number,
+                name = !isempty(attr_bus.name) ? attr_bus.name : bus.name,
+                subsystem = !isempty(attr_bus.subsystem) ? attr_bus.subsystem :
+                            bus.subsystem,
+                generation_mw = attr_bus.generation_mw,
+                load_mw = attr_bus.load_mw,
+                voltage_kv = bus.voltage_kv,
+            )
+        end
+
+        # 2. Apply PWF names (if name is still empty or default)
+        if isempty(new_bus.name) && haskey(pwf_names, bus.bus_number)
+            new_bus = NetworkBus(
+                bus_number = new_bus.bus_number,
+                name = pwf_names[bus.bus_number],
+                subsystem = new_bus.subsystem,
+                generation_mw = new_bus.generation_mw,
+                load_mw = new_bus.load_mw,
+                voltage_kv = new_bus.voltage_kv,
+            )
+        end
+
+        push!(enriched_buses, new_bus)
+    end
+
+    topology = NetworkTopology(
+        buses = enriched_buses,
+        lines = topology.lines,
+        stage = topology.stage,
+        load_level = topology.load_level,
+        metadata = merge(topology.metadata, Dict("enriched" => true)),
+    )
 
     return topology
 end

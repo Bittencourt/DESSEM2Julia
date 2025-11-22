@@ -50,6 +50,11 @@ julia --project=. examples/plot_network_simple.jl
 
 ### Hydro System
 
+- **`visualize_hydro_cascades.jl`** ⭐ NEW!
+  - Visualize hydro basins (Sink <- Upstream)
+  - Handles both binary and text HIDR formats
+  - Shows total capacity per basin
+
 - **`hydro_tree_example.jl`**
   - Build hydro cascade tree
   - Visualize upstream/downstream relationships
@@ -60,6 +65,11 @@ julia --project=. examples/plot_network_simple.jl
 
 ### Thermal System
 
+- **`rank_thermal_costs.jl`** ⭐ NEW!
+  - Rank thermal units by operating cost (R$/MWh)
+  - Uses OPERUT.DAT data
+  - Shows cheapest to most expensive units
+
 - **`list_thermal_costs.jl`**
   - Extract thermal generation costs
   - Sort by cost/MW
@@ -67,6 +77,28 @@ julia --project=. examples/plot_network_simple.jl
 - **`plot_thermal_costs.jl`**
   - Visualize cost curves
   - Compare plants
+
+### Transmission Network
+
+- **`analyze_transmission.jl`** ⭐ NEW!
+  - Analyze network congestion (PDO_SOMFLUX.DAT)
+  - Identify most heavily loaded lines
+  - List backbone transmission lines (highest flow)
+  - Statistics on network loading
+
+### Renewable Energy
+
+- **`analyze_renewables.jl`** ⭐ NEW!
+  - Analyze renewable generation profiles (Wind/Solar)
+  - Aggregate generation by subsystem
+  - Identify top renewable plants
+
+### Load & Demand
+
+- **`analyze_demand.jl`** ⭐ NEW!
+  - Analyze system demand blocks from ENTDADOS.DAT
+  - Group demand by subsystem
+  - Show daily load profiles
 
 ### Subsystem Analysis
 

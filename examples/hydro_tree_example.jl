@@ -11,12 +11,57 @@ This script demonstrates:
 
 using DESSEM2Julia
 
+# Helper to get field values regardless of format (Binary/Text)
+function get_id(plant)
+    hasproperty(plant, :posto) ? plant.posto : plant.plant_num
+end
+
+function get_name(plant)
+    hasproperty(plant, :nome) ? strip(plant.nome) : strip(plant.plant_name)
+end
+
+function get_downstream(plant)
+    val = hasproperty(plant, :jusante) ? plant.jusante : plant.downstream_plant
+    return val === nothing ? 0 : val
+end
+
+function get_subsystem(plant)
+    hasproperty(plant, :subsistema) ? plant.subsistema : plant.subsystem
+end
+
+function get_capacity(plant)
+    if hasproperty(plant, :potef_conjunto)
+        # Binary: sum of sets
+        total = 0.0
+        for i in 1:5
+            if plant.numero_maquinas_conjunto[i] > 0
+                total += plant.numero_maquinas_conjunto[i] * plant.potef_conjunto[i]
+            end
+        end
+        return total
+    else
+        # Text
+        return plant.installed_capacity
+    end
+end
+
+function get_vol_min(plant)
+    hasproperty(plant, :volume_minimo) ? plant.volume_minimo :
+    (plant.min_volume === nothing ? 0.0 : plant.min_volume)
+end
+
+function get_vol_max(plant)
+    hasproperty(plant, :volume_maximo) ? plant.volume_maximo :
+    (plant.max_volume === nothing ? 0.0 : plant.max_volume)
+end
+
 function build_plant_map(plants)
     """Build a dictionary mapping plant_num -> plant for quick lookup"""
     plant_map = Dict{Int,Any}()
     for plant in plants
-        if plant.plant_num > 0  # Skip empty/padding records
-            plant_map[plant.plant_num] = plant
+        id = get_id(plant)
+        if id > 0  # Skip empty/padding records
+            plant_map[id] = plant
         end
     end
     return plant_map
@@ -26,7 +71,7 @@ function find_upstream_plants(plant_num, plant_map)
     """Find all plants that flow into this plant"""
     upstream = []
     for (num, plant) in plant_map
-        if plant.downstream_plant == plant_num
+        if get_downstream(plant) == plant_num
             push!(upstream, num)
         end
     end
@@ -38,8 +83,9 @@ function find_root_plants(plant_map)
     # Get all plant numbers that are downstream of something
     downstream_plants = Set{Int}()
     for (num, plant) in plant_map
-        if plant.downstream_plant !== nothing && plant.downstream_plant > 0
-            push!(downstream_plants, plant.downstream_plant)
+        ds = get_downstream(plant)
+        if ds > 0
+            push!(downstream_plants, ds)
         end
     end
 
@@ -70,14 +116,15 @@ function print_tree(plant_num, plant_map, indent = 0, visited = Set{Int}())
     end
 
     # Format plant info
-    name = strip(plant.plant_name)
+    name = get_name(plant)
     if isempty(name)
         name = "[Unnamed]"
     end
 
-    capacity = plant.installed_capacity !== nothing ? plant.installed_capacity : 0.0
-    volume_min = plant.min_volume !== nothing ? plant.min_volume : 0.0
-    volume_max = plant.max_volume !== nothing ? plant.max_volume : 0.0
+    capacity = get_capacity(plant)
+    volume_min = get_vol_min(plant)
+    volume_max = get_vol_max(plant)
+    subsystem = get_subsystem(plant)
 
     # Print plant info
     prefix = indent == 0 ? "🏔️ " : "└─ "
@@ -87,12 +134,13 @@ function print_tree(plant_num, plant_map, indent = 0, visited = Set{Int}())
         "  "^indent *
         "   ├─ Volume: $(round(volume_min, digits=1)) - $(round(volume_max, digits=1)) hm³",
     )
-    println("  "^indent * "   └─ Subsystem: $(plant.subsystem)")
+    println("  "^indent * "   └─ Subsystem: $subsystem")
 
     # Find and print downstream plant
-    if plant.downstream_plant !== nothing && plant.downstream_plant > 0
+    ds = get_downstream(plant)
+    if ds > 0
         println("  "^indent * "   ⬇️  Flows to:")
-        print_tree(plant.downstream_plant, plant_map, indent + 1, visited)
+        print_tree(ds, plant_map, indent + 1, visited)
     else
         println("  "^indent * "   🌊 [Final discharge - no downstream plant]")
     end
@@ -114,10 +162,9 @@ function print_cascade_summary(plant_map)
     subsystems = Dict{Int,Int}()
     total_capacity = 0.0
     for (num, plant) in plant_map
-        subsystems[plant.subsystem] = get(subsystems, plant.subsystem, 0) + 1
-        if plant.installed_capacity !== nothing
-            total_capacity += plant.installed_capacity
-        end
+        sub = get_subsystem(plant)
+        subsystems[sub] = get(subsystems, sub, 0) + 1
+        total_capacity += get_capacity(plant)
     end
 
     println("\n🔌 Total installed capacity: $(round(total_capacity, digits=1)) MW")
@@ -148,11 +195,14 @@ function main()
     try
         data = parse_hidr(ons_sample)
         println("✅ Successfully parsed HIDR.DAT")
-        println("   Format: Binary (792 bytes/plant)")
-        println("   Plants found: $(length(data.plants))")
+
+        # Handle both binary and text formats
+        plants = hasproperty(data, :records) ? data.records : data.plants
+
+        println("   Plants found: $(length(plants))")
 
         # Build plant lookup map
-        plant_map = build_plant_map(data.plants)
+        plant_map = build_plant_map(plants)
         println("   Valid plants (excluding padding): $(length(plant_map))")
 
         # Print summary
@@ -212,25 +262,24 @@ function main()
         # Find a plant with downstream connection
         example_plant = nothing
         for (num, plant) in plant_map
-            if plant.downstream_plant !== nothing && plant.downstream_plant > 0
+            ds = get_downstream(plant)
+            if ds > 0
                 example_plant = plant
                 break
             end
         end
 
         if example_plant !== nothing
-            downstream_num = example_plant.downstream_plant
+            downstream_num = get_downstream(example_plant)
             upstream_plants = find_upstream_plants(downstream_num, plant_map)
 
             downstream = plant_map[downstream_num]
-            println(
-                "\n🎯 Example: Plant #$(downstream_num) - $(strip(downstream.plant_name))",
-            )
+            println("\n🎯 Example: Plant #$(downstream_num) - $(get_name(downstream))")
             println("   Receives water from $(length(upstream_plants)) upstream plant(s):")
 
             for up_num in upstream_plants
                 up_plant = plant_map[up_num]
-                println("      • #$up_num - $(strip(up_plant.plant_name))")
+                println("      • #$up_num - $(get_name(up_plant))")
             end
         end
 
