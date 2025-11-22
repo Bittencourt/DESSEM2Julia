@@ -168,11 +168,11 @@ using DESSEM2Julia
         &
         & This is a comment
         RP    1  11  0 0  F           TEST RESERVE POOL
-        
+
         & Another comment
         &
         LM    1  11  0 0  F            2500
-        
+
         LM    1  11  0 1  F            2400
         &
         """

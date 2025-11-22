@@ -32,6 +32,7 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 |------|-------------|--------|--------------|
 | OPERUH.XXX | Hydro plant operational constraints (REST, ELEM, LIM, VAR records) | ✅ Parser | § 8 |
 | OPERUT.XXX | Thermal unit operational data (INIT, OPER, RAMP, CUSTO, RESTR blocks) | ✅ Parser | § 9 |
+| PTOPER.DAT | Operating point / schedule definitions (PTOPER record) | ✅ Parser | § 9 |
 
 ## DECOMP Integration Files
 
@@ -88,7 +89,6 @@ With most core files implemented, remaining parser work is concentrated in a sma
 
 ### Constraint & Operational Files
 
-- `PTOPER.DAT` – Operating-point / schedule definitions (see IDESEM for exact scope).
 - `RESPOTELE.DAT` – Electrical counterpart/complement to `RESPOT.XXX` when present.
 
 ### DEC/DECOMP Binary Files

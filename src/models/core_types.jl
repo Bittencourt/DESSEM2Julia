@@ -29,6 +29,7 @@ export NetworkSystem, ElectricBus, TransmissionLine
 export OperationalConstraints,
     RampConstraint, LPPConstraint, TableConstraint, FlowRampConstraint
 export RmpflxRest, RmpflxLimi, RmpflxData
+export PtoperRecord, PtoperData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
@@ -669,6 +670,54 @@ Container for RMPFLX.DAT data (flow ramp constraints).
 Base.@kwdef struct RmpflxData
     rest_records::Vector{RmpflxRest} = RmpflxRest[]
     limi_records::Vector{RmpflxLimi} = RmpflxLimi[]
+end
+
+# ============================================================================
+# OPERATING POINT TYPES (PTOPER.DAT)
+# ============================================================================
+
+"""
+    PtoperRecord
+
+Operating point record (PTOPER.DAT).
+
+# Fields
+- `mnemonic::String`: Record mnemonic ("PTOPER")
+- `element_type::String`: Element type (e.g., "USIT")
+- `element_id::Int`: Element identification number
+- `variable::String`: Variable name (e.g., "GERA")
+- `start_day::Union{Int, String}`: Start day or "I"
+- `start_hour::Int`: Start hour (0-23)
+- `start_half::Int`: Start half-hour (0 or 1)
+- `end_day::Union{Int, String}`: End day or "F"
+- `end_hour::Int`: End hour (0-23)
+- `end_half::Int`: End half-hour (0 or 1)
+- `value::Float64`: Operating point value
+"""
+Base.@kwdef struct PtoperRecord
+    mnemonic::String = "PTOPER"
+    element_type::String
+    element_id::Int
+    variable::String
+    start_day::Union{Int,String}
+    start_hour::Int
+    start_half::Int
+    end_day::Union{Int,String}
+    end_hour::Int
+    end_half::Int
+    value::Float64
+end
+
+"""
+    PtoperData
+
+Container for PTOPER.DAT data.
+
+# Fields
+- `records::Vector{PtoperRecord}`: List of operating point records
+"""
+Base.@kwdef struct PtoperData
+    records::Vector{PtoperRecord} = PtoperRecord[]
 end
 
 """

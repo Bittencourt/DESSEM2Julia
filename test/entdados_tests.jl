@@ -420,8 +420,8 @@ using DESSEM2Julia
         @testset "Blank Lines Between Records" begin
             lines = """
             TM  28    0   0      0.5     0     LEVE
-            
-            
+
+
             TM  28    1   0      0.5     0     LEVE
             """
             data = parse_entdados(IOBuffer(lines))

@@ -23,6 +23,11 @@ include("areacont_tests.jl")
 include("cotasr11_tests.jl")
 include("curvtviag_tests.jl")
 include("rampas_tests.jl")
+include("operuh_tests.jl")
+include("restseg_tests.jl")
+include("rstlpp_tests.jl")
+include("rmpflx_tests.jl")
+include("ptoper_tests.jl")
 include("network_topology_tests.jl")
 
 # Integration tests with real ONS sample data

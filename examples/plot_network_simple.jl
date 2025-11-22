@@ -44,14 +44,14 @@ function plot_electrical_network(
 )
     """
     Create a typical electrical network diagram.
-    
+
     Buses shown as:
     - Red nodes: Southeast (SE) subsystem
     - Cyan nodes: South (S) subsystem  
     - Yellow nodes: Northeast (NE) subsystem
     - Green nodes: North (N) subsystem
     - Gray nodes: Unknown subsystem
-    
+
     Lines shown with:
     - Thickness proportional to power flow
     - Opacity indicating flow magnitude

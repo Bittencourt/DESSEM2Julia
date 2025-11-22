@@ -282,6 +282,15 @@ Notes for Windows:
   - Pos 18-19: day_final (2 chars)
   - Pos 26-35: limit value (F10.2)
 
+### ✅ PTOPER.DAT Parser - Production Ready ⭐ **NEW!**
+- Parses operating point / schedule definitions
+- **17/17 tests passing** (100%)
+- Successfully parses real CCEE and ONS data:
+  - Fixed-width format handling element types (TERM, HIDR, etc.)
+  - Parses start/end times (Day, Hour, Half-hour)
+  - Handles optional fields and variable spacing
+- Validated against IDESEM column specifications
+
 ---
 
 ### 📊 Overall Parser Progress
@@ -302,6 +311,7 @@ For current parser counts and coverage, see File Formats Overview (docs/file_for
 - ✅ dessopc.dat (execution options - solver configuration)
 - ✅ renovaveis.dat (renewable energy plants & relationships)
 - ✅ **respot.dat (power reserve requirements)** ⭐ **SESSION 23 - NEW!**
+- ✅ **ptoper.dat (operating point definitions)** ⭐ **NEW!**
 - ✅ restseg.dat (dynamic security constraints)
 - ✅ **Network topology from PDO files**
 
@@ -313,7 +323,7 @@ For current parser counts and coverage, see File Formats Overview (docs/file_for
 
 ### 🧪 Test Coverage
 
-**Total Tests**: 2,994+ tests passing ✅ 🎉
+**Total Tests**: 3,011+ tests passing ✅ 🎉
 - ParserCommon utilities: 124 tests
 - TERMDAT parser: 136 tests
 - ENTDADOS parser: 2,362 tests
@@ -323,6 +333,7 @@ For current parser counts and coverage, see File Formats Overview (docs/file_for
 - DEFLANT parser: 56 tests
 - DESSELET parser: 15 tests
 - RESPOT parser: 235 tests ⭐ **NEW**
+- PTOPER parser: 17 tests ⭐ **NEW**
 - AREACONT parser: 77 tests
 - COTASR11 parser: 107 tests
 - CURVTVIAG parser: 39 tests

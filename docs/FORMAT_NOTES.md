@@ -843,6 +843,36 @@ Parser implemented in Session 25. Handles fixed-width format with REST and LIMI 
 - Uses `parse_stage_date` for time fields in LIMI records
 - Fixed-width extraction for all fields
 
+## PTOPER.DAT - Operating Point
+
+### Summary
+Parser implemented in Session 26. Handles fixed-width format with "PTOPER" mnemonic.
+
+**Test Results:**
+- ✅ Parsed 23 records from CCEE sample (`DS_CCEE_102025_SEMREDE_RV0D28/ptoper.dat`)
+- ✅ 17/17 tests passing (100%)
+
+### Format Observations
+
+| Field | Columns | Description |
+|-------|---------|-------------|
+| Mnemonic | 1-6 | "PTOPER" |
+| Type | 8-12 | Element Type (e.g., "USIT") |
+| ID | 13-17 | Element ID |
+| Variable | 19-24 | Variable Name (e.g., "GERA") |
+| Start Day | 26-27 | Day or "I" |
+| Start Hour | 29-30 | Hour |
+| Start Half | 32 | Half-hour flag |
+| End Day | 34-35 | Day or "F" |
+| End Hour | 37-38 | Hour |
+| End Half | 40 | Half-hour flag |
+| Value | 42-60 | Float value |
+
+**Parser Strategy:**
+- Fixed-width extraction based on sample analysis
+- Supports "I"/"F" markers for start/end days
+- Handles optional end hour/half (defaults to 0)
+
 ## References
 
 - Specification: `docs/dessem-complete-specs.md`

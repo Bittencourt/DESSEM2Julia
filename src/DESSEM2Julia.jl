@@ -49,6 +49,7 @@ export RestsegIndice,
 export RampasRecord, RampasData, parse_rampas
 export parse_rstlpp
 export parse_rmpflx
+export PtoperRecord, PtoperData, parse_ptoper
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -185,6 +186,8 @@ include("parser/rstlpp.jl")
 using .RstlppParser: parse_rstlpp
 include("parser/rmpflx.jl")
 using .RmpflxParser: parse_rmpflx
+include("parser/ptoper.jl")
+using .PtoperParser: parse_ptoper
 include("parser/registry.jl")
 using .ParserRegistry
 include("api.jl")

@@ -80,7 +80,7 @@ end
 function parse_rest_record(line::AbstractString)::Union{HydroConstraintREST,Nothing}
     """
     Parse OPERUH REST record (constraint definition).
-    
+
     IDESEM Reference: idessem/dessem/modelos/operuh.py - REST class
     Fields: IntegerField(5,14), LiteralField(1,21), LiteralField(1,23), LiteralField(12,27),
             FloatField(10,40,2), IntegerField(1,51), FloatField(5,55,2)
@@ -119,11 +119,11 @@ end
 function parse_elem_record(line::AbstractString)::Union{HydroConstraintELEM,Nothing}
     """
     Parse OPERUH ELEM record (plant participation in constraint).
-    
+
     IDESEM Reference: idessem/dessem/modelos/operuh.py - ELEM class
     Fields: IntegerField(5,14), IntegerField(3,20), LiteralField(12,25),
             IntegerField(2,40), FloatField(5,43,2)
-    
+
     Column positions (Julia 1-indexed):
     - constraint_id: 15-19 (size 5)
     - plant_code: 21-23 (size 3)
@@ -156,7 +156,7 @@ end
 function parse_lim_record(line::AbstractString)::Union{HydroConstraintLIM,Nothing}
     """
     Parse OPERUH LIM record (operational limits).
-    
+
     IDESEM Reference: idessem/dessem/modelos/operuh.py - LIM class
     Fields: IntegerField(5,14), StageDateField(20,'I'), StageDateField(28,'F'),
             FloatField(10,38,2), FloatField(10,48,2)
@@ -196,7 +196,7 @@ end
 function parse_var_record(line::AbstractString)::Union{HydroConstraintVAR,Nothing}
     """
     Parse OPERUH VAR record (variation/ramp constraints).
-    
+
     IDESEM Reference: idessem/dessem/modelos/operuh.py - VAR class
     Fields: IntegerField(5,14), StageDateField(19,'I'), StageDateField(27,'F'),
             FloatField(10,37,2), FloatField(10,47,2), FloatField(10,57,2), FloatField(10,67,2)
