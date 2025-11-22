@@ -1,5 +1,8 @@
 # DESSEM2Julia
 
+[![CI](https://github.com/Bittencourt/DESSEM2Julia/actions/workflows/ci.yml/badge.svg)](https://github.com/Bittencourt/DESSEM2Julia/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/Bittencourt/DESSEM2Julia/graph/badge.svg)](https://codecov.io/gh/Bittencourt/DESSEM2Julia)
+
 Convert DESSEM input files (.DAT and related text files) into structured Julia objects and persist them in JLD2 format.
 
 DESSEM is a hydrothermal dispatch optimization model used for short-term operational planning in Brazilian power systems.
@@ -239,7 +242,7 @@ Notes for Windows:
   - 629 transmission lines with flow/capacity data
   - Subsystem mapping (NE, SE, S, N)
   - Connectivity analysis and graph metrics
-- **Visualization capabilities**:
+  - **Visualization capabilities**:
   - Interactive network diagrams (buses & lines)
   - Color-coded by subsystem
   - Edge thickness by power flow magnitude
