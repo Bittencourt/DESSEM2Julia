@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, 'feat/*' ]
   pull_request:
     branches: [ main, dev ]
 
@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          julia --color=yes -e 'using Pkg; Pkg.add(;name="JuliaFormatter", version="1"); using JuliaFormatter; format(".", verbose=true)'
+          julia --color=yes scripts/format_ci.jl
           if ! git diff --quiet; then
             echo "::error::Code is not formatted. Please run locally: using JuliaFormatter; format(\".\")"
             echo "Changed files:" && git --no-pager diff --name-only
