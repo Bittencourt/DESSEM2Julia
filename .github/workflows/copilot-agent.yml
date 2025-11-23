@@ -1,0 +1,44 @@
+name: Copilot Agent Runner
+
+on:
+  push:
+    branches:
+      - 'feat/agent-*/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  run-agent:
+    name: 🤖 Agent Runner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for Instructions
+        id: check_instructions
+        run: |
+          if [ -f INSTRUCTIONS.md ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "::notice title=Instructions Found::Found INSTRUCTIONS.md for Agent"
+            cat INSTRUCTIONS.md
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::warning title=Missing Instructions::No INSTRUCTIONS.md found in root"
+          fi
+
+      - name: Execute Agent Task
+        if: steps.check_instructions.outputs.exists == 'true'
+        run: |
+          echo "🚀 Deploying Copilot Agent for branch ${{ github.ref_name }}"
+          echo "📋 Task: Follow INSTRUCTIONS.md"
+          echo "----------------------------------------"
+          cat INSTRUCTIONS.md
+          echo "----------------------------------------"
+          echo "Agent is analyzing the task..."
+          # Placeholder for actual agent invocation
+          # e.g., gh copilot run "Implement the parser described in INSTRUCTIONS.md"
