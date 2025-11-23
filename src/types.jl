@@ -2916,4 +2916,99 @@ Base.@kwdef struct RampasData
     records::Vector{RampasRecord} = RampasRecord[]
 end
 
-end # module
+# ============================================================================
+# Battery Storage (BATERIA.XXX) Types
+# ============================================================================
+
+"""
+    BateriaRecord
+
+Battery storage system configuration record from BATERIA.XXX.
+
+# Fields
+- `battery_id::Int`: Battery identifier (1-999)
+- `name::String`: Battery name (12 characters max)
+- `subsystem_id::Int`: Subsystem number per SIST records
+- `charging_capacity::Float64`: Maximum charging capacity (MW)
+- `discharging_capacity::Float64`: Maximum discharging capacity (MW)
+- `energy_capacity::Float64`: Maximum energy storage capacity (MWh)
+- `initial_energy::Union{Float64, Nothing}`: Initial stored energy (MWh)
+- `charging_efficiency::Union{Float64, Nothing}`: Charging efficiency (0-1)
+- `discharging_efficiency::Union{Float64, Nothing}`: Discharging efficiency (0-1)
+"""
+Base.@kwdef struct BateriaRecord
+    battery_id::Int
+    name::String
+    subsystem_id::Int
+    charging_capacity::Float64
+    discharging_capacity::Float64
+    energy_capacity::Float64
+    initial_energy::Union{Float64,Nothing} = nothing
+    charging_efficiency::Union{Float64,Nothing} = nothing
+    discharging_efficiency::Union{Float64,Nothing} = nothing
+end
+
+"""
+    BateriaData
+
+Container for BATERIA.XXX data (battery storage systems).
+
+# Fields
+- `records::Vector{BateriaRecord}`: Battery configuration records
+"""
+Base.@kwdef struct BateriaData
+    records::Vector{BateriaRecord} = BateriaRecord[]
+end
+
+# ============================================================================
+# Ilha Solteira - Três Irmãos Channel (ILSTRI.DAT) Types
+# ============================================================================
+
+"""
+    IlstriData
+
+Container for ILSTRI.DAT data (Ilha Solteira - Três Irmãos channel).
+Currently implemented as a placeholder storing raw lines.
+
+# Fields
+- `lines::Vector{String}`: Raw file lines
+"""
+Base.@kwdef struct IlstriData
+    lines::Vector{String} = String[]
+end
+
+# ============================================================================
+# Loss Tolerance (TOLPERD.DAT) Types
+# ============================================================================
+
+"""
+    TolperdData
+
+Container for TOLPERD.DAT data (loss tolerance parameters).
+Currently implemented as a placeholder storing raw lines.
+
+# Fields
+- `lines::Vector{String}`: Raw file lines
+"""
+Base.@kwdef struct TolperdData
+    lines::Vector{String} = String[]
+end
+
+# ============================================================================
+# Weekly Targets (METAS.DAT) Types
+# ============================================================================
+
+"""
+    MetasData
+
+Container for METAS.DAT data (weekly targets).
+Currently implemented as a placeholder storing raw lines.
+
+# Fields
+- `lines::Vector{String}`: Raw file lines
+"""
+Base.@kwdef struct MetasData
+    lines::Vector{String} = String[]
+end
+
+end # module Types

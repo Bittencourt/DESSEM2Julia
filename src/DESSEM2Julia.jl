@@ -52,6 +52,10 @@ export parse_rmpflx
 export PtoperRecord, PtoperData, parse_ptoper
 export ModifRecord, ModifData, parse_modif
 export parse_mlt
+export BateriaRecord, BateriaData, parse_bateria
+export IlstriData, parse_ilstri
+export TolperdData, parse_tolperd
+export MetasData, parse_metas
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -137,7 +141,12 @@ using .Types:
     RestsegCelula,
     RestsegData,
     RampasRecord,
-    RampasData
+    RampasData,
+    BateriaRecord,
+    BateriaData,
+    IlstriData,
+    TolperdData,
+    MetasData
 include("models/core_types.jl")
 using .CoreTypes
 include("io.jl")
@@ -205,6 +214,14 @@ include("parser/mlt.jl")
 using .MltParser: parse_mlt
 include("parser/binary_dec.jl")
 using .BinaryDecParser: parse_infofcf, parse_mapcut, parse_cortes
+include("parser/bateria.jl")
+using .BateriaParser: parse_bateria
+include("parser/ilstri.jl")
+using .IlstriParser: parse_ilstri
+include("parser/tolperd.jl")
+using .TolperdParser: parse_tolperd
+include("parser/metas.jl")
+using .MetasParser: parse_metas
 
 export
     # Types
@@ -286,6 +303,11 @@ export
     MapcutData,
     CortesRecord,
     CortesData,
+    BateriaRecord,
+    BateriaData,
+    IlstriData,
+    TolperdData,
+    MetasData,
 
     # Functions
     parse_file,
@@ -314,6 +336,10 @@ parse_rstlpp
 parse_rmpflx
 parse_ptoper
 parse_mlt, parse_infofcf, parse_mapcut, parse_cortes
+parse_bateria
+parse_ilstri
+parse_tolperd
+parse_metas
 
 function greet(name = "world")
     return "Hello, $(name)! 👋"
@@ -346,6 +372,10 @@ function __init__()
     register_parser!("INFOFCF.DEC", parse_infofcf)
     register_parser!("MAPCUT.DEC", parse_mapcut)
     register_parser!("CORTES.DEC", parse_cortes)
+    register_parser!("BATERIA.XXX", parse_bateria)
+    register_parser!("ILSTRI.DAT", parse_ilstri)
+    register_parser!("TOLPERD.DAT", parse_tolperd)
+    register_parser!("METAS.DAT", parse_metas)
 end
 
 end # module

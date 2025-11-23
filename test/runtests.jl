@@ -29,6 +29,10 @@ include("restseg_tests.jl")
 include("rstlpp_tests.jl")
 include("rmpflx_tests.jl")
 include("ptoper_tests.jl")
+include("bateria_tests.jl")
+include("ilstri_tests.jl")
+include("tolperd_tests.jl")
+include("metas_tests.jl")
 include("network_topology_tests.jl")
 
 # Integration tests with real ONS sample data

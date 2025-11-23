@@ -72,6 +72,7 @@ Base.@kwdef struct DessemArq
     ilibs::Union{String,Nothing} = nothing
     dessopc::Union{String,Nothing} = nothing
     rmpflx::Union{String,Nothing} = nothing
+    bateria::Union{String,Nothing} = nothing
     files::Vector{DessemFileRecord} = DessemFileRecord[]
 end
 
@@ -217,6 +218,7 @@ function parse_dessemarq(filepath::String)::DessemArq
         ilibs = get(files, :ilibs, nothing),
         dessopc = get(files, :dessopc, nothing),
         rmpflx = get(files, :rmpflx, nothing),
+        bateria = get(files, :bateria, nothing),
         files = records,
     )
 end
