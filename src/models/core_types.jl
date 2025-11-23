@@ -35,6 +35,10 @@ export MltRecord, MltData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
+export InfofcfRecord, InfofcfData
+export MapcutRecord, MapcutData
+export CortesRecord, CortesData
+export MltRecord, MltData
 
 # ============================================================================
 # TIME DISCRETIZATION TYPES
@@ -723,34 +727,6 @@ Base.@kwdef struct PtoperData
 end
 
 """
-    MltRecord
-
-Long-term average flow record (MLT.DAT).
-
-# Fields
-- `plant_num::Int`: Plant number
-- `plant_name::String`: Plant name (reference only)
-- `monthly_flows::Vector{Float64}`: 12 monthly flow values (Jan-Dec) in m³/s
-"""
-Base.@kwdef struct MltRecord
-    plant_num::Int
-    plant_name::String = ""
-    monthly_flows::Vector{Float64} = Float64[]
-end
-
-"""
-    MltData
-
-Container for MLT.DAT data (Long-term average flows).
-
-# Fields
-- `records::Vector{MltRecord}`: List of MLT records
-"""
-Base.@kwdef struct MltData
-    records::Vector{MltRecord} = MltRecord[]
-end
-
-"""
     OperationalConstraints
 
 All operational constraints for the study.
@@ -771,6 +747,66 @@ end
 # ============================================================================
 # DECOMP INTERFACE TYPES (MAPCUT.RV0, CORTDECO.RV0, INFOFCF.DAT)
 # ============================================================================
+
+"""
+    InfofcfRecord
+
+Record from INFOFCF.DEC (Binary).
+Placeholder for now.
+"""
+struct InfofcfRecord
+    # TODO: Define fields based on binary spec
+    raw_data::Vector{UInt8}
+end
+
+"""
+    InfofcfData
+
+Container for INFOFCF.DEC data.
+"""
+Base.@kwdef struct InfofcfData
+    records::Vector{InfofcfRecord} = InfofcfRecord[]
+end
+
+"""
+    MapcutRecord
+
+Record from MAPCUT.DEC (Binary).
+Placeholder for now.
+"""
+struct MapcutRecord
+    # TODO: Define fields based on binary spec
+    raw_data::Vector{UInt8}
+end
+
+"""
+    MapcutData
+
+Container for MAPCUT.DEC data.
+"""
+Base.@kwdef struct MapcutData
+    records::Vector{MapcutRecord} = MapcutRecord[]
+end
+
+"""
+    CortesRecord
+
+Record from CORTES.DEC (Binary).
+Placeholder for now.
+"""
+struct CortesRecord
+    # TODO: Define fields based on binary spec
+    raw_data::Vector{UInt8}
+end
+
+"""
+    CortesData
+
+Container for CORTES.DEC data.
+"""
+Base.@kwdef struct CortesData
+    records::Vector{CortesRecord} = CortesRecord[]
+end
 
 """
     FCFCut
@@ -811,6 +847,26 @@ end
 # ============================================================================
 # SYSTEM CONFIGURATION (DESSOPC.DAT, MLT.DAT, CURVTVIAG.DAT, COTASR11.DAT, etc.)
 # ============================================================================
+
+"""
+    MltRecord
+
+Record from MLT.DAT (FPHA).
+Placeholder for now.
+"""
+Base.@kwdef struct MltRecord
+    # TODO: Define fields based on MLT spec
+    raw_line::String = ""
+end
+
+"""
+    MltData
+
+Container for MLT.DAT data.
+"""
+Base.@kwdef struct MltData
+    records::Vector{MltRecord} = MltRecord[]
+end
 
 """
     ExecutionOptions
