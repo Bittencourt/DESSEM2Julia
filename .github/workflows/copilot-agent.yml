@@ -42,3 +42,16 @@ jobs:
           echo "Agent is analyzing the task..."
           # Placeholder for actual agent invocation
           # e.g., gh copilot run "Implement the parser described in INSTRUCTIONS.md"
+
+      - name: Create Pull Request
+        if: steps.check_instructions.outputs.exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🚀 Creating Pull Request..."
+          gh pr create \
+            --title "feat: Implement parser for ${{ github.ref_name }}" \
+            --body "Automated PR for parser implementation based on INSTRUCTIONS.md." \
+            --base main \
+            --head ${{ github.ref_name }} \
+            || echo "⚠️ PR already exists or failed to create (check logs)"
