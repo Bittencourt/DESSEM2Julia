@@ -42,6 +42,7 @@ export RenovaveisRecord,
     parse_renovaveis,
     parse_renovaveis_record
 export RespotRP, RespotLM, RespotData, parse_respot, parse_rp_record, parse_lm_record
+export RespoteleRP, RespoteLM, RespoteleData, parse_respotele
 export NetworkBus,
     NetworkLine, NetworkTopology, parse_network_topology, parse_pdo_somflux_topology
 export RestsegIndice,
@@ -123,6 +124,9 @@ using .Types:
     RespotRP,
     RespotLM,
     RespotData,
+    RespoteleRP,
+    RespoteLM,
+    RespoteleData,
     NetworkBus,
     NetworkLine,
     NetworkTopology,
@@ -176,6 +180,8 @@ using .RenovaveisParser:
     parse_renovaveis_generation_record
 include("parser/respot.jl")
 using .RespotParser: parse_respot, parse_rp_record, parse_lm_record
+include("parser/respotele.jl")
+using .RespoteleParser: parse_respotele
 include("parser/network_topology.jl")
 using .NetworkTopologyParser: parse_network_topology, parse_pdo_somflux_topology
 include("parser/restseg.jl")
