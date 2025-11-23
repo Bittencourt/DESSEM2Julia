@@ -50,6 +50,7 @@ export RampasRecord, RampasData, parse_rampas
 export parse_rstlpp
 export parse_rmpflx
 export PtoperRecord, PtoperData, parse_ptoper
+export RivarRecord, RivarData, parse_rivar
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -186,6 +187,8 @@ include("parser/rstlpp.jl")
 using .RstlppParser: parse_rstlpp
 include("parser/rmpflx.jl")
 using .RmpflxParser: parse_rmpflx
+include("parser/rivar.jl")
+using .RivarParser: parse_rivar
 include("parser/ptoper.jl")
 using .PtoperParser: parse_ptoper
 include("parser/registry.jl")

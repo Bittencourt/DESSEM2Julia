@@ -81,7 +81,7 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | ILSTRI.DAT | Ilha Solteira - Três Irmãos channel data | TODO | § 14 |
 | RAMPAS.DAT | Thermal unit ramp trajectories | ✅ Parser | § 14 |
 | TOLPERD.XXX | Loss tolerance parameters | TODO | § 14 |
-| RIVAR.DAT | Soft variation constraints | TODO | § 14 |
+| RIVAR.DAT | Soft variation constraints | ✅ Parser | § 14 |
 
 ## Current Open Parser Targets (November 2025)
 
@@ -107,7 +107,6 @@ With most core files implemented, remaining parser work is concentrated in a sma
 - `MLT.DAT` – Long-term average flows (monthly).
 - `ILSTRI.DAT` – Ilha Solteira–Três Irmãos channel data.
 - `TOLPERD.XXX` – Loss tolerance parameters.
-- `RIVAR.DAT` – Soft variation constraints (if not fully covered elsewhere).
 
 For a historical view of earlier priority phases and how we arrived here, see `docs/planning/PROJECT_CONTEXT.md` and `docs/planning/TASKS.md`.
 
