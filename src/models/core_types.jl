@@ -29,6 +29,7 @@ export NetworkSystem, ElectricBus, TransmissionLine
 export OperationalConstraints,
     RampConstraint, LPPConstraint, TableConstraint, FlowRampConstraint
 export RmpflxRest, RmpflxLimi, RmpflxData
+export ModifRecord, ModifData
 export PtoperRecord, PtoperData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
@@ -889,6 +890,34 @@ Base.@kwdef struct FileRegistry
     ilibs::Union{String,Nothing} = nothing
     dessopc::Union{String,Nothing} = nothing
     rmpflx::Union{String,Nothing} = nothing
+end
+
+# ============================================================================
+# MODIFICATIONS (MODIF.DAT)
+# ============================================================================
+
+"""
+    ModifRecord
+
+Modification record (MODIF.DAT).
+
+# Fields
+- `line::String`: Raw line content (placeholder until format is known)
+"""
+Base.@kwdef struct ModifRecord
+    line::String
+end
+
+"""
+    ModifData
+
+Container for MODIF.DAT data.
+
+# Fields
+- `records::Vector{ModifRecord}`: List of modification records
+"""
+Base.@kwdef struct ModifData
+    records::Vector{ModifRecord} = ModifRecord[]
 end
 
 # ============================================================================
