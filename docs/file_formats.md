@@ -83,6 +83,22 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | TOLPERD.XXX | Loss tolerance parameters | TODO | § 14 |
 | RIVAR.DAT | Soft variation constraints | TODO | § 14 |
 
+## Files That Do Not Exist in Modern DESSEM
+
+The following files have been referenced in historical documentation but **do not exist in current DESSEM versions**:
+
+| File | Reason | Evidence | See Also |
+|------|--------|----------|----------|
+| **CONFHD.DAT** | Hydro configuration (hypothetical) | ❌ Not in IDESEM<br>❌ No samples<br>✅ Data in other files | [Investigation](parsers/CONFHD_INVESTIGATION.md) |
+| **SIMUL.XXX** | Simulation data (legacy) | ⚠️ IDESEM registry only<br>❌ No samples<br>📝 Parser exists | [Status](parsers/SIMUL_STATUS.md) |
+
+**Note**: Hydro configuration data is fully covered by existing parsers:
+- **HIDR.DAT** - Plant characteristics (binary format)
+- **ENTDADOS.DAT** - UH/FH/MH records (text format)
+- **OPERUH.DAT** - Operational constraints
+- **DEFLANT.DAT** - Initial conditions
+- **DADVAZ.DAT** - Inflow forecasts
+
 ## Current Open Parser Targets (November 2025)
 
 With most core files implemented, remaining parser work is concentrated in a small set of constraint, DEC/DECOMP, renewable, and auxiliary files. This section lists only genuinely pending targets.
