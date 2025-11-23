@@ -30,7 +30,7 @@ function parse_rstlpp(io::IO, filename::AbstractString)
     # Map constraint_id -> List of (type, code)
     # The first element is the main controller from RSTSEG
     # Subsequent elements are from ADICRS
-    controllers = Dict{Int,Vector{Tuple{String,Int}}}()
+    controllers = Dict{Int,Vector{Tuple{String,Union{Int,String}}}}()
 
     # Map constraint_id -> Name
     names = Dict{Int,String}()
@@ -62,9 +62,13 @@ function parse_rstlpp(io::IO, filename::AbstractString)
 
             # dref_id = parse(Int, strip(extract_field(line, 21, 24))) # Not used directly
 
-            type = strip(extract_field(line, 26, 30))
+            type = String(strip(extract_field(line, 26, 30)))
             code_str = strip(extract_field(line, 32, 36))
-            code = parse(Int, code_str)
+            code = try
+                parse(Int, code_str)
+            catch
+                String(code_str)
+            end
 
             names[id] = name
             controllers[id] = [(type, code)]
@@ -77,9 +81,13 @@ function parse_rstlpp(io::IO, filename::AbstractString)
             id_str = strip(extract_field(line, 16, 19))
             id = parse(Int, id_str)
 
-            type = strip(extract_field(line, 26, 30))
+            type = String(strip(extract_field(line, 26, 30)))
             code_str = strip(extract_field(line, 32, 36))
-            code = parse(Int, code_str)
+            code = try
+                parse(Int, code_str)
+            catch
+                String(code_str)
+            end
 
             if haskey(controllers, id)
                 push!(controllers[id], (type, code))
@@ -112,7 +120,7 @@ function parse_rstlpp(io::IO, filename::AbstractString)
             rhs_str = strip(extract_field(line, 28, 37))
             rhs = isempty(rhs_str) ? 0.0 : parse(Float64, rhs_str)
 
-            coeffs = Dict{Tuple{String,Int},Float64}()
+            coeffs = Dict{Tuple{String,Union{Int,String}},Float64}()
 
             # Add main controller coefficient
             if haskey(controllers, id) && length(controllers[id]) >= 1

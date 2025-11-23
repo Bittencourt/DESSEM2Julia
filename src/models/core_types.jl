@@ -580,7 +580,8 @@ Base.@kwdef struct LPPConstraint
     segment::Int = 0
     sense::String = "<="
     rhs::Float64
-    coefficients::Dict{Tuple{String,Int},Float64} = Dict{Tuple{String,Int},Float64}()
+    coefficients::Dict{Tuple{String,Union{Int,String}},Float64} =
+        Dict{Tuple{String,Union{Int,String}},Float64}()
 end
 
 """

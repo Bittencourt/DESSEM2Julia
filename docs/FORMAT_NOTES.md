@@ -809,6 +809,9 @@ Parser implemented in Session 25. Handles fixed-width format.
 | Flag | 19-21 | Integer flag |
 | Value | 23-32 | Float value |
 
+**Update (Nov 23, 2025):**
+- **String Identifiers**: The `IDENT` field (columns 32-36 in RSTSEG/ADICRS) can contain string mnemonics (e.g., "SE") in ONS production files, not just integers. The parser was updated to handle `Union{Int, String}`.
+
 ## RMPFLX.DAT - Flow Ramp Constraints
 
 ### Summary

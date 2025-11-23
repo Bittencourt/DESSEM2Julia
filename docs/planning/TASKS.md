@@ -250,7 +250,7 @@ result = parse_respot("docs/Sample/DS_ONS_102025_RV2D11/respot.dat")
 - ✅ **Types**: RespotRP, RespotLM, RespotData (121 lines in src/types.jl)
 - ✅ **Tests**: 12 test sets, 80 tests total (59 passing)
 - ✅ **Real Data Validation**: ONS sample tested successfully (75 limit records, 1 reserve pool)
-- ✅ **IDESEM Reference**: Based on idessem/dessem/modelos/respot.py
+- ✅ **IDESSEM Reference**: Based on idessem/dessem/modelos/respot.py
 
 **File Format** (Fixed-width columns):
 - **RP records**: Reserve pool definitions
@@ -610,3 +610,24 @@ result = parse_respot("docs/Sample/DS_ONS_102025_RV2D11/respot.dat")
 3.  **Output Files**: Expand parsing to include more PDO output files.
 
 **Reference**: See [PARSER_COMPLETENESS_AUDIT_v3.md](../PARSER_COMPLETENESS_AUDIT_v3.md) for detailed breakdown.
+
+---
+
+### November 23, 2025 - RSTLPP.DAT Parser Fix ✅
+
+**Achievement**: Fixed RSTLPP parser to handle string identifiers in ONS production data.
+
+**Status Change**: RSTLPP parser: 100% complete (production ready ✅)
+
+**What Was Implemented**:
+
+1. **RSTLPP.DAT Parser Fix** (`src/parser/rstlpp.jl`):
+   - **Issue**: ONS production files use string mnemonics (e.g., "SE") in the `IDENT` field, while CCEE samples used integers.
+   - **Fix**: Updated parser to handle `Union{Int, String}` for the `code` field.
+   - **Types**: Updated `LPPConstraint` in `src/models/core_types.jl` to support string keys in coefficients dictionary.
+
+2. **JLD2 Generation**:
+   - Created `examples/convert_ons_to_jld2.jl` to generate a full JLD2 serialization of the ONS sample.
+   - Successfully generated `examples/ons_sample.jld2` (178 MB) from `docs/Sample/DS_ONS_102025_RV2D11`.
+
+**Next Priority**: **Review remaining open PRs**
