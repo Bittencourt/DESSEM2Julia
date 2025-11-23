@@ -31,6 +31,7 @@ export OperationalConstraints,
 export RmpflxRest, RmpflxLimi, RmpflxData
 export ModifRecord, ModifData
 export PtoperRecord, PtoperData
+export MltRecord, MltData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
@@ -719,6 +720,34 @@ Container for PTOPER.DAT data.
 """
 Base.@kwdef struct PtoperData
     records::Vector{PtoperRecord} = PtoperRecord[]
+end
+
+"""
+    MltRecord
+
+Long-term average flow record (MLT.DAT).
+
+# Fields
+- `plant_num::Int`: Plant number
+- `plant_name::String`: Plant name (reference only)
+- `monthly_flows::Vector{Float64}`: 12 monthly flow values (Jan-Dec) in m³/s
+"""
+Base.@kwdef struct MltRecord
+    plant_num::Int
+    plant_name::String = ""
+    monthly_flows::Vector{Float64} = Float64[]
+end
+
+"""
+    MltData
+
+Container for MLT.DAT data (Long-term average flows).
+
+# Fields
+- `records::Vector{MltRecord}`: List of MLT records
+"""
+Base.@kwdef struct MltData
+    records::Vector{MltRecord} = MltRecord[]
 end
 
 """

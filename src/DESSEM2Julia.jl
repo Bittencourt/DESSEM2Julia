@@ -52,6 +52,7 @@ export parse_rstlpp
 export parse_rmpflx
 export PtoperRecord, PtoperData, parse_ptoper
 export ModifRecord, ModifData, parse_modif
+export parse_mlt
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -197,6 +198,8 @@ include("parser/ptoper.jl")
 using .PtoperParser: parse_ptoper
 include("parser/modif.jl")
 using .ModifParser: parse_modif
+include("parser/mlt.jl")
+using .MltParser: parse_mlt
 include("parser/registry.jl")
 using .ParserRegistry
 include("api.jl")
