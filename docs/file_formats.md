@@ -68,7 +68,7 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | RENOVAVEIS.DAT | Renewable plant data and forecasts (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO) | ✅ Parser | § 13 |
 | EOLICA.XXX | Legacy wind plant format (superseded by RENOVAVEIS.DAT) | N/A | § 13 |
 | SOLAR.XXX | Solar plant data and forecasts | TODO | § 13 |
-| BATERIA.XXX | Battery storage characteristics and operation | TODO | § 13 |
+| BATERIA.XXX | Battery storage characteristics and operation | ✅ Parser | § 13 |
 
 ## Auxiliary Files
 
@@ -100,7 +100,8 @@ With most core files implemented, remaining parser work is concentrated in a sma
 ### Renewable & Storage Auxiliaries
 
 - `SOLAR.XXX` – Solar plant data and forecasts (if still used in current DESSEM versions).
-- `BATERIA.XXX` – Battery storage characteristics and operation.
+
+**BATERIA.XXX is now complete with parser implementation**
 
 ### Other Auxiliary Inputs
 

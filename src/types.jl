@@ -2803,4 +2803,61 @@ Base.@kwdef struct RampasData
     records::Vector{RampasRecord} = RampasRecord[]
 end
 
+# ============================================================================
+# BATERIA.XXX - Battery Storage Characteristics
+# ============================================================================
+
+"""
+    BateriaRecord
+
+Battery storage system characteristics from BATERIA.XXX.
+
+Based on dessem-complete-specs.md § 13 - Battery Storage Data.
+
+# Fields
+- `battery_num::Int`: Battery number (1-999)
+- `battery_name::String`: Battery name identifier (up to 12 characters)
+- `subsystem_num::Int`: Subsystem number (per SIST records)
+- `charging_capacity::Float64`: Maximum charging capacity (MW)
+- `discharging_capacity::Float64`: Maximum discharging capacity (MW)
+- `energy_capacity::Float64`: Total energy storage capacity (MWh)
+- `initial_energy::Union{Float64, Nothing}`: Initial stored energy (MWh), default 0
+- `charging_efficiency::Union{Float64, Nothing}`: Charging efficiency (0-1), default 0.9
+- `discharging_efficiency::Union{Float64, Nothing}`: Discharging efficiency (0-1), default 0.9
+
+# Format (Fixed-width columns)
+- Columns 1-3: Battery number (I3)
+- Columns 5-16: Battery name (A12)
+- Columns 20-21: Subsystem number (I2)
+- Columns 25-34: Charging capacity (F10.0)
+- Columns 40-49: Discharging capacity (F10.0)
+- Columns 55-64: Energy capacity (F10.0)
+- Columns 70-79: Initial energy (F10.0, optional)
+- Columns 85-94: Charging efficiency (F10.0, optional)
+- Columns 100-109: Discharging efficiency (F10.0, optional)
+"""
+Base.@kwdef struct BateriaRecord
+    battery_num::Int
+    battery_name::String
+    subsystem_num::Int
+    charging_capacity::Float64
+    discharging_capacity::Float64
+    energy_capacity::Float64
+    initial_energy::Union{Float64, Nothing} = nothing
+    charging_efficiency::Union{Float64, Nothing} = nothing
+    discharging_efficiency::Union{Float64, Nothing} = nothing
+end
+
+"""
+    BateriaData
+
+Container for BATERIA.XXX data (battery storage systems).
+
+# Fields
+- `records::Vector{BateriaRecord}`: Battery storage system definitions
+"""
+Base.@kwdef struct BateriaData
+    records::Vector{BateriaRecord} = BateriaRecord[]
+end
+
 end # module

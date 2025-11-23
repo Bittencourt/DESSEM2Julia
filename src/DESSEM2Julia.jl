@@ -50,6 +50,7 @@ export RampasRecord, RampasData, parse_rampas
 export parse_rstlpp
 export parse_rmpflx
 export PtoperRecord, PtoperData, parse_ptoper
+export BateriaRecord, BateriaData, parse_bateria
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -132,7 +133,9 @@ using .Types:
     RestsegCelula,
     RestsegData,
     RampasRecord,
-    RampasData
+    RampasData,
+    BateriaRecord,
+    BateriaData
 include("models/core_types.jl")
 using .CoreTypes
 include("io.jl")
@@ -182,6 +185,8 @@ include("parser/restseg.jl")
 using .RestsegParser: parse_restseg
 include("parser/rampas.jl")
 using .RampasParser: parse_rampas
+include("parser/bateria.jl")
+using .BateriaParser: parse_bateria
 include("parser/rstlpp.jl")
 using .RstlppParser: parse_rstlpp
 include("parser/rmpflx.jl")
