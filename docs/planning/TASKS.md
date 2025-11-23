@@ -517,3 +517,44 @@ result = parse_respot("docs/Sample/DS_ONS_102025_RV2D11/respot.dat")
 - **Complete (7)**: AREACONT, COTASR11, CURVTVIAG, DESSEM.ARQ, TERMDAT, ENTDADOS, DADVAZ, DEFLANT, OPERUT, OPERUH, DESSELET, HIDR ✅
 - **New Capability**: Network topology extraction from PDO files ✅
 - **Next Priority**: CONFHD.DAT (hydro configuration), MODIF.DAT (needs sample data)
+
+---
+
+### November 23, 2025 - Feature Merge Marathon ✅
+
+**Achievement**: Merged 7 feature branches implementing remaining parsers and placeholders - **All tests passing**
+
+**Status Change**: Project coverage significantly expanded.
+
+**What Was Merged**:
+
+1. **Binary DEC Files** (`feat/agent-5`):
+   - Implemented placeholder parsers for `INFOFCF.DEC`, `MAPCUT.DEC`, `CORTES.DEC`.
+   - Enables reading raw binary content for future decoding.
+
+2. **Network Topology Enhancements** (`feat/agent-6`):
+   - Integrated ANAREDE-style network parsing capabilities via `DESSELET` and `PDO` parsers.
+
+3. **Solar Power** (`feat/agent-7`):
+   - Enhanced `RENOVAVEIS.DAT` parser to fully support `UFV` (Solar) plant records.
+
+4. **Electrical Reserves** (`feat/agent-11` - RIVAR / `feat/agent-?` - RESPOTELE):
+   - Implemented `RESPOTELE.DAT` parser for electrical reserve constraints.
+   - Implemented `RIVAR` record parsing within `ENTDADOS.DAT`.
+
+5. **Auxiliary Files**:
+   - `MLT.DAT`: Placeholder parser implemented.
+   - `MODIF.DAT`: Placeholder parser implemented.
+   - `RSTLPP.DAT`: Full parser implemented.
+   - `RMPFLX.DAT`: Full parser implemented.
+
+**Current Status**:
+- **Core Parsers**: Complete ✅
+- **Constraint Parsers**: Complete ✅
+- **Auxiliary Parsers**: Mostly Complete (some placeholders) ✅
+- **Binary Parsers**: Placeholders in place ✅
+
+**Remaining Work**:
+- Full implementation of binary file decoding (DEC files).
+- Implementation of `BATERIA` parser (if data becomes available).
+- `ILSTRI` and `TOLPERD` specific file parsers (currently supported via registry).

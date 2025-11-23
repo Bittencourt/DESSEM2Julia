@@ -38,9 +38,9 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| MAPCUT.DEC | DECOMP cut mapping (binary) | TODO | § 10 |
-| CORTES.DEC | DECOMP Benders cuts (binary) | TODO | § 10 |
-| INFOFCF.DEC | Future cost function info (binary) | TODO | § 10 |
+| MAPCUT.DEC | DECOMP cut mapping (binary) | ✅ Parser (Placeholder) | § 10 |
+| CORTES.DEC | DECOMP Benders cuts (binary) | ✅ Parser (Placeholder) | § 10 |
+| INFOFCF.DEC | Future cost function info (binary) | ✅ Parser (Placeholder) | § 10 |
 
 ## Electrical Network Files
 
@@ -56,7 +56,7 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
 | AREACONT.DAT | Control area definition | ✅ Parser | § 12 |
-| RESPOT.XXX | Power reserve constraints (RP: pools, LM: limits) | ✅ Parser (Session 23) | § 12 |
+| RESPOT.XXX | Power reserve constraints (RP: pools, LM: limits) | ✅ Parser | § 12 |
 | RESPOTELE.DAT | Electrical reserve constraints (RP: pools, LM: limits) | ✅ Parser | § 12 |
 | RESTSEG.XXX | Dynamic security constraints | ✅ Parser | § 12 |
 | RSTLPP.XXX | Linear piecewise security constraints | ✅ Parser | § 12 |
@@ -68,21 +68,22 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 |------|-------------|--------|--------------|
 | RENOVAVEIS.DAT | Renewable plant data and forecasts (EOLICA, EOLICASUBM, EOLICABARRA, EOLICA-GERACAO) | ✅ Parser | § 13 |
 | EOLICA.XXX | Legacy wind plant format (superseded by RENOVAVEIS.DAT) | N/A | § 13 |
-| SOLAR.XXX | Solar plant data and forecasts | TODO | § 13 |
+| SOLAR.XXX | Solar plant data and forecasts | ✅ Parser (via RENOVAVEIS) | § 13 |
 | BATERIA.XXX | Battery storage characteristics and operation | TODO | § 13 |
 
 ## Auxiliary Files
 
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
-| MLT.DAT | Long-term average flows (monthly) | TODO | § 14 |
+| MLT.DAT | Long-term average flows (monthly) | ✅ Parser (Placeholder) | § 14 |
 | DEFLANT.XXX | Previous outflows (for travel time) | ✅ Parser | § 14 |
 | COTASR11.XXX | Itaipu R11 gauge data | ✅ Parser | § 14 |
 | CURVTVIAG.DAT | Travel time curves | ✅ Parser | § 14 |
 | ILSTRI.DAT | Ilha Solteira - Três Irmãos channel data | TODO | § 14 |
 | RAMPAS.DAT | Thermal unit ramp trajectories | ✅ Parser | § 14 |
 | TOLPERD.XXX | Loss tolerance parameters | TODO | § 14 |
-| RIVAR.DAT | Soft variation constraints | TODO | § 14 |
+| RIVAR.DAT | Soft variation constraints | ✅ Parser (via ENTDADOS) | § 14 |
+| MODIF.DAT | Modifications | ✅ Parser (Placeholder) | § 14 |
 
 ## Files That Do Not Exist in Modern DESSEM
 

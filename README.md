@@ -338,10 +338,19 @@ For current parser counts and coverage, see File Formats Overview (docs/file_for
 - ✅ **ptoper.dat (operating point definitions)** ⭐ **NEW!**
 - ✅ restseg.dat (dynamic security constraints)
 - ✅ **Network topology from PDO files**
+- ✅ rampas.dat (thermal unit ramp trajectories)
+- ✅ respotele.dat (electrical reserve constraints)
+- ✅ rstlpp.dat (linear piecewise security constraints)
+- ✅ rmpflx.dat (flow ramp constraints)
+- ✅ modif.dat (modifications - placeholder)
+- ✅ mlt.dat (long-term average flows - placeholder)
+- ✅ Binary DEC files (infofcf.dec, mapcut.dec, cortes.dec - placeholder)
 
 **Pending High Priority**:
 - confhd.dat (hydro configuration)
-- modif.dat (modifications - no sample data available)
+- ilstri.dat (Ilha Solteira - Três Irmãos channel data)
+- tolperd.dat (loss tolerance parameters)
+- bateria.dat (battery storage)
 
 ---
 
