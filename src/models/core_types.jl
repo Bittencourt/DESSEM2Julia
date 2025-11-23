@@ -33,6 +33,10 @@ export PtoperRecord, PtoperData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
+export InfofcfRecord, InfofcfData
+export MapcutRecord, MapcutData
+export CortesRecord, CortesData
+export MltRecord, MltData
 
 # ============================================================================
 # TIME DISCRETIZATION TYPES
@@ -743,6 +747,66 @@ end
 # ============================================================================
 
 """
+    InfofcfRecord
+
+Record from INFOFCF.DEC (Binary).
+Placeholder for now.
+"""
+struct InfofcfRecord
+    # TODO: Define fields based on binary spec
+    raw_data::Vector{UInt8}
+end
+
+"""
+    InfofcfData
+
+Container for INFOFCF.DEC data.
+"""
+Base.@kwdef struct InfofcfData
+    records::Vector{InfofcfRecord} = InfofcfRecord[]
+end
+
+"""
+    MapcutRecord
+
+Record from MAPCUT.DEC (Binary).
+Placeholder for now.
+"""
+struct MapcutRecord
+    # TODO: Define fields based on binary spec
+    raw_data::Vector{UInt8}
+end
+
+"""
+    MapcutData
+
+Container for MAPCUT.DEC data.
+"""
+Base.@kwdef struct MapcutData
+    records::Vector{MapcutRecord} = MapcutRecord[]
+end
+
+"""
+    CortesRecord
+
+Record from CORTES.DEC (Binary).
+Placeholder for now.
+"""
+struct CortesRecord
+    # TODO: Define fields based on binary spec
+    raw_data::Vector{UInt8}
+end
+
+"""
+    CortesData
+
+Container for CORTES.DEC data.
+"""
+Base.@kwdef struct CortesData
+    records::Vector{CortesRecord} = CortesRecord[]
+end
+
+"""
     FCFCut
 
 Future cost function cut from DECOMP (CORTDECO.RV0).
@@ -781,6 +845,26 @@ end
 # ============================================================================
 # SYSTEM CONFIGURATION (DESSOPC.DAT, MLT.DAT, CURVTVIAG.DAT, COTASR11.DAT, etc.)
 # ============================================================================
+
+"""
+    MltRecord
+
+Record from MLT.DAT (FPHA).
+Placeholder for now.
+"""
+Base.@kwdef struct MltRecord
+    # TODO: Define fields based on MLT spec
+    raw_line::String = ""
+end
+
+"""
+    MltData
+
+Container for MLT.DAT data.
+"""
+Base.@kwdef struct MltData
+    records::Vector{MltRecord} = MltRecord[]
+end
 
 """
     ExecutionOptions
