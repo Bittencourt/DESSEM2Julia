@@ -2684,6 +2684,119 @@ end
 export RespotRP, RespotLM, RespotData
 
 # ============================================================================
+# RESPOTELE.DAT (Electrical Reserve Constraints) Types
+# ============================================================================
+
+"""
+    RespoteleRP
+
+Reserve pool definition record (RP) from RESPOTELE.DAT.
+
+Similar to RESPOT.DAT but for electrical network reserve constraints.
+Defines electrical reserve pools with time windows.
+
+# Fields
+- `codigo_area::Int`: Control area code (1-based)
+- `dia_inicial::Union{Int, String}`: Initial day or "I"
+- `hora_inicial::Union{Int, Nothing}`: Initial hour (0-23)
+- `meia_hora_inicial::Union{Int, Nothing}`: Initial half-hour (0 or 1)
+- `dia_final::Union{Int, String}`: Final day or "F"
+- `hora_final::Union{Int, Nothing}`: Final hour (0-23)
+- `meia_hora_final::Union{Int, Nothing}`: Final half-hour (0 or 1)
+- `descricao::String`: Description of electrical reserve requirement
+
+# Format
+Fixed-width columns (similar to RESPOT.DAT):
+- Columns 5-7 (I3): codigo_area
+- Columns 10-16 (StageDateField): dia_inicial, hora_inicial, meia_hora_inicial
+- Columns 18-24 (StageDateField): dia_final, hora_final, meia_hora_final
+- Columns 31-70 (A40): descricao
+"""
+Base.@kwdef struct RespoteleRP
+    codigo_area::Int
+    dia_inicial::Union{Int,String}
+    hora_inicial::Union{Int,Nothing} = nothing
+    meia_hora_inicial::Union{Int,Nothing} = nothing
+    dia_final::Union{Int,String}
+    hora_final::Union{Int,Nothing} = nothing
+    meia_hora_final::Union{Int,Nothing} = nothing
+    descricao::String = ""
+end
+
+"""
+    RespoteLM
+
+Reserve limit record (LM) from RESPOTELE.DAT.
+
+Specifies the minimum electrical reserve requirement for a control area at a specific half-hour.
+
+# Fields
+- `codigo_area::Int`: Control area code (links to RP record)
+- `dia_inicial::Union{Int, String}`: Initial day or "I"
+- `hora_inicial::Union{Int, Nothing}`: Initial hour (0-23)
+- `meia_hora_inicial::Union{Int, Nothing}`: Initial half-hour (0 or 1)
+- `dia_final::Union{Int, String}`: Final day or "F"
+- `hora_final::Union{Int, Nothing}`: Final hour (0-23)
+- `meia_hora_final::Union{Int, Nothing}`: Final half-hour (0 or 1)
+- `limite_inferior::Float64`: Minimum electrical reserve requirement (MW)
+
+# Format
+Fixed-width columns (similar to RESPOT.DAT):
+- Columns 5-7 (I3): codigo_area
+- Columns 10-16 (StageDateField): dia_inicial, hora_inicial, meia_hora_inicial
+- Columns 18-24 (StageDateField): dia_final, hora_final, meia_hora_final
+- Columns 26-35 (F10.2): limite_inferior
+"""
+Base.@kwdef struct RespoteLM
+    codigo_area::Int
+    dia_inicial::Union{Int,String}
+    hora_inicial::Union{Int,Nothing} = nothing
+    meia_hora_inicial::Union{Int,Nothing} = nothing
+    dia_final::Union{Int,String}
+    hora_final::Union{Int,Nothing} = nothing
+    meia_hora_final::Union{Int,Nothing} = nothing
+    limite_inferior::Float64
+end
+
+"""
+    RespoteleData
+
+Complete RESPOTELE.DAT file data structure.
+
+Contains electrical reserve requirements for control areas, organized as:
+- RP records: Electrical reserve pool definitions with time windows
+- LM records: Half-hourly minimum electrical reserve limits
+
+# Purpose
+Defines electrical network reliability constraints by specifying minimum electrical 
+reserve requirements for each control area. Complements RESPOT.DAT with network-specific
+reserve constraints.
+
+# Structure
+- Each RP record defines an electrical reserve pool with a time window
+- Multiple LM records (typically 48 per day) specify half-hourly requirements
+- LM records link to RP via codigo_area
+
+# Example
+```julia
+data = parse_respotele("respotele.dat")
+println("Electrical reserve pools: \$(length(data.rp_records))")
+println("Limit records: \$(length(data.lm_records))")
+
+# Find limits for area 1
+area1_limits = filter(lm -> lm.codigo_area == 1, data.lm_records)
+println("Area 1 has \$(length(area1_limits)) half-hourly electrical limits")
+```
+"""
+Base.@kwdef struct RespoteleData
+    rp_records::Vector{RespoteleRP} = RespoteleRP[]
+    lm_records::Vector{RespoteLM} = RespoteLM[]
+end
+
+# Export RESPOTELE types
+export RespoteleRP, RespoteLM, RespoteleData
+
+# ============================================================================
 # RESTSEG.DAT (Table constraints) Types
 # ============================================================================
 
