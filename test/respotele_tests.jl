@@ -10,10 +10,10 @@ using DESSEM2Julia
         RP    1  11  0 0  F           ELECTRICAL RESERVE AREA 1
         &
         """
-        
+
         tempfile = tempname()
         write(tempfile, test_data)
-        
+
         try
             result = parse_respotele(tempfile)
             @test length(result.rp_records) == 1
@@ -39,10 +39,10 @@ using DESSEM2Julia
         RP    2  10 15 1 11 23 1       AREA 2 ELECTRICAL RESERVE
         &
         """
-        
+
         tempfile = tempname()
         write(tempfile, test_data)
-        
+
         try
             result = parse_respotele(tempfile)
             @test length(result.rp_records) == 1
@@ -67,10 +67,10 @@ using DESSEM2Julia
         RP    3  I   0 0 12  0 0       AREA 3 FROM START
         &
         """
-        
+
         tempfile = tempname()
         write(tempfile, test_data)
-        
+
         try
             result = parse_respotele(tempfile)
             @test length(result.rp_records) == 1
@@ -94,10 +94,10 @@ using DESSEM2Julia
         LM    1  11  0 0  F            3285
         &
         """
-        
+
         tempfile = tempname()
         write(tempfile, test_data)
-        
+
         try
             result = parse_respotele(tempfile)
             @test length(result.lm_records) == 1
@@ -123,14 +123,14 @@ using DESSEM2Julia
         LM    1  11  0 1  F            2632
         &
         """
-        
+
         tempfile = tempname()
         write(tempfile, test_data)
-        
+
         try
             result = parse_respotele(tempfile)
             @test length(result.lm_records) == 2
-            
+
             rec1 = result.lm_records[1]
             rec2 = result.lm_records[2]
             @test rec1.hora_inicial == 0
@@ -153,14 +153,14 @@ using DESSEM2Julia
         LM    1  11  1 1  F            3053
         &
         """
-        
+
         tempfile = tempname()
         write(tempfile, test_data)
-        
+
         try
             result = parse_respotele(tempfile)
             @test length(result.lm_records) == 2
-            
+
             rec1 = result.lm_records[1]
             rec2 = result.lm_records[2]
             @test rec1.hora_inicial == 1
@@ -182,10 +182,10 @@ using DESSEM2Julia
         LM    2  10  5 0 11  6 0       1500
         &
         """
-        
+
         tempfile = tempname()
         write(tempfile, test_data)
-        
+
         try
             result = parse_respotele(tempfile)
             @test length(result.lm_records) == 1
