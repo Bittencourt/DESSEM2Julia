@@ -96,13 +96,13 @@ function parse_rivar_record(line::AbstractString, filename::AbstractString, line
     limit_lower = nothing
     limit_lower_str = extract_field(line, 21, 30)
     if !isempty(strip(limit_lower_str))
-        limit_lower = parse_float(limit_lower_str, allow_blank = true)
+        limit_lower = parse_float(limit_lower_str)
     end
     
     limit_upper = nothing
     limit_upper_str = extract_field(line, 32, 41)
     if !isempty(strip(limit_upper_str))
-        limit_upper = parse_float(limit_upper_str, allow_blank = true)
+        limit_upper = parse_float(limit_upper_str)
     end
     
     return RivarRecord(
