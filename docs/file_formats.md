@@ -101,27 +101,29 @@ The following files have been referenced in historical documentation but **do no
 - **DEFLANT.DAT** - Initial conditions
 - **DADVAZ.DAT** - Inflow forecasts
 
-## Current Open Parser Targets (November 2025)
+## Future Work & Refinement (November 2025)
 
-With most core files implemented, remaining parser work is concentrated in a small set of constraint, DEC/DECOMP, renewable, and auxiliary files. This section lists only genuinely pending targets.
+With most core files implemented, remaining work focuses on refining placeholders and implementing low-priority auxiliary files.
 
-### DEC/DECOMP Binary Files
+### Binary Decoding (Refinement)
 
-- `MAPCUT.DEC` – DECOMP cut mapping (binary).
-- `CORTES.DEC` – DECOMP Benders cuts (binary).
-- `INFOFCF.DEC` – Future cost function information (binary).
+The following files have placeholder parsers that read raw bytes. Full decoding logic is pending specification or need:
+- `MAPCUT.DEC` – DECOMP cut mapping.
+- `CORTES.DEC` – DECOMP Benders cuts.
+- `INFOFCF.DEC` – Future cost function information.
 
-### Renewable & Storage Auxiliaries
+### Missing Auxiliary Parsers
 
-- `SOLAR.XXX` – Solar plant data and forecasts (if still used in current DESSEM versions).
+The following files are recognized in the registry but lack parsers (low priority / no sample data):
 - `BATERIA.XXX` – Battery storage characteristics and operation.
-
-### Other Auxiliary Inputs
-
-- `MLT.DAT` – Long-term average flows (monthly).
 - `ILSTRI.DAT` – Ilha Solteira–Três Irmãos channel data.
 - `TOLPERD.XXX` – Loss tolerance parameters.
-- `RIVAR.DAT` – Soft variation constraints (if not fully covered elsewhere).
+- `METAS.DAT` – Target restrictions.
+
+### Implemented Placeholders
+
+- `MLT.DAT` – Long-term average flows (reads raw lines).
+- `MODIF.DAT` – Modifications (reads raw lines).
 
 For a historical view of earlier priority phases and how we arrived here, see `docs/planning/PROJECT_CONTEXT.md` and `docs/planning/TASKS.md`.
 

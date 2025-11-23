@@ -1,8 +1,7 @@
 # DESSEM2Julia Project Context & Knowledge Base
 
-**Last Updated**: October 26, 2025 - Session 23  
-**Snapshot Status (at that time)**: 20/32 parsers complete (63%), 2,994 tests passing ✅  
-Note: These figures are intentionally preserved as a historical snapshot. For the up-to-date parser coverage, remaining targets, and counts (including post-RESPOT/RESTSEG work), see the File Formats Overview in `docs/file_formats.md`.
+**Last Updated**: November 23, 2025 - Post-Merge Marathon
+**Snapshot Status**: 26/32 parsers implemented (81%), 4,300+ tests passing ✅
 **Purpose**: Complete context for AI agents and developers continuing this project
 
 ---
@@ -406,33 +405,27 @@ end
 
 ## 📋 Current Progress
 
-### Parser Status (6/32 Complete)
+### Parser Status (26/32 Implemented)
 
 **✅ Production Ready** (100% tests passing):
-1. dessem.arq - Master file index (68 tests)
-2. TERMDAT.DAT - Thermal plant registry (110 tests)
-3. ENTDADOS.DAT - General operational data (2331 tests)
-4. OPERUH.DAT - Hydro operational constraints
-5. OPERUT.DAT - Thermal operational data (72 tests)
-6. DADVAZ.DAT - Natural inflows (synthetic + real sample tests)
+- Core: `dessem.arq`, `termdat.dat`, `entdados.dat`, `operut.dat`, `dadvaz.dat`, `deflant.dat`, `operuh.dat`, `desselet.dat`, `hidr.dat`
+- Constraints: `areacont.dat`, `respot.dat`, `respotele.dat`, `restseg.dat`, `rstlpp.dat`, `rmpflx.dat`, `rampas.dat`
+- Renewables: `renovaveis.dat`
+- Auxiliary: `cotasr11.dat`, `curvtviag.dat`, `dessopc.dat`, `ptoper.dat`
 
-**🎯 High Priority Next** (from TASKS.md):
-1. DEFLANT.DAT - Previous flows (initial conditions)
-2. HIDR.DAT - Hydro plant registry (**BINARY FORMAT**)
-3. CONFHD.DAT - Hydro configuration
-4. MODIF.DAT - Modifications
+**⚠️ Placeholders**:
+- `mlt.dat`, `modif.dat`, `infofcf.dec`, `mapcut.dec`, `cortes.dec`
 
-**📊 Coverage**: 6/32 files = 18.8% complete
+**❌ Not Implemented (Low Priority)**:
+- `bateria.dat`, `ilstri.dat`, `tolperd.dat`, `metas.dat`
+
+**📊 Coverage**: 26/32 files = 81% complete
 
 ### Test Statistics
 
-**Total Tests**: 2,520+ passing
-- dessem.arq: 68 tests
-- TERMDAT: 110 tests
-- ENTDADOS: 2,331 tests
-- OPERUH: Multiple tests
-- OPERUT: 72 tests
-- DADVAZ: Synthetic + real sample suite
+**Total Tests**: 4,300+ passing
+- Comprehensive unit tests for all implemented parsers
+- Real data validation (CCEE & ONS samples)
 
 **Real Data Validation**:
 - CCEE sample: DS_CCEE_102025_SEMREDE_RV0D28 (✅ 100% compatible)
@@ -603,18 +596,13 @@ julia --project=. test/xxx_tests.jl
 
 ## 🎯 Next Steps & Priorities
 
-### Immediate (Session 8+)
+### Immediate (Refinement)
 
-**1. DEFLANT.DAT - Previous Flows**
-- Format: Initial condition data
-- Check IDESEM: `idessem/dessem/modelos/deflant.py`
-- Impact: Required for initialization
+**1. Binary Decoding**
+- Implement full decoding for `INFOFCF`, `MAPCUT`, and `CORTES` when specifications/needs arise.
 
-**2. HIDR.DAT - Hydro Plant Registry (BINARY!)**
-- Format: 792-byte fixed-length records
-- Check IDESEM: `idessem/dessem/modelos/hidr.py`
-- Impact: Core hydro plant data
-- **Note**: Binary parsing required!
+**2. Remaining Parsers (Low Priority)**
+- Implement `BATERIA`, `ILSTRI`, `TOLPERD` if sample data becomes available.
 
 ### Medium Term
 
@@ -622,10 +610,6 @@ julia --project=. test/xxx_tests.jl
 - Update to populate core type system (`src/models/core_types.jl`)
 - Add filtering helpers (by subsystem, plant type, etc.)
 - Add DataFrame export functions
-
-**Complete Parser Coverage**:
-- Continue through remaining 27 files
-- Focus on high-impact files first (see priority list in TASKS.md)
 
 **API Enhancement**:
 - Unified case loader: `load_dessem_case(directory) -> DessemCase`
