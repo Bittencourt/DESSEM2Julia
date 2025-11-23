@@ -34,7 +34,37 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
    - **src/DESSEM2Julia.jl**: Exported new types and function
    - **test/ptoper_tests.jl**: Comprehensive test suite
 
-**Next Priority**: **CONFHD.DAT** (hydro configuration) or **MODIF.DAT**
+**Next Priority**: **MODIF.DAT** or other parsers with real data (RESPOTELE, INFOFCF, MLT, ILSTRI)
+
+---
+
+### November 23, 2025 - CONFHD.DAT Investigation ❌
+
+**Finding**: **CONFHD.DAT does not exist as a file in modern DESSEM**
+
+**Investigation Summary**:
+- ❌ **Not in IDESEM**: No `confhd.py` parser exists in reference implementation
+- ❌ **No Sample Data**: Not present in CCEE or ONS production samples
+- ❌ **No Specification**: Not documented in `dessem-complete-specs.md`
+- ✅ **Hydro Config Covered**: All hydro configuration handled by existing parsers:
+  - HIDR.DAT (plant characteristics)
+  - ENTDADOS.DAT (UH/FH/MH records)
+  - OPERUH.DAT (operational constraints)
+  - DEFLANT.DAT (initial conditions)
+  - DADVAZ.DAT (inflows)
+
+**Conclusion**: File either:
+1. Legacy format from pre-2020 DESSEM (deprecated)
+2. Data merged into ENTDADOS.DAT
+3. Hypothetical file never implemented
+4. Documentation error
+
+**Documentation Updated**:
+- Created `docs/parsers/CONFHD_INVESTIGATION.md` with complete findings
+- Removed from priority list
+- Future parser work to focus on files with real data
+
+**Status**: Investigation complete - no implementation possible without file format
 
 ---
 
