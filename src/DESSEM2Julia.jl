@@ -56,6 +56,7 @@ export BateriaRecord, BateriaData, parse_bateria
 export IlstriData, parse_ilstri
 export TolperdData, parse_tolperd
 export MetasData, parse_metas
+export RivarData, parse_rivar
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -222,6 +223,8 @@ include("parser/tolperd.jl")
 using .TolperdParser: parse_tolperd
 include("parser/metas.jl")
 using .MetasParser: parse_metas
+include("parser/rivar.jl")
+using .RivarParser: parse_rivar
 
 export
     # Types
@@ -308,6 +311,7 @@ export
     IlstriData,
     TolperdData,
     MetasData,
+    RivarData,
 
     # Functions
     parse_file,
@@ -340,6 +344,7 @@ parse_bateria
 parse_ilstri
 parse_tolperd
 parse_metas
+parse_rivar
 
 function greet(name = "world")
     return "Hello, $(name)! 👋"
@@ -376,6 +381,7 @@ function __init__()
     register_parser!("ILSTRI.DAT", parse_ilstri)
     register_parser!("TOLPERD.DAT", parse_tolperd)
     register_parser!("METAS.DAT", parse_metas)
+    register_parser!("RIVAR.DAT", parse_rivar)
 end
 
 end # module

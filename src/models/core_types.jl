@@ -29,6 +29,7 @@ export NetworkSystem, ElectricBus, TransmissionLine
 export OperationalConstraints,
     RampConstraint, LPPConstraint, TableConstraint, FlowRampConstraint
 export RmpflxRest, RmpflxLimi, RmpflxData
+export RivarRecord, RivarData
 export ModifRecord, ModifData
 export PtoperRecord, PtoperData
 export MltRecord, MltData
@@ -676,6 +677,49 @@ Container for RMPFLX.DAT data (flow ramp constraints).
 Base.@kwdef struct RmpflxData
     rest_records::Vector{RmpflxRest} = RmpflxRest[]
     limi_records::Vector{RmpflxLimi} = RmpflxLimi[]
+end
+
+# ============================================================================
+# SOFT VARIATION CONSTRAINT TYPES (RIVAR.DAT)
+# ============================================================================
+
+"""
+    RivarRecord
+
+Soft variation constraint record from RIVAR.DAT.
+
+This represents a flexible constraint with penalty costs for violations.
+Variables can be hydro generation, thermal generation, interchange, or other
+operational quantities that may violate soft limits with associated penalties.
+
+# IDESEM Reference
+idessem/dessem/modelos/rivar.py
+
+# Fields
+- `variable_type::Int`: Type of variable being constrained (code identifying the variable)
+- `variable_index::Int`: Index/identifier of the specific entity (plant, unit, interchange, etc.)
+- `penalty_cost::Float64`: Penalty cost for constraint violation (currency/MWh or similar)
+- `limit_lower::Union{Float64, Nothing}`: Optional lower limit for the variable
+- `limit_upper::Union{Float64, Nothing}`: Optional upper limit for the variable
+"""
+Base.@kwdef struct RivarRecord
+    variable_type::Int
+    variable_index::Int
+    penalty_cost::Float64
+    limit_lower::Union{Float64,Nothing} = nothing
+    limit_upper::Union{Float64,Nothing} = nothing
+end
+
+"""
+    RivarData
+
+Container for RIVAR.DAT data (soft variation constraints).
+
+# Fields
+- `records::Vector{RivarRecord}`: Soft constraint definitions with penalty costs
+"""
+Base.@kwdef struct RivarData
+    records::Vector{RivarRecord} = RivarRecord[]
 end
 
 # ============================================================================

@@ -68,6 +68,40 @@ This project ingests DESSEM input files (.DAT and related text files) and conver
 
 ---
 
+### November 23, 2025 - RIVAR.DAT Parser Implemented ✅
+
+**Achievement**: Implemented RIVAR.DAT parser for soft variation constraints - **100% tests passing**
+
+**Status Change**: RIVAR parser: 0% → **100% complete** (production ready ✅)
+
+**What Was Implemented**:
+
+1. **RIVAR.DAT Parser** (`src/parser/rivar.jl`):
+   - **Purpose**: Defines soft variation constraints with penalty costs
+   - **Format**: Fixed-width columns
+   - **Fields**: Variable Type, Variable Index, Penalty Cost, Lower Limit (optional), Upper Limit (optional)
+   - **Types**: `RivarRecord`, `RivarData`
+
+2. **Technical Implementation**:
+   - **Fixed-width parsing**: Used `extract_field` with positions derived from IDESEM reference
+   - **Type safety**: `Union{Float64, Nothing}` for optional limits
+   - **Error handling**: Robust parsing with warnings for malformed lines
+
+3. **Test Results**:
+   - ✅ **26/26 RIVAR tests passing** (100%)
+   - ✅ Validated against synthetic data covering all field combinations
+
+4. **Code Changes**:
+   - **src/models/core_types.jl**: Added `RivarRecord` and `RivarData`
+   - **src/parser/rivar.jl**: New parser implementation
+   - **src/DESSEM2Julia.jl**: Exported new types and function
+   - **test/rivar_tests.jl**: Comprehensive test suite
+   - **test/runtests.jl**: Added to main test runner
+
+**Next Priority**: **Review remaining open PRs**
+
+---
+
 ### November 2, 2025 - RAMPAS.DAT Parser Implemented ✅
 
 **Achievement**: Implemented complete RAMPAS.DAT parser for thermal unit ramp trajectories - **100% tests passing (27/27)**
