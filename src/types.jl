@@ -3011,4 +3011,104 @@ Base.@kwdef struct MetasData
     lines::Vector{String} = String[]
 end
 
+# ============================================================================
+# FCF Information (INFOFCF.DAT) Types
+# ============================================================================
+
+"""
+    InfofcfDatTviag
+
+Travel time plant mapping for FCF (MAPFCF TVIAG records).
+
+# Fields
+- `index::Int`: Sequential index
+- `plant_code::Int`: Plant code with travel time in FCF
+"""
+Base.@kwdef struct InfofcfDatTviag
+    index::Int
+    plant_code::Int
+end
+
+"""
+    InfofcfDatSisgnl
+
+Subsystem with GNL thermal plants in FCF (MAPFCF SISGNL records).
+
+# Fields
+- `index::Int`: Sequential index  
+- `subsystem::Int`: Subsystem number
+- `num_lags::Int`: Number of lags (future periods)
+- `num_patterns::Int`: Number of load patterns
+"""
+Base.@kwdef struct InfofcfDatSisgnl
+    index::Int
+    subsystem::Int
+    num_lags::Int
+    num_patterns::Int
+end
+
+"""
+    InfofcfDatDurpat
+
+Load pattern duration for future periods in FCF (MAPFCF DURPAT records).
+
+# Fields
+- `lag::Int`: Lag index (future period)
+- `pattern::Int`: Load pattern index
+- `duration::Float64`: Duration in hours
+"""
+Base.@kwdef struct InfofcfDatDurpat
+    lag::Int
+    pattern::Int
+    duration::Float64
+end
+
+"""
+    InfofcfDatFix
+
+Fixed future values in FCF for GNL plants (FCFFIX records).
+
+# Fields
+- `entity_type::String`: Entity type (e.g., "USIT" for thermal plant)
+- `entity_id::Int`: Entity ID (plant number)
+- `variable_type::String`: Variable type (e.g., "GTERF" for future thermal generation)
+- `lag::Int`: Lag index (future period)
+- `pattern::Int`: Load pattern index
+- `value::Float64`: Fixed value (MW for GTERF)
+- `justification::String`: Justification text
+"""
+Base.@kwdef struct InfofcfDatFix
+    entity_type::String
+    entity_id::Int
+    variable_type::String
+    lag::Int
+    pattern::Int
+    value::Float64
+    justification::String = ""
+end
+
+"""
+    InfofcfDatData
+
+Container for INFOFCF.DAT data (FCF information and mappings).
+
+Contains information about:
+- Plants with water travel time in FCF
+- Subsystems with GNL thermal plants
+- Load pattern durations for future periods
+- Fixed future values for GNL plants
+
+# Fields
+- `tviag::Vector{InfofcfDatTviag}`: Travel time plant mappings
+- `sisgnl::Vector{InfofcfDatSisgnl}`: GNL subsystem mappings  
+- `durpat::Vector{InfofcfDatDurpat}`: Load pattern durations
+- `fcffix::Vector{InfofcfDatFix}`: Fixed future values
+"""
+Base.@kwdef struct InfofcfDatData
+    tviag::Vector{InfofcfDatTviag} = InfofcfDatTviag[]
+    sisgnl::Vector{InfofcfDatSisgnl} = InfofcfDatSisgnl[]
+    durpat::Vector{InfofcfDatDurpat} = InfofcfDatDurpat[]
+    fcffix::Vector{InfofcfDatFix} = InfofcfDatFix[]
+end
+
 end # module Types

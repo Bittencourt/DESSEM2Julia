@@ -1,6 +1,6 @@
 module DESSEM2Julia
 
-export greet, DessemData, convert_inputs
+export greet, DessemData, convert_inputs, load_jld2, save_jld2
 export ThermalRegistry, CADUSIT, CADUNIDT, CURVACOMB
 export GeneralData, TMRecord, SISTRecord, UHRecord, UTRecord, DPRecord
 export OperuhData,
@@ -57,6 +57,8 @@ export IlstriData, parse_ilstri
 export TolperdData, parse_tolperd
 export MetasData, parse_metas
 export RivarData, parse_rivar
+export InfofcfDatTviag,
+    InfofcfDatSisgnl, InfofcfDatDurpat, InfofcfDatFix, InfofcfDatData, parse_infofcf_dat
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -147,7 +149,12 @@ using .Types:
     BateriaData,
     IlstriData,
     TolperdData,
-    MetasData
+    MetasData,
+    InfofcfDatTviag,
+    InfofcfDatSisgnl,
+    InfofcfDatDurpat,
+    InfofcfDatFix,
+    InfofcfDatData
 include("models/core_types.jl")
 using .CoreTypes
 include("io.jl")
@@ -225,6 +232,8 @@ include("parser/metas.jl")
 using .MetasParser: parse_metas
 include("parser/rivar.jl")
 using .RivarParser: parse_rivar
+include("parser/infofcf.jl")
+using .InfofcfDatParser: parse_infofcf_dat
 
 export
     # Types
@@ -298,7 +307,6 @@ export
     RestsegData,
     RampasRecord,
     RampasData,
-    MltRecord,
     MltData,
     InfofcfRecord,
     InfofcfData,
@@ -356,6 +364,7 @@ function __init__()
     register_parser!("ENTDADOS.DAT", parse_entdados)
     register_parser!("OPERUH.DAT", parse_operuh)
     register_parser!("OPERUT.DAT", parse_operut)
+    register_parser!("OPERUT.AUX", parse_operut)  # Same format as OPERUT.DAT
     register_parser!("DADVAZ.DAT", parse_dadvaz)
     register_parser!("DEFLANT.DAT", parse_deflant)
     register_parser!("DESSELET.DAT", parse_desselet)
@@ -382,6 +391,12 @@ function __init__()
     register_parser!("TOLPERD.DAT", parse_tolperd)
     register_parser!("METAS.DAT", parse_metas)
     register_parser!("RIVAR.DAT", parse_rivar)
+    register_parser!("INFOFCF.DAT", parse_infofcf_dat)
+    register_parser!("RESPOTELE.DAT", parse_respotele)
+    register_parser!("ILS_TRI.DAT", parse_ilstri)
+    register_parser!("PDO_SOMFLUX.DAT", parse_pdo_somflux_topology)
+    register_parser!("MODIF.DAT", parse_modif)
+    register_parser!("BATERIA.DAT", parse_bateria)
 end
 
 end # module

@@ -32,14 +32,14 @@ export RmpflxRest, RmpflxLimi, RmpflxData
 export RivarRecord, RivarData
 export ModifRecord, ModifData
 export PtoperRecord, PtoperData
-export MltRecord, MltData
+export MltData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, DecompCut
 export InfofcfRecord, InfofcfData
 export MapcutRecord, MapcutData
 export CortesRecord, CortesData
-export MltRecord, MltData
+export MltData
 
 # ============================================================================
 # TIME DISCRETIZATION TYPES
@@ -894,23 +894,30 @@ end
 # ============================================================================
 
 """
-    MltRecord
-
-Record from MLT.DAT (FPHA).
-Placeholder for now.
-"""
-Base.@kwdef struct MltRecord
-    # TODO: Define fields based on MLT spec
-    raw_line::String = ""
-end
-
-"""
     MltData
 
-Container for MLT.DAT data.
+Container for MLT.DAT binary data (FPHA - Hydraulic Production Function Approximation).
+
+MLT.DAT is a binary file containing pre-computed data for the hydraulic production
+function approximation. The file format is not publicly documented, and IDESEM
+(the reference Python implementation) only stores the filename reference without
+parsing the binary content.
+
+This placeholder stores the raw binary content, allowing users to access the data
+while preserving it for potential future parsing when the specification becomes
+available.
+
+# Fields
+- `raw_bytes::Vector{UInt8}`: Raw binary content of the MLT.DAT file
+- `size::Int`: Size of the file in bytes
+
+# Note
+This is a placeholder implementation. The binary format specification is not
+available in the reference IDESEM implementation.
 """
 Base.@kwdef struct MltData
-    records::Vector{MltRecord} = MltRecord[]
+    raw_bytes::Vector{UInt8} = UInt8[]
+    size::Int = 0
 end
 
 """

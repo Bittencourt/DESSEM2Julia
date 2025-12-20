@@ -116,14 +116,24 @@ The following files have placeholder parsers that read raw bytes. Full decoding 
 
 The following files are recognized in the registry but lack parsers (low priority / no sample data):
 - `BATERIA.XXX` – Battery storage characteristics and operation.
-- `ILSTRI.DAT` – Ilha Solteira–Três Irmãos channel data.
-- `TOLPERD.XXX` – Loss tolerance parameters.
-- `METAS.DAT` – Target restrictions.
+- `ILSTRI.DAT` – Ilha Solteira–Três Irmãos channel data (placeholder exists).
+- `TOLPERD.XXX` – Loss tolerance parameters (placeholder exists).
+- `METAS.DAT` – Target restrictions (placeholder exists).
 
-### Implemented Placeholders
+### Binary File Placeholders
 
-- `MLT.DAT` – Long-term average flows (reads raw lines).
-- `MODIF.DAT` – Modifications (reads raw lines).
+These files use proprietary binary formats not documented in IDESEM or public sources:
+
+- `MLT.DAT` – **Binary** FPHA data (stores raw bytes, 15KB typical).
+- `INFOFCF.DEC` – Binary FCF cut information from DECOMP (stores raw bytes).
+- `MAPCUT.DEC` – Binary cut mapping header from DECOMP (stores raw bytes).
+- `CORTES.DEC` – Binary FCF cuts from DECOMP (stores raw bytes).
+
+### Text File Placeholders
+
+These files have unknown formats with no sample data available:
+
+- `MODIF.DAT` – Runtime case modifications (stores raw lines).
 
 For a historical view of earlier priority phases and how we arrived here, see `docs/planning/PROJECT_CONTEXT.md` and `docs/planning/TASKS.md`.
 

@@ -876,6 +876,55 @@ Parser implemented in Session 26. Handles fixed-width format with "PTOPER" mnemo
 - Supports "I"/"F" markers for start/end days
 - Handles optional end hour/half (defaults to 0)
 
+## Binary Files - Proprietary Formats
+
+Several DESSEM files use binary formats that are proprietary to CEPEL and not publicly documented.
+
+### MLT.DAT - FPHA Binary Data
+
+**Discovery (December 2025):**
+MLT.DAT was originally assumed to be a text file, but analysis of the sample file revealed it's actually **binary**.
+
+**Evidence:**
+```
+$ Get-Content mlt.dat -Encoding Byte -TotalCount 100
+243, 0, 0, 0, 243, 0, 0, 0, 0, 0, 0, 0, ...
+```
+
+**Analysis:**
+- File size: 15,360 bytes (CCEE sample)
+- Pattern: 4-byte integers (little-endian)
+- Purpose: Pre-computed FPHA (Hydraulic Production Function Approximation) data
+- IDESEM status: Only stores filename reference, no parser
+
+**Implementation:**
+- `parse_mlt()` reads raw bytes into `MltData.raw_bytes`
+- `MltData.size` contains file size for validation
+
+### INFOFCF.DEC, MAPCUT.DEC, CORTES.DEC - DECOMP Binary Files
+
+**Purpose:**
+Integration files from DECOMP containing Future Cost Function (FCF) cuts.
+
+**IDESEM Status:**
+Only stores filename references (`RegistroInfofcf`, `RegistroMapfcf`, `RegistroCortfcf`). No binary parsers exist.
+
+**Implementation:**
+- `parse_infofcf()`, `parse_mapcut()`, `parse_cortes()` read raw bytes
+- Data stored in `InfofcfRecord`, `MapcutRecord`, `CortesRecord` structs
+- Suitable for passthrough to tools that understand the format
+
+### MODIF.DAT - Unknown Text Format
+
+**Status:**
+- No sample file available in CCEE or ONS test data
+- IDESEM has no parser
+- Format specification unknown
+
+**Implementation:**
+- `parse_modif()` reads non-comment lines into `ModifRecord.line`
+- Preserves raw content for manual analysis
+
 ## References
 
 - Specification: `docs/dessem-complete-specs.md`

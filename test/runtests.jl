@@ -35,6 +35,10 @@ include("tolperd_tests.jl")
 include("metas_tests.jl")
 include("rivar_tests.jl")
 include("network_topology_tests.jl")
+include("infofcf_tests.jl")
+include("mlt_tests.jl")
+include("modif_tests.jl")
+include("binary_dec_tests.jl")
 
 # Integration tests with real ONS sample data
 include("ons_integration_tests.jl")
