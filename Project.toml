@@ -1,7 +1,8 @@
 name = "DESSEM2Julia"
 uuid = "5b3a2f8f-9ef8-4a52-9f7b-2a6d29f86e1c"
-authors = ["Pedro"]
-version = "0.1.0"
+authors = ["Pedro Bittencourt"]
+version = "1.0.0"
+license = "MIT"
 
 [deps]
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
@@ -13,12 +14,11 @@ JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
-Colors = "0.12.11"
-Compose = "0.9.6"
-GraphPlot = "0.6.1"
-Graphs = "1.13.1"
+Colors = "0.12"
+Compose = "0.9"
+GraphPlot = "0.6"
+Graphs = "1.13"
 JLD2 = "0.4, 0.5"
-Printf = "1.11.0"
 julia = "1.6"
 
 [extras]
