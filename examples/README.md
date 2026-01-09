@@ -24,7 +24,25 @@ julia --project=. examples/plot_network_simple.jl
 
 ### Network Analysis
 
-- **`plot_network_simple.jl`** ⭐ NEW!
+- **`list_buses_with_generators.jl`** ⭐ NEW!
+  - **Enhanced with PWF.jl integration!**
+  - Lists all electrical buses in the network
+  - Shows generators (hydro, thermal, renewable) connected to each bus
+  - Bus attributes: voltage, subsystem, generation, load
+  - Fuzzy name matching for plant-to-bus assignment
+  - Subsystem-level statistics
+  - **Usage**: `julia --project=. examples/list_buses_with_generators.jl`
+
+- **`network_plants_by_subsystem.jl`**
+  - Groups power plants by electrical subsystem
+  - Shows capacity distribution across regions
+  - Thermal and hydro statistics per subsystem
+
+- **`plant_bus_mapping.jl`**
+  - Original plant-to-bus mapping (manual PWF parsing)
+  - Legacy version - use `list_buses_with_generators.jl` for PWF.jl version
+
+- **`plot_network_simple.jl`**
   - Create typical electrical network diagram
   - Buses colored by subsystem, edges by power flow
   - One command: instant visualization

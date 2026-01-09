@@ -1,7 +1,32 @@
 # DESSEM2Julia
 
 [![CI](https://github.com/Bittencourt/DESSEM2Julia/actions/workflows/ci.yml/badge.svg)](https://github.com/Bittencourt/DESSEM2Julia/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/Bittencourt/DESSEM2Julia/graph/badge.svg)](https://codecov.io/gh/Bittencourt/DESSEM2Julia)
+[![codecov](https://codecov.io/gh/Bittencourt/DESSEM2Julia/graph/badge.svg)](https://codecov.io/gh/Bittancourt/DESSEM2Julia)
+
+## Installation
+
+### Quick Install
+
+Install the latest release from GitHub:
+
+```julia
+using Pkg
+Pkg.add(url="https://github.com/Bittencourt/DESSEM2Julia.jl")
+```
+
+### Verify Installation
+
+Test your installation with the greet() function:
+
+```julia
+using DESSEM2Julia
+DESSEM2Julia.greet()
+# Output: "Hello World!"
+```
+
+For additional installation options (development mode, local installation, etc.), see [`INSTALL.md`](INSTALL.md).
+
+---
 
 Convert DESSEM input files (.DAT and related text files) into structured Julia objects and persist them in JLD2 format.
 

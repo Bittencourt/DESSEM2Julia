@@ -235,6 +235,25 @@ using .RivarParser: parse_rivar
 include("parser/infofcf.jl")
 using .InfofcfDatParser: parse_infofcf_dat
 
+# Optionally include PWF parser if PWF.jl is available
+# Check for PWF package before including to avoid module compilation warnings
+pwf_available = try
+    Base.require(Base.PkgId(Base.UUID("a8ba2b29-9f20-5e9c-a0e4-6cf9a9c686e9"), "PWF"))
+    true
+catch
+    false
+end
+
+if pwf_available
+    try
+        include("parser/pwf.jl")
+        using .PWFParser: parse_pwf, parse_pwf_to_topology
+        @eval export parse_pwf, parse_pwf_to_topology
+    catch e
+        @warn "Failed to load PWF parser: $e"
+    end
+end
+
 export
     # Types
     AbstractRecord,
@@ -328,31 +347,37 @@ export
     parse_operuh,
     parse_operut,
     parse_init_record,
-    parse_oper_record
-parse_dadvaz
-parse_deflant
-parse_desselet
-parse_hidr
-parse_simul
-parse_dessopc
-DessemArq, DessemFileRecord, parse_dessemarq
-parse_areacont
-parse_cotasr11
-parse_curvtviag
-parse_renovaveis
-parse_respot, parse_rp_record, parse_lm_record
-parse_network_topology, parse_pdo_somflux_topology
-parse_restseg
-parse_rampas
-parse_rstlpp
-parse_rmpflx
-parse_ptoper
-parse_mlt, parse_infofcf, parse_mapcut, parse_cortes
-parse_bateria
-parse_ilstri
-parse_tolperd
-parse_metas
-parse_rivar
+    parse_oper_record,
+    parse_dadvaz,
+    parse_deflant,
+    parse_desselet,
+    parse_hidr,
+    parse_simul,
+    parse_dessopc,
+    parse_dessemarq,
+    parse_areacont,
+    parse_cotasr11,
+    parse_curvtviag,
+    parse_renovaveis,
+    parse_respot,
+    parse_rp_record,
+    parse_lm_record,
+    parse_network_topology,
+    parse_pdo_somflux_topology,
+    parse_restseg,
+    parse_rampas,
+    parse_rstlpp,
+    parse_rmpflx,
+    parse_ptoper,
+    parse_mlt,
+    parse_infofcf,
+    parse_mapcut,
+    parse_cortes,
+    parse_bateria,
+    parse_ilstri,
+    parse_tolperd,
+    parse_metas,
+    parse_rivar
 
 function greet(name = "world")
     return "Hello, $(name)! 👋"

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(julia --project=. examples/list_buses_with_generators.jl)",
+      "Bash(/c/Users/pedro/julia-1.10.5/bin/julia:*)",
+      "Bash(where:*)",
+      "Bash(cmd.exe /c \"where julia\")",
+      "Bash(cmd.exe:*)",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\":*)",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. -e \"using Pkg; Pkg.instantiate\\(\\)\")",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. -e \"using Pkg; Pkg.resolve\\(\\)\")",
+      "Bash(git checkout:*)",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=@. -e \"using Pkg; Pkg.instantiate\\(\\)\")",
+      "Bash(ls:*)",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. -e \"using DESSEM2Julia; println\\(\"\"Package loaded successfully!\"\"\\); println\\(DESSEM2Julia.greet\\(\\)\\)\")",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. -e \"using Pkg; Pkg.resolve\\(\\); using DESSEM2Julia; println\\(\"\"Package loaded successfully!\"\"\\); println\\(DESSEM2Julia.greet\\(\\)\\)\")",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. -e \"\nusing DESSEM2Julia\nprintln\\(\"\"=== Package Test ===\"\"\\)\nprintln\\(\"\"greet\\(\\): \"\", greet\\(\\)\\)\nprintln\\(\\)\nprintln\\(\"\"=== Checking exported parsers ===\"\"\\)\nparsers = [\n    :parse_termdat, :parse_entdados, :parse_operuh, :parse_operut,\n    :parse_dadvaz, :parse_deflant, :parse_desselet, :parse_hidr,\n    :parse_simul, :parse_dessopc, :parse_renovaveis, :parse_respot,\n    :parse_network_topology\n]\nfor p in parsers\n    if isdefined\\(DESSEM2Julia, p\\)\n        println\\(\"\"✓ \"\", p\\)\n    else\n        println\\(\"\"✗ \"\", p, \"\" NOT FOUND\"\"\\)\n    end\nend\nprintln\\(\\)\nprintln\\(\"\"All core functionality working!\"\"\\)\n\")",
+      "Bash(\"C:\\\\Users\\\\pedro\\\\AppData\\\\Local\\\\Programs\\\\Julia-1.8.5\\\\bin\\\\julia.exe\" --project=. -e \"\nusing Test\nusing DESSEM2Julia\nprintln\\(\"\"=== Running DESSEM2Julia Test Suite ===\"\"\\)\nprintln\\(\\)\n\n# Test greet\n@testset \"\"DESSEM2Julia.greet\"\" begin\n    @test greet\\(\\) == \"\"Hello, world! 👋\"\"\n    @test greet\\(\"\"Julia\"\"\\) == \"\"Hello, Julia! 👋\"\"\nend\n\n# Include all tests\ninclude\\(\"\"test/convert_tests.jl\"\"\\)\ninclude\\(\"\"test/parser/common_tests.jl\"\"\\)\ninclude\\(\"\"test/termdat_tests.jl\"\"\\)\ninclude\\(\"\"test/entdados_tests.jl\"\"\\)\ninclude\\(\"\"test/dessemarq_tests.jl\"\"\\)\ninclude\\(\"\"test/operut_tests.jl\"\"\\)\ninclude\\(\"\"test/dadvaz_tests.jl\"\"\\)\ninclude\\(\"\"test/deflant_tests.jl\"\"\\)\ninclude\\(\"\"test/desselet_tests.jl\"\"\\)\ninclude\\(\"\"test/renovaveis_tests.jl\"\"\\)\ninclude\\(\"\"test/respot_tests.jl\"\"\\)\ninclude\\(\"\"test/respotele_tests.jl\"\"\\)\ninclude\\(\"\"test/dessopc_tests.jl\"\"\\)\ninclude\\(\"\"test/areacont_tests.jl\"\"\\)\ninclude\\(\"\"test/cotasr11_tests.jl\"\"\\)\ninclude\\(\"\"test/curvtviag_tests.jl\"\"\\)\ninclude\\(\"\"test/rampas_tests.jl\"\"\\)\ninclude\\(\"\"test/operuh_tests.jl\"\"\\)\ninclude\\(\"\"test/restseg_tests.jl\"\"\\)\ninclude\\(\"\"test/rstlpp_tests.jl\"\"\\)\ninclude\\(\"\"test/rmpflx_tests.jl\"\"\\)\ninclude\\(\"\"test/ptoper_tests.jl\"\"\\)\ninclude\\(\"\"test/bateria_tests.jl\"\"\\)\ninclude\\(\"\"test/ilstri_tests.jl\"\"\\)\ninclude\\(\"\"test/tolperd_tests.jl\"\"\\)\ninclude\\(\"\"test/metas_tests.jl\"\"\\)\ninclude\\(\"\"test/rivar_tests.jl\"\"\\)\ninclude\\(\"\"test/network_topology_tests.jl\"\"\\)\ninclude\\(\"\"test/infofcf_tests.jl\"\"\\)\ninclude\\(\"\"test/mlt_tests.jl\"\"\\)\ninclude\\(\"\"test/modif_tests.jl\"\"\\)\ninclude\\(\"\"test/binary_dec_tests.jl\"\"\\)\ninclude\\(\"\"test/ons_integration_tests.jl\"\"\\)\nprintln\\(\\)\nprintln\\(\"\"=== All tests completed ===\"\"\\)\n\")",
+      "Bash(findstr:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

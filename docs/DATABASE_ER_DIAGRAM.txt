@@ -1,0 +1,352 @@
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                        DESSEM2Julia DATABASE SCHEMA                                 │
+│                         Entity Relationship Overview                               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+CORE ENTITIES (6 tables)
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────┐
+│   SUBSYSTEMS     │ 1 ─────────────────────────────────────────────────────────────┐
+│ ─────────────────│                                                                │
+│ PK subsystem_num │                                                                │
+│    subsystem_code│                                                                │
+│    subsystem_name│                                                                │
+└──────────────────┘                                                                │
+          │                                                                         │
+          │                                                                         │
+          ├──────────────────────────────────────────────────────────────────────┬──┘
+          │                                                                      │
+          │                                                                      │
+     ┌────▼────┐         ┌──────────┐         ┌──────────┐         ┌─────────▼─────┐
+     │  HYDRO  │         │ THERMAL  │         │RENEWABLE │         │    NETWORK    │
+     │ PLANTS  │         │ PLANTS   │         │ PLANTS   │         │    BUSES      │
+     │         │         │          │         │          │         │              │
+     │ PK:plant_num     │ PK:plant_num    │ PK:plant_num    │ PK:bus_num          │
+     │ FK:subsystem     │ FK:subsystem    │ FK:subsystem    │ FK:subsystem        │
+     └────┬────┘         └─────┬────┘         └────┬─────┘         └──────┬─────────┘
+          │                    │                    │                      │
+          │                    │                    │                      │
+     ┌────▼─────────┐   ┌──────▼──────┐     ┌─────▼──────┐       ┌──────▼──────┐
+     │ HYDRO_UNIT_  │   │  THERMAL_   │     │ RENEWABLE_ │       │TRANSMISSION_│
+     │    SETS      │   │   UNITS     │     │ GENERATION │       │    LINES     │
+     │              │   │             │     │            │       │              │
+     │ PK:(plant,   │   │ PK:(plant,  │     │ PK:(plant, │       │ PK:line_id  │
+     │    set)      │   │    unit)    │     │    period) │       │ FK:from_bus │
+     └────┬─────────┘   └──────┬──────┘     └────────────┘       │ FK:to_bus   │
+          │                    │                                 │             │
+          │                    │                                 └──────┬──────┘
+     ┌────▼─────────┐   ┌──────▼──────┐                                │
+     │  HYDRO_      │   │  THERMAL_   │                                │
+     │   UNITS      │   │ OPERATIONS  │                                │
+     │              │   │             │                                │
+     │ PK:(plant,   │   │ PK:(plant,  │                                │
+     │  set,unit)   │   │  unit,period│                                │
+     └──────────────┘   └─────────────┘                                │
+                                                                       │
+                                                                       │
+┌──────────────────┐       ┌──────────────────┐      ┌────────────────▼─────────┐
+│  TIME_PERIODS    │───────│  HYDRO_INFLOWS  │      │    PLANT_BUS_            │
+│ ─────────────────│       │                  │      │    CONNECTIONS           │
+│ PK period_id     │       │ PK:(plant,       │      │                          │
+│    (day,hr,half) │       │      period)     │      │ PK:(plant,type)          │
+│                  │       │ FK:plant_num     │      │ FK:bus_num               │
+└──────────────────┘       │ FK:period_id     │      └──────────────────────────┘
+                           └──────────────────┘
+
+CONSTRAINTS (Many-to-Many Relationships)
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────┐
+│ ELECTRICAL_          │
+│ RESTRICTIONS         │
+│ ─────────────────────│
+│ PK restriction_num   │
+└───────────┬───────────┘
+            │
+            │
+      ┌─────┴───────────────────────────────────────────┐
+      │                                                 │
+      │                                                 │
+┌─────▼─────────────┐  ┌──────────────┐  ┌────────────▼──────────────┐
+│ RESTRICTION_      │  │ RESTRICTION_ │  │ RESTRICTION_             │
+│ HYDRO_COEFF       │  │ THERMAL_     │  │ INTERCHANGE_COEFF        │
+│ (Junction Table)  │  │ COEFF        │  │                          │
+│                   │  │              │  │ PK:(restriction,         │
+│ PK:(restriction,  │  │ PK:(restriction│  │      from_sub,           │
+│      plant,set)   │  │       plant)  │  │      to_sub)              │
+└───────────────────┘  └──────────────┘  └───────────────────────────┘
+
+
+TEMPORAL DATA (Time Series)
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────┐       ┌──────────────────┐       ┌──────────────────┐
+│  TIME_PERIODS   │──────►│  HYDRO_          │──────►│  HYDRO_          │
+│  (Dimension)    │       │  INFLOWS         │       │  OPERATIONS      │
+│                 │       │                  │       │                  │
+│  period_id PK   │       │  (plant, period) │       │  (plant, period, │
+│  day, hr, half  │       │  inflow_m3s      │       │   type)          │
+└─────────────────┘       └──────────────────┘       └──────────────────┘
+       │
+       │
+       ├─────────────────────┬───────────────────────┬─────────────────────┐
+       │                     │                       │                     │
+       ▼                     ▼                       ▼                     ▼
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ DEMAND_      │    │ THERMAL_     │    │ RENEWABLE_   │    │ RESTRICTION_ │
+│ SERIES       │    │ OPERATIONS   │    │ GENERATION   │    │ LIMITS       │
+│              │    │              │    │              │    │              │
+│ (subsystem,  │    │ (plant,unit, │    │ (plant,      │    │ (restriction,│
+│  period)     │    │  period)     │    │  period)     │    │  period)     │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+
+
+CASCADE TOPOLOGY (Self-Referencing)
+═════════════════════════════════════════════════════════════════════════════════════════
+
+    ┌──────────────────┐
+    │   HYDRO_PLANTS   │
+    │   (Self-Ref)     │
+    └────────┬─────────┘
+             │
+             │ downstream_plant FK → plant_num
+             │
+             ▼
+    ┌──────────────────┐
+    │   HYDRO_PLANTS   │ ◄───── Forms Directed Acyclic Graph (DAG)
+    │                  │
+    │  Example:        │
+    │  Plant A (root)  │
+    │    └► Plant B    │
+    │        └► Plant C│
+    └──────────────────┘
+
+
+NETWORK TOPOLOGY
+═════════════════════════════════════════════════════════════════════════════════════════
+
+    ┌────────┐              ┌────────┐              ┌────────┐
+    │  BUS 1 │─────────────►│  BUS 2 │─────────────►│  BUS 3 │
+    │        │              │        │              │        │
+    └────────┘              └────────┘              └────────┘
+        ▲                       │                       ▲
+        │                       │                       │
+        │              ┌────────▼────────┐              │
+        │              │  BUS 4 (Load)   │              │
+        │              └──────────────────┘              │
+        │                                                   │
+    ┌───┴──────┐                                    ┌───────┴─────┐
+    │ HYDRO_   │                                    │ THERMAL_    │
+    │ PLANT    │                                    │ PLANT       │
+    └──────────┘                                    └─────────────┘
+
+
+KEY RELATIONSHIPS SUMMARY
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ RELATIONSHIP                          TYPE        TABLES                             │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│ subsystem → plants                   1:N         subsystems ──► {hydro,thermal,    │
+│                                                  renewable}_plants                 │
+│                                                                                     │
+│ plant → unit sets                    1:N         hydro_plants ──► hydro_unit_sets  │
+│                                                                                     │
+│ unit set → units                    1:N         hydro_unit_sets ──► hydro_units    │
+│                                                                                     │
+│ plant → units (thermal)             1:N         thermal_plants ──► thermal_units  │
+│                                                                                     │
+│ plant → downstream plant            Self-ref    hydro_plants.downstream_plant     │
+│                                             → hydro_plants.plant_num             │
+│                                                                                     │
+│ period → time-series                1:N         time_periods ──► {hydro_inflows,  │
+│                                                  thermal_ops, demand, ...}       │
+│                                                                                     │
+│ restriction ↔ hydro plants          M:N         restrictions ◄─► hydro_plants      │
+│                                   (junction)          via restriction_hydro_coeff │
+│                                                                                     │
+│ restriction ↔ thermal plants        M:N         restrictions ◄─► thermal_plants    │
+│                                   (junction)          via restriction_thermal_coeff│
+│                                                                                     │
+│ bus → transmission lines            1:N         network_buses ──► transmission_    │
+│                                                  lines (from_bus, to_bus)         │
+│                                                                                     │
+│ plant → bus                        M:N         {hydro,thermal,renewable}_plants   │
+│                                   (junction)          ◄─► network_buses           │
+│                                                  via plant_bus_connections        │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+
+ENUM TYPES (PostgreSQL)
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ ENUM NAME                 VALUES                                                   │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│ load_level_enum           'LEVE', 'MEDIA', 'PESADA'                                │
+│ fuel_type_enum            'GAS', 'COAL', 'OIL', 'BIOMASS', 'NUCLEAR', 'OTHER'      │
+│ plant_status_enum         'EXISTING', 'CONSTRUCT'                                   │
+│ plant_type_enum           'HYDRO', 'THERMAL', 'WIND', 'SOLAR', 'BIOMASS',           │
+│                           'PUMPED_STORAGE'                                          │
+│ hydro_constraint_enum     'VAZMIN', 'VAZMAX', 'VMINP', 'VMAXP', 'GHMIN', 'GHMAX'    │
+│ unit_status_enum          'OFF', 'ON'                                               │
+│ network_flag_enum         'NONE', 'NETWORK', 'LOSSES'                                │
+│ restriction_sense_enum    'LESS_EQUAL', 'GREATER_EQUAL', 'EQUAL'                    │
+│ inflow_type_enum          'INCREMENTAL', 'TOTAL', 'REGULARIZED'                      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+
+DATABASE STATISTICS (ONS Sample)
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ TABLE                  RECORD COUNT      SIZE      INDEXES                         │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│ subsystems             4                 1 KB      1 (PK)                          │
+│ time_periods           168               8 KB      2 (PK, network)                 │
+│ hydro_plants           320               128 KB    4 (PK, subsystem, downstream,  │
+│                                                            ree)                     │
+│ hydro_unit_sets        85                16 KB     1 (PK)                          │
+│ hydro_units            185               32 KB     1 (PK)                          │
+│ hydro_inflows          53,760            854 KB    2 (plant, period)              │
+│ thermal_plants         95                24 KB     2 (PK, subsystem, fuel)        │
+│ thermal_units          145               42 KB     1 (PK, plant)                   │
+│ thermal_operations     24,360            587 KB    1 (plant, period)               │
+│ renewable_plants       12                4 KB      2 (PK, type, subsystem)        │
+│ network_buses          3,421             218 KB    1 (PK)                          │
+│ transmission_lines     5,832             462 KB    2 (from_bus, to_bus)           │
+│ electrical_restrictions 124               18 KB     1 (PK)                          │
+│ restriction_hydro_coeff 1,245             42 KB     1 (PK)                          │
+│ demand_series          672               28 KB     2 (subsystem, period)          │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│ TOTAL                  90,000+           ~3.5 MB   ~30 indexes                     │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+
+QUERY PERFORMANCE (Estimated)
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ QUERY TYPE                              INDEXES USED    EXECUTION TIME  │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│ Get plant by number                     PK              < 1 ms            │
+│ List all plants in subsystem            subsystem FK    1-2 ms            │
+│ Find cascade (recursive CTE)            downstream FK   5-10 ms           │
+│ Calculate subsystem capacity            Multiple FKs    10-20 ms          │
+│ Join plants + operations (1 plant)      plant + period  2-5 ms            │
+│ Join plants + operations (all plants)   plant + period  50-100 ms         │
+│ Aggregate inflows (all plants)          plant + period  100-200 ms        │
+│ Network topology traversal              from/to FK      20-50 ms          │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+Note: Times assume PostgreSQL 14+ on modern hardware with proper indexing.
+
+
+PRIMARY KEY STRATEGIES
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ STRATEGY            WHEN TO USE                          EXAMPLE                    │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│ Natural PK          Small, stable integers              plant_num INT PRIMARY KEY  │
+│                     Business keys                       subsystem_num INT PRIMARY  │
+│                                                          period_id SERIAL PRIMARY KEY│
+│                                                                                     │
+│ Surrogate PK      Large composite keys,                id SERIAL PRIMARY KEY,       │
+│                    Auto-increment needed                (plant_num, unit_num) UNIQUE │
+│                                                          transaction_id BIGINT PK   │
+│                                                                                     │
+│ Composite PK      Multi-column natural keys             PRIMARY KEY (plant_num,     │
+│                                                          unit_num)                  │
+│                                                          PRIMARY KEY (plant_num,    │
+│                                                          set_num, unit_num)         │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+
+MIGRATION CHECKLIST
+═════════════════════════════════════════════════════════════════════════════════════════
+
+☐  Create database and schema
+☐  Execute ENUM type definitions
+☐  Create all tables (in dependency order)
+☐  Create all indexes (after data load)
+☐  Create triggers (cascade cycle prevention)
+☐  Load core data (subsystems, time periods)
+☐  Load master data (plants, buses)
+☐  Load detail data (units, inflows)
+☐  Load time-series data (operations, demand)
+☐  Load constraint data (restrictions, coefficients)
+☐  Validate referential integrity
+☐  Update statistics (ANALYZE)
+☐  Create views for common queries
+☐  Create materialized views for aggregations
+☐  Grant permissions to database users
+☐  Backup database
+
+
+PLATFORM COMPATIBILITY
+═════════════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ FEATURE                   POSTGRESQL  SQLITE   MYSQL/MARIADB  NOTES                  │
+├──────────────────────────────────────────────────────────────────────────────────────┤
+│ ENUM types                ✅          ❌        ✅             SQLite: use CHECK      │
+│ Recursive CTEs            ✅          ✅*       ✅             SQLite: limited         │
+│ Cascade FK triggers       ✅          ✅        ✅                                     │
+│ Partitioning              ✅          ❌        ✅             SQLite: not supported   │
+│ Materialized views        ✅          ❌        ❌                                     │
+│ Full-text search          ✅          ✅        ✅                                     │
+│ JSON/JSONB support        ✅          ✅        ✅                                     │
+│ Transactional DDL         ✅          ❌        ✅                                     │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+
+*SQLite recursive CTEs: Limited depth, may fail for deep cascades
+
+
+IMPORTANT CAVEATS
+═════════════════════════════════════════════════════════════════════════════════════════
+
+⚠️  CRITICAL: Cascade cycle detection
+    └─► Use trigger: trg_prevent_cascade_cycles
+    └─► Validate with recursive CTE query before data load
+
+⚠️  DATA LOSS: Time period mapping
+    └─► Always build period_map Dict before loading time-series
+    └─► Skip records with missing period_id (don't insert orphans)
+
+⚠️  PERFORMANCE: Composite PKs
+    └─► Add additional FK indexes for reverse lookups
+    └─► Example: CREATE INDEX idx_thermal_units_plant ON thermal_units(plant_num)
+
+⚠️  MIGRATION: ENUM changes
+    └─► Adding value: ALTER TYPE ... ADD VALUE (PostgreSQL)
+    └─► Removing value: Update rows first, then recreate ENUM
+    └─► Consider TEXT + CHECK for frequently-changing enums
+
+⚠️  INTEGRITY: Self-referencing FKs
+    └─► Insert in topological order (roots before children)
+    └─► Use SET NULL for downstream_plant if not all plants loaded yet
+
+⚠️  SCALABILITY: Large time-series tables
+    └─► Partition by period_id (PostgreSQL)
+    └─► Use partial indexes for recent data
+    └─► Materialized views for pre-aggregation
+
+
+NEXT STEPS
+═════════════════════════════════════════════════════════════════════════════════════════
+
+1. Execute schema.sql to create database structure
+2. Run migration script: julia migrate_to_db.jl ons_sample.jld2
+3. Validate data: SELECT * FROM v_database_summary
+4. Test queries: Run examples from Query Examples section
+5. Set up automated backups: pg_dump dessem_db > backup.sql
+6. Configure replication (if needed for high availability)
+7. Monitor query performance: EXPLAIN ANALYZE slow queries
+8. Tune PostgreSQL configuration: shared_buffers, work_mem, etc.
+
+For detailed implementation, see: DATABASE_IMPLEMENTATION_GUIDE.md (2,513 lines)
+
+──────────────────────────────────────────────────────────────────────────────────────────
+Generated by DESSEM2Julia Project | Version 1.0 | 2026-01-01

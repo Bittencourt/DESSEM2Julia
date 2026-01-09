@@ -1,15 +1,19 @@
 # ANAREDE Network Files - Technical Analysis
 
 > **📚 Part of**: [DESSEM2Julia Documentation](INDEX.md) | **📖 Related**: [DESSELET Parser](../src/parser/desselet.jl), [File Formats](file_formats.md)
+> **🔗 External**: [PWF.jl Library](https://github.com/LAMPSPUC/PWF.jl) | **📦 Integration**: [PWF Parser](../src/parser/pwf.jl)
 
 ## Executive Summary
 
-**Can ANAREDE files be read?** → **Yes, but with significant limitations**
+**Can ANAREDE files be read?** → **Yes! Using PWF.jl library**
 
 - ✅ **Text format (.dat)**: Parsable with proper specification
-- ⚠️ **Binary format (.pwf, .afp)**: Possible but complex
+- ✅ **Binary format (.pwf, .afp)**: **Fully supported via PWF.jl** ⭐ **NEW**
 - ❌ **IDESSEM approach**: Does NOT parse ANAREDE files
-- ✅ **DESSEM2Julia approach**: Follows IDESSEM - only parse index file
+- ✅ **DESSEM2Julia approach**: Leverages PWF.jl for .pwf files
+
+**🎉 NEW**: PWF.jl integration provides complete .pwf file support!
+- See [PWF Integration](#pwf-jl-integration) section below
 
 ---
 
@@ -185,36 +189,202 @@ class Desselet(SectionFile):
 
 ---
 
+## ⭐ PWF.jl Integration
+
+### Solution: Use Specialized Library
+
+Instead of implementing a custom ANAREDE parser, **DESSEM2Julia now integrates the PWF.jl library**!
+
+**What is PWF.jl?**
+- **Developer**: LAMPS research group at PUC-Rio (Brazil)
+- **Repository**: https://github.com/LAMPSPUC/PWF.jl
+- **Documentation**: https://lampspuc.github.io/PWF.jl/
+- **Purpose**: Read ANAREDE power flow files (.pwf) in Julia
+- **Maintained**: Active development by domain experts
+
+### Benefits of PWF.jl Integration
+
+✅ **No custom binary parsing** - PWF.jl handles complex ANAREDE format
+✅ **Well-tested library** - Battle-tested in production environments
+✅ **Domain expertise** - Maintained by Brazilian power system experts
+✅ **Regular updates** - Handles format changes automatically
+✅ **Clean integration** - Converts to DESSEM2Julia types seamlessly
+
+### Usage
+
+#### Basic PWF Parsing
+
+```julia
+using DESSEM2Julia
+
+# Parse a .pwf file (returns PWF.jl native structure)
+pwf_data = parse_pwf("leve.pwf")
+
+# Access bus data from PWF
+buses = pwf_data["buses"]
+```
+
+#### Convert to DESSEM2Julia Types
+
+```julia
+# Parse and convert to NetworkTopology
+topology = parse_pwf_to_topology("leve.pwf")
+
+# Access buses (NetworkBus type)
+println("Number of buses: \$(length(topology.buses))")
+
+# Access lines (NetworkLine type)
+println("Number of lines: \$(length(topology.lines))")
+
+# Filter by subsystem
+se_buses = filter(b -> b.subsystem == "SE", topology.buses)
+```
+
+#### Integration with DESSELET
+
+```julia
+# Parse DESSELET to get PWF filenames
+desselet_data = parse_desselet("desselet.dat")
+
+# For each base case, parse the PWF file
+for base_case in desselet_data.base_cases
+    println("Processing \$(base_case.label): \$(base_case.filename)")
+
+    topology = parse_pwf_to_topology(base_case.filename)
+
+    # Analyze network topology
+    println("  Buses: \$(length(topology.buses))")
+    println("  Lines: \$(length(topology.lines))")
+end
+```
+
+### Implementation Details
+
+**File**: `src/parser/pwf.jl`
+
+**Functions**:
+- `parse_pwf(filepath)`: Raw PWF.jl parsing (returns Dict)
+- `parse_pwf_to_topology(filepath)`: Convert to NetworkTopology
+- `convert_pwfbus_to_networkbus(pwf_bus)`: Bus data conversion
+- `convert_pwfbranch_to_networkline(pwf_branch)`: Line data conversion
+
+**Type Conversions**:
+
+| PWF.jl Field | DESSEM2Julia Type | Notes |
+|--------------|-------------------|-------|
+| Bus code/number | NetworkBus.bus_number | Required |
+| Bus name | NetworkBus.name | Optional |
+| Base voltage | NetworkBus.voltage_kv | kV |
+| Area code | NetworkBus.subsystem | Mapped to SE/S/NE/N |
+| Generation (pg) | NetworkBus.generation_mw | MW |
+| Load (pl) | NetworkBus.load_mw | MW |
+| From bus | NetworkLine.from_bus | Required |
+| To bus | NetworkLine.to_bus | Required |
+| Circuit | NetworkLine.circuit | Integer |
+| Rating | NetworkLine.capacity_mw | MW |
+
+**Subsystem Mapping**:
+```julia
+# ANAREDE area codes → Brazilian subsystems
+Area 1, 2, 3 → "SE" (Southeast)
+Area 4       → "S"  (South)
+Area 5       → "NE" (Northeast)
+Area 6       → "N"  (North)
+```
+
+### Installation
+
+```julia
+using Pkg
+Pkg.add("PWF")
+```
+
+**Added to Project.toml**:
+```toml
+[deps]
+PWF = "c484c51a-cb0d-4fb0-83c9-ce91382e7b63"
+```
+
+### Parser Registration
+
+PWF files are now registered in the parser registry:
+
+```julia
+# Automatic registration in __init__()
+register_parser!("LEVE.PWF", parse_pwf)
+register_parser!("MEDIA.PWF", parse_pwf)
+register_parser!("PESADA.PWF", parse_pwf)
+register_parser!(".pwf", parse_pwf)  # Generic
+```
+
+### Testing
+
+**File**: `test/pwf_tests.jl`
+
+**Test Coverage**:
+- ✅ Unit tests for bus conversion
+- ✅ Unit tests for branch/line conversion
+- ✅ Subsystem mapping (all 4 regions)
+- ✅ Error handling
+- ✅ Metadata preservation
+- ✅ Mock PWF data integration
+
+**Run tests**:
+```julia
+julia --project=. test/pwf_tests.jl
+```
+
+### Alignment with IDESSEM Philosophy
+
+**IDESSEM**: Does NOT parse .pwf files (stores filenames only)
+
+**DESSEM2Julia**: Maintains this philosophy while providing optional access:
+- ✅ Default workflow: Parse DESSELET, get filenames
+- ✅ Optional enhancement: Parse .pwf when needed via PWF.jl
+- ✅ No custom binary parser implementation
+- ✅ Leverages specialized, maintained library
+
+This gives users the **best of both worlds**:
+1. Simple workflow (IDESSEM-compatible)
+2. Optional deep network analysis (when needed)
+3. No maintenance burden (PWF.jl team handles format changes)
+
+---
+
 ## DESSEM2Julia Recommendation
 
-### ✅ Current Approach is Correct
+### ✅ Enhanced Approach with PWF.jl
 
-Your `desselet.jl` parser follows IDESSEM's strategy:
+Your `desselet.jl` parser follows IDESSEM's strategy **AND** provides optional PWF parsing:
 
 ```julia
 # src/parser/desselet.jl
 function parse_desselet(filepath::AbstractString)::DesseletData
     base_cases = DesseletBaseCase[]
     patamares = DesseletPatamar[]
-    
+
     # Parse desselet.dat index file
     # Extract filenames as metadata
-    # DO NOT parse .pwf/.afp files
-    
+    # DO NOT automatically parse .pwf/.afp files
+
     return DesseletData(
         base_cases=base_cases,
         patamares=patamares,
         metadata=Dict("source" => filepath)
     )
 end
+
+# Optional: Parse PWF files when needed
+topology = parse_pwf_to_topology("leve.pwf")
 ```
 
 **This is the right approach because**:
 1. ✅ Matches IDESSEM reference implementation
 2. ✅ Provides necessary metadata for DESSEM workflow
-3. ✅ Avoids complex binary parsing
+3. ✅ **Optional** PWF parsing via specialized library (no custom parser!)
 4. ✅ Maintains compatibility with DESSEM solver
 5. ✅ Focuses on DESSEM-specific data, not ANAREDE internals
+6. ✅ **NEW**: Leverages PWF.jl for network analysis when needed
 
 ---
 
@@ -224,31 +394,35 @@ end
 
 | Use Case | Value | Complexity | Recommendation |
 |----------|-------|------------|----------------|
-| **Visualize network topology** | Medium | High | Use ANAREDE GUI or export |
-| **Extract bus/line data** | Low | High | Use ANAREDE reports |
-| **Analyze power flow** | Low | Very High | Use ANAREDE directly |
-| **Convert to other formats** | Medium | High | Use ANAREDE export |
-| **DESSEM workflow** | **None** | High | **Not needed** |
+| **Visualize network topology** | Medium | Low | ✅ **Use PWF.jl integration** |
+| **Extract bus/line data** | Medium | Low | ✅ **Use parse_pwf_to_topology()** |
+| **Analyze power flow** | Medium | Low | ✅ **Use PWF.jl** |
+| **Convert to other formats** | Medium | Low | ✅ **Use PWF.jl + export** |
+| **DESSEM workflow** | **Optional** | Low | ✅ **Available when needed** |
 
-### Alternative Solutions
+### Solution: Use PWF.jl Integration ⭐
 
-Instead of parsing ANAREDE files directly:
+**Instead of** parsing ANAREDE files directly:
 
-1. **Use ANAREDE exports**:
-   - Export network to CSV/text from ANAREDE GUI
-   - Parse exported files (simple text format)
+1. ✅ **Use PWF.jl integration** (recommended):
+   ```julia
+   # Parse PWF file
+   topology = parse_pwf_to_topology("leve.pwf")
 
-2. **Use DESSEM output files**:
+   # Export to other formats
+   using DataFrames
+   buses_df = DataFrame(topology.buses)
+   lines_df = DataFrame(topology.lines)
+   ```
+
+2. ✅ **Use DESSEM output files**:
    - DESSEM produces `PDO_*` files with network results
    - Parse post-optimization output (already structured)
 
-3. **Query DESSEM directly**:
-   - DESSEM has APIs for network data access
-   - Use solver output rather than input
-
-4. **Use visualization tools**:
-   - ANAREDE has built-in visualization
-   - Third-party tools exist for Brazilian power system
+3. ✅ **Use PWF.jl for visualization**:
+   - Convert to NetworkTopology
+   - Use DESSEM2Julia's built-in graph visualization
+   - Export to GraphPlot, NetworkX, etc.
 
 ---
 
