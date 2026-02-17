@@ -4,7 +4,7 @@
 **Last Updated**: December 20, 2025  
 **Status**: All 32 DESSEM parsers implemented, 7,680+ tests passing
 
-Welcome to the DESSEM2Julia documentation! This project provides Julia parsers and tools for working with DESSEM (Daily Operation Scheduling Program) input files used in Brazilian power system operations.
+> **🎉 [PROJECT COMPLETION SUMMARY](PROJECT_COMPLETE.md)** - Comprehensive overview of achievements and final statistics
 
 ---
 

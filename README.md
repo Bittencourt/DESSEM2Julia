@@ -32,6 +32,10 @@ Convert DESSEM input files (.DAT and related text files) into structured Julia o
 
 DESSEM is a hydrothermal dispatch optimization model used for short-term operational planning in Brazilian power systems.
 
+> **🎉 PROJECT COMPLETE** (December 20, 2025) - [See Completion Summary](docs/PROJECT_COMPLETE.md)
+> 
+> All 32 DESSEM parsers implemented • 7,680+ tests passing • Version 1.0.0
+
 ---
 
 ## 📚 Documentation
