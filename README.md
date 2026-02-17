@@ -150,17 +150,18 @@ Then commit as usual; the hook will run `Pkg.test()`.
 - Main module: `src/DESSEM2Julia.jl`
 - Type definitions:
   - Legacy types: `src/types.jl`
-  - **Core type system**: `src/models/core_types.jl` ⭐ (40+ types, 15/32 files covered)
-- Parser infrastructure: `src/parser/`
+  - **Core type system**: `src/models/core_types.jl` ⭐ (40+ types, **32/32 files complete - 100%**)
+- Parser infrastructure: `src/parser/` (**36 parser files, all DESSEM formats implemented**)
   - Common utilities: `src/parser/common.jl`
   - Registry system: `src/parser/registry.jl`
-  - Master file index: `src/parser/dessemarq.jl` ✅ (68/68 tests passing, ordered registry via `DessemFileRecord`)
-  - TERMDAT parser: `src/parser/termdat.jl` ✅ (110/110 tests passing)
-  - ENTDADOS parser: `src/parser/entdados.jl` ✅ (129/129 tests passing, 30+ record types)
-  - OPERUT parser: `src/parser/operut.jl` ✅ (62/62 tests passing)
-  - OPERUH parser: `src/parser/operuh.jl` ✅ (all tests passing)
-  - DADVAZ parser: `src/parser/dadvaz.jl` ✅ (13/13 tests passing)
-  - **HIDR binary parser**: `src/parser/hidr_binary.jl` ✅ (54/54 tests passing, **111 fields**) ⭐ **NEW**
+  - **All 32 DESSEM parsers complete** ✅ (**7,680+ tests passing**)
+  - Master file index: `src/parser/dessemarq.jl` ✅
+  - Hydroelectric: `src/parser/hidr.jl`, `src/parser/hidr_binary.jl` ✅ (binary + text, 111 fields)
+  - Thermal: `src/parser/termdat.jl`, `src/parser/operut.jl` ✅
+  - System config: `src/parser/entdados.jl` ✅ (35+ record types)
+  - Network: `src/parser/desselet.jl`, `src/parser/network_topology.jl` ✅
+  - Constraints: `src/parser/operuh.jl`, `src/parser/restseg.jl`, `src/parser/rstlpp.jl` ✅
+  - See [`docs/file_formats.md`](docs/file_formats.md) for complete parser list
 - JLD2 I/O: `src/io.jl`
 - Public API: `src/api.jl`
 - Tests: `test/runtests.jl`, `test/*_tests.jl`
