@@ -233,24 +233,30 @@ using DESSEM2Julia
 
     @testset "Configuration Parameters" begin
         # Test that configuration parameters are stored correctly
-        cuts = parse_cortdeco(
-            "/dev/null",  # Non-existent file (will just test initialization)
-            tamanho_registro=1664,
-            codigos_rees=[1, 2, 3],
-            codigos_uhes=[10, 20, 30, 40],
-            codigos_submercados=[1, 2, 3, 4],
-            ordem_maxima_parp=12,
-            numero_patamares_carga=3,
-            lag_maximo_gnl=2,
-        )
+        # Note: Using non-existent file tests initialization only
+        mktempdir() do tmpdir
+            empty_file = joinpath(tmpdir, "empty.rv2")
+            touch(empty_file)
+            
+            cuts = parse_cortdeco(
+                empty_file,
+                tamanho_registro=1664,
+                codigos_rees=[1, 2, 3],
+                codigos_uhes=[10, 20, 30, 40],
+                codigos_submercados=[1, 2, 3, 4],
+                ordem_maxima_parp=12,
+                numero_patamares_carga=3,
+                lag_maximo_gnl=2,
+            )
 
-        @test cuts.tamanho_registro == 1664
-        @test cuts.codigos_rees == [1, 2, 3]
-        @test cuts.codigos_uhes == [10, 20, 30, 40]
-        @test cuts.codigos_submercados == [1, 2, 3, 4]
-        @test cuts.ordem_maxima_parp == 12
-        @test cuts.numero_patamares_carga == 3
-        @test cuts.lag_maximo_gnl == 2
+            @test cuts.tamanho_registro == 1664
+            @test cuts.codigos_rees == [1, 2, 3]
+            @test cuts.codigos_uhes == [10, 20, 30, 40]
+            @test cuts.codigos_submercados == [1, 2, 3, 4]
+            @test cuts.ordem_maxima_parp == 12
+            @test cuts.numero_patamares_carga == 3
+            @test cuts.lag_maximo_gnl == 2
+        end
     end
 
 end

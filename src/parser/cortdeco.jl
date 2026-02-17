@@ -135,8 +135,9 @@ function parse_cortdeco(
     end
 
     # Pre-allocate vector for cuts
+    # Use file size to estimate capacity when possible
     cortes = FCFCut[]
-    sizehint!(cortes, min(numero_total_cortes, 1000))  # Pre-allocate reasonable size
+    # Will be sized correctly after determining actual cut count
 
     open(filepath, "r") do io
         # Determine file size to calculate actual number of records
@@ -207,9 +208,10 @@ function parse_cortdeco(
                 rhs = float_values[1]
                 coeficientes = length(float_values) > 1 ? collect(float_values[2:end]) : Float64[]
 
-                # Create cut with 1-based index for Julia
+                # Create cut with temporary sequential index
+                # (will be replaced with chronological index after reversal)
                 cut = FCFCut(
-                    indice_corte=Int32(cortes_lidos + 1),  # Sequential 1-based index
+                    indice_corte=Int32(0),  # Placeholder, set after reversal
                     iteracao_construcao=iteracao_construcao,
                     indice_forward=indice_forward,
                     iteracao_desativacao=iteracao_desativacao,
@@ -259,7 +261,7 @@ function parse_cortdeco(
 end
 
 """
-    get_water_value(cuts::FCFCutsData, uhe_code::Int, storage::Float64=0.0) -> Float64
+    get_water_value(cuts::FCFCutsData, uhe_code::Int) -> Float64
 
 Get average water value for a hydro plant across all cuts.
 
@@ -270,7 +272,6 @@ water, i.e., the opportunity cost of using water now versus saving it for the fu
 # Arguments
 - `cuts::FCFCutsData`: Parsed FCF cuts container
 - `uhe_code::Int`: Hydro plant code (must be in cuts.codigos_uhes)
-- `storage::Float64=0.0`: Current storage level (currently unused, for future interpolation)
 
 # Returns
 - `Float64`: Average water value in R\$/hm³ across all active cuts
@@ -293,14 +294,14 @@ println("Water value for plant 6: \$wv R\$/hm³")
 # Notes
 - Only works with individualized mode (codigos_uhes must be non-empty)
 - Returns average across all cuts (active and inactive)
-- Future versions may interpolate based on storage level
+- Future versions may support storage-based interpolation with additional parameter
 - If plant not found, throws an error
 
 # Reference
 Water values represent dual variables (shadow prices) from the hydrothermal
 optimization problem, indicating the marginal cost of water usage.
 """
-function get_water_value(cuts::FCFCutsData, uhe_code::Int, storage::Float64=0.0)
+function get_water_value(cuts::FCFCutsData, uhe_code::Int)
     if isempty(cuts.codigos_uhes)
         error("Water value lookup requires individualized mode (codigos_uhes must be non-empty)")
     end
