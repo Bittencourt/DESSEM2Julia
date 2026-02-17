@@ -81,8 +81,20 @@ Visual overview of all documentation and how it interconnects.
 │  │  └─ ONS_COMPATIBILITY_SUMMARY.md
 │  │
 │  └─ sessions/ (Development logs)
-│     ├─ SESSION_SUMMARY.md ──────► Latest complete summary
-│     ├─ HIDR_DOCUMENTATION_UPDATE.md
+│     ├─ SESSION_SUMMARY.md ──────► Consolidated progress overview
+│     ├─ SESSION_18_COMPLETE.md ──► Session 18 completion summary
+│     ├─ HIDR_DOCUMENTATION_UPDATE.md ──► HIDR comprehensive docs
+│     ├─ session23_respot_column_fixes.md ──► Latest session (RESPOT)
+│     ├─ session18_dessopc_parser.md ──► DESSOPC parser
+│     ├─ session17_documentation_consolidation.md
+│     ├─ session16_network_topology.md ──► Network extraction
+│     ├─ session15_three_parsers_summary.md
+│     ├─ session14_hidr_complete.md
+│     ├─ session13_deflant_complete.md
+│     ├─ session12_desselet_completion.md
+│     ├─ session11_operuh_completion.md
+│     ├─ session10_summary.md
+│     ├─ session9_summary.md
 │     ├─ session8_summary.md
 │     ├─ session7_summary.md
 │     ├─ session6_summary.md
