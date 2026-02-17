@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - February 17, 2026
+- **cortdeco.rv2 Binary Parser**: Complete FCF (Future Cost Function) cuts parser
+  - Parse Benders cuts from NEWAVE/DECOMP cortdeco.rv2 binary files
+  - Linked-list traversal algorithm matching inewave reference implementation
+  - Binary format: 1664-byte records (16-byte header + 206 Float64 coefficients)
+  - Helper functions: `get_water_value()`, `get_active_cuts()`, `get_cut_statistics()`
+  - Updated FCF types: `FCFCut`, `FCFCutsData`, `DecompCut` with backward compatibility
+  - Comprehensive test suite: 51 tests covering all functionality
+  - Cross-platform compatible (Windows, Linux, macOS)
+  - Complete documentation: `docs/parsers/CORTDECO_IMPLEMENTATION.md`
+  - Reference: Based on https://github.com/rjmalves/inewave
+- Documentation improvements:
+  - Added cortdeco binary format to `FORMAT_NOTES.md`
+  - Updated `README.md` with FCF parser coverage
+  - Created implementation guide with examples and troubleshooting
+
 ### Added - December 20, 2025 - PROJECT COMPLETE 🎉
 - **Project Completion**: All 32 DESSEM parsers implemented!
   - 26 production-ready parsers with full structured parsing
