@@ -973,7 +973,8 @@ Base.getproperty(d::DecompCut, s::Symbol) = begin
 end
 
 # Complete backward compatibility
-Base.propertynames(d::DecompCut) = (:fcf_cuts, :cut_map_file, :cut_info_file, :cuts, :cut_map, :cut_info)
+Base.propertynames(d::DecompCut) =
+    (:fcf_cuts, :cut_map_file, :cut_info_file, :cuts, :cut_map, :cut_info)
 
 # ============================================================================
 # SYSTEM CONFIGURATION (DESSOPC.DAT, MLT.DAT, CURVTVIAG.DAT, COTASR11.DAT, etc.)

@@ -2,7 +2,6 @@ using Test
 using DESSEM2Julia
 
 @testset "Cortdeco Binary Parser Tests" begin
-
     @testset "Synthetic Binary File Parsing" begin
         # Create a temporary directory for test files
         mktempdir() do tmpdir
@@ -42,10 +41,10 @@ using DESSEM2Julia
             # Test parsing from last cut (index 2)
             cuts = parse_cortdeco(
                 test_file,
-                tamanho_registro=1664,
-                indice_ultimo_corte=2,
-                numero_total_cortes=10,
-                codigos_uhes=[1, 2, 3, 4, 5]
+                tamanho_registro = 1664,
+                indice_ultimo_corte = 2,
+                numero_total_cortes = 10,
+                codigos_uhes = [1, 2, 3, 4, 5],
             )
 
             @test cuts isa FCFCutsData
@@ -109,11 +108,8 @@ using DESSEM2Julia
                 end
             end
 
-            cuts = parse_cortdeco(
-                test_file,
-                indice_ultimo_corte=3,
-                codigos_uhes=[1, 2, 3]
-            )
+            cuts =
+                parse_cortdeco(test_file, indice_ultimo_corte = 3, codigos_uhes = [1, 2, 3])
 
             @test length(cuts.cortes) == 3
 
@@ -162,7 +158,7 @@ using DESSEM2Julia
                 end
             end
 
-            cuts = parse_cortdeco(test_file, indice_ultimo_corte=3)
+            cuts = parse_cortdeco(test_file, indice_ultimo_corte = 3)
 
             @test length(cuts.cortes) == 3
 
@@ -219,8 +215,8 @@ using DESSEM2Julia
 
             cuts = parse_cortdeco(
                 test_file,
-                tamanho_registro=record_size,
-                indice_ultimo_corte=1
+                tamanho_registro = record_size,
+                indice_ultimo_corte = 1,
             )
 
             @test length(cuts.cortes) == 1
@@ -237,16 +233,16 @@ using DESSEM2Julia
         mktempdir() do tmpdir
             empty_file = joinpath(tmpdir, "empty.rv2")
             touch(empty_file)
-            
+
             cuts = parse_cortdeco(
                 empty_file,
-                tamanho_registro=1664,
-                codigos_rees=[1, 2, 3],
-                codigos_uhes=[10, 20, 30, 40],
-                codigos_submercados=[1, 2, 3, 4],
-                ordem_maxima_parp=12,
-                numero_patamares_carga=3,
-                lag_maximo_gnl=2,
+                tamanho_registro = 1664,
+                codigos_rees = [1, 2, 3],
+                codigos_uhes = [10, 20, 30, 40],
+                codigos_submercados = [1, 2, 3, 4],
+                ordem_maxima_parp = 12,
+                numero_patamares_carga = 3,
+                lag_maximo_gnl = 2,
             )
 
             @test cuts.tamanho_registro == 1664
@@ -258,5 +254,4 @@ using DESSEM2Julia
             @test cuts.lag_maximo_gnl == 2
         end
     end
-
 end

@@ -114,15 +114,15 @@ https://github.com/rjmalves/inewave/blob/main/inewave/newave/modelos/cortes.py
 """
 function parse_cortdeco(
     filepath::String;
-    tamanho_registro::Int=1664,
-    indice_ultimo_corte::Int=1,
-    numero_total_cortes::Int=10000,
-    codigos_rees::Vector{Int}=Int[],
-    codigos_uhes::Vector{Int}=Int[],
-    codigos_submercados::Vector{Int}=[1, 2, 3, 4],
-    ordem_maxima_parp::Int=12,
-    numero_patamares_carga::Int=3,
-    lag_maximo_gnl::Int=2,
+    tamanho_registro::Int = 1664,
+    indice_ultimo_corte::Int = 1,
+    numero_total_cortes::Int = 10000,
+    codigos_rees::Vector{Int} = Int[],
+    codigos_uhes::Vector{Int} = Int[],
+    codigos_submercados::Vector{Int} = [1, 2, 3, 4],
+    ordem_maxima_parp::Int = 12,
+    numero_patamares_carga::Int = 3,
+    lag_maximo_gnl::Int = 2,
 )
     # Calculate number of coefficients from record size
     # Header: 4 integers × 4 bytes = 16 bytes
@@ -131,7 +131,9 @@ function parse_cortdeco(
     numero_coeficientes = (tamanho_registro - bytes_header) ÷ 8
 
     if numero_coeficientes <= 0
-        error("Invalid record size $tamanho_registro: must be at least 24 bytes (16 header + 8 for RHS)")
+        error(
+            "Invalid record size $tamanho_registro: must be at least 24 bytes (16 header + 8 for RHS)",
+        )
     end
 
     # Pre-allocate vector for cuts
@@ -148,15 +150,15 @@ function parse_cortdeco(
         if max_records_in_file == 0
             @warn "Empty or invalid cortdeco file: $filepath (size: $file_size bytes)"
             return FCFCutsData(
-                cortes=cortes,
-                tamanho_registro=tamanho_registro,
-                numero_total_cortes=0,
-                codigos_rees=codigos_rees,
-                codigos_uhes=codigos_uhes,
-                codigos_submercados=codigos_submercados,
-                ordem_maxima_parp=ordem_maxima_parp,
-                numero_patamares_carga=numero_patamares_carga,
-                lag_maximo_gnl=lag_maximo_gnl,
+                cortes = cortes,
+                tamanho_registro = tamanho_registro,
+                numero_total_cortes = 0,
+                codigos_rees = codigos_rees,
+                codigos_uhes = codigos_uhes,
+                codigos_submercados = codigos_submercados,
+                ordem_maxima_parp = ordem_maxima_parp,
+                numero_patamares_carga = numero_patamares_carga,
+                lag_maximo_gnl = lag_maximo_gnl,
             )
         end
 
@@ -206,17 +208,18 @@ function parse_cortdeco(
 
                 # Extract RHS and coefficients
                 rhs = float_values[1]
-                coeficientes = length(float_values) > 1 ? collect(float_values[2:end]) : Float64[]
+                coeficientes =
+                    length(float_values) > 1 ? collect(float_values[2:end]) : Float64[]
 
                 # Create cut with temporary sequential index
                 # (will be replaced with chronological index after reversal)
                 cut = FCFCut(
-                    indice_corte=Int32(0),  # Placeholder, set after reversal
-                    iteracao_construcao=iteracao_construcao,
-                    indice_forward=indice_forward,
-                    iteracao_desativacao=iteracao_desativacao,
-                    rhs=rhs,
-                    coeficientes=coeficientes,
+                    indice_corte = Int32(0),  # Placeholder, set after reversal
+                    iteracao_construcao = iteracao_construcao,
+                    indice_forward = indice_forward,
+                    iteracao_desativacao = iteracao_desativacao,
+                    rhs = rhs,
+                    coeficientes = coeficientes,
                 )
                 push!(cortes, cut)
 
@@ -238,25 +241,25 @@ function parse_cortdeco(
     for (i, cut) in enumerate(cortes)
         # Create new cut with correct index (can't mutate immutable struct)
         cortes[i] = FCFCut(
-            indice_corte=Int32(i),
-            iteracao_construcao=cut.iteracao_construcao,
-            indice_forward=cut.indice_forward,
-            iteracao_desativacao=cut.iteracao_desativacao,
-            rhs=cut.rhs,
-            coeficientes=cut.coeficientes,
+            indice_corte = Int32(i),
+            iteracao_construcao = cut.iteracao_construcao,
+            indice_forward = cut.indice_forward,
+            iteracao_desativacao = cut.iteracao_desativacao,
+            rhs = cut.rhs,
+            coeficientes = cut.coeficientes,
         )
     end
 
     return FCFCutsData(
-        cortes=cortes,
-        tamanho_registro=tamanho_registro,
-        numero_total_cortes=length(cortes),
-        codigos_rees=codigos_rees,
-        codigos_uhes=codigos_uhes,
-        codigos_submercados=codigos_submercados,
-        ordem_maxima_parp=ordem_maxima_parp,
-        numero_patamares_carga=numero_patamares_carga,
-        lag_maximo_gnl=lag_maximo_gnl,
+        cortes = cortes,
+        tamanho_registro = tamanho_registro,
+        numero_total_cortes = length(cortes),
+        codigos_rees = codigos_rees,
+        codigos_uhes = codigos_uhes,
+        codigos_submercados = codigos_submercados,
+        ordem_maxima_parp = ordem_maxima_parp,
+        numero_patamares_carga = numero_patamares_carga,
+        lag_maximo_gnl = lag_maximo_gnl,
     )
 end
 
@@ -303,7 +306,9 @@ optimization problem, indicating the marginal cost of water usage.
 """
 function get_water_value(cuts::FCFCutsData, uhe_code::Int)
     if isempty(cuts.codigos_uhes)
-        error("Water value lookup requires individualized mode (codigos_uhes must be non-empty)")
+        error(
+            "Water value lookup requires individualized mode (codigos_uhes must be non-empty)",
+        )
     end
 
     # Find index of this UHE in the list
@@ -383,11 +388,7 @@ Dictionary with statistics:
 """
 function get_cut_statistics(cuts::FCFCutsData)
     if isempty(cuts.cortes)
-        return Dict{String,Any}(
-            "total_cuts" => 0,
-            "active_cuts" => 0,
-            "inactive_cuts" => 0,
-        )
+        return Dict{String,Any}("total_cuts" => 0, "active_cuts" => 0, "inactive_cuts" => 0)
     end
 
     active = get_active_cuts(cuts)
