@@ -47,9 +47,11 @@ For entity relationships (database-like model), see [ENTITY_RELATIONSHIPS.md](EN
 | File | Description | Status | Spec Section |
 |------|-------------|--------|--------------|
 | DESSELET.XXX | Network data index | ✅ Parser | § 11 |
-| leve.dat | Light load network case (ANAREDE format: DBAR, DLIN, DGLT blocks) | TODO | § 11 |
-| media.dat | Medium load network case (ANAREDE format) | TODO | § 11 |
-| pesada.dat | Heavy load network case (ANAREDE format) | TODO | § 11 |
+| leve.dat | Light load network case (ANAREDE format: DBAR, DLIN, DGLT blocks) | ⚠️ Not Implemented¹ | § 11 |
+| media.dat | Medium load network case (ANAREDE format) | ⚠️ Not Implemented¹ | § 11 |
+| pesada.dat | Heavy load network case (ANAREDE format) | ⚠️ Not Implemented¹ | § 11 |
+
+> **¹ Note on ANAREDE Files**: These are ANAREDE-format binary power flow files. DESSELET.XXX parser extracts network case references. Full ANAREDE binary parsing is outside the scope of DESSEM file parsing (these are input files to ANAREDE, not DESSEM native format). Network topology extraction from PDO output files is implemented via `network_topology.jl`.
 
 ## Optional Constraint Files
 
