@@ -52,6 +52,7 @@ export parse_rmpflx
 export PtoperRecord, PtoperData, parse_ptoper
 export ModifRecord, ModifData, parse_modif
 export parse_mlt
+export parse_cortdeco, get_water_value, get_active_cuts, get_cut_statistics
 export BateriaRecord, BateriaData, parse_bateria
 export IlstriData, parse_ilstri
 export TolperdData, parse_tolperd
@@ -69,7 +70,7 @@ export NetworkSystem, ElectricBus, TransmissionLine
 export OperationalConstraints, RampConstraint, LPPConstraint, TableConstraint
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
-export CutInfo, FCFCut, DecompCut
+export CutInfo, FCFCut, FCFCutsData, DecompCut
 export ExecutionOptions
 
 include("types.jl")
@@ -220,6 +221,8 @@ include("parser/modif.jl")
 using .ModifParser: parse_modif
 include("parser/mlt.jl")
 using .MltParser: parse_mlt
+include("parser/cortdeco.jl")
+using .CortdecoParser: parse_cortdeco, get_water_value, get_active_cuts, get_cut_statistics
 include("parser/binary_dec.jl")
 using .BinaryDecParser: parse_infofcf, parse_mapcut, parse_cortes
 include("parser/bateria.jl")

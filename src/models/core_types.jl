@@ -35,7 +35,7 @@ export PtoperRecord, PtoperData
 export MltData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
-export CutInfo, FCFCut, DecompCut
+export CutInfo, FCFCut, FCFCutsData, DecompCut
 export InfofcfRecord, InfofcfData
 export MapcutRecord, MapcutData
 export CortesRecord, CortesData
@@ -856,38 +856,125 @@ end
 """
     FCFCut
 
-Future cost function cut from DECOMP (CORTDECO.RV0).
+Single Benders cut from the Future Cost Function (cortdeco.rv2 binary file).
+
+Based on inewave implementation: https://github.com/rjmalves/inewave
+
+# Binary Format (from inewave/newave/modelos/cortes.py)
+- Record size: typically 1664 bytes (configurable)
+- Header: 4 × Int32 (16 bytes total)
+  - indice_corte: Cut index (linked list pointer to previous cut)
+  - iteracao_construcao: Construction iteration
+  - indice_forward: Forward index
+  - iteracao_desativacao: Deactivation iteration
+- Coefficients: N × Float64 (8N bytes)
+  - First float: RHS (independent term)
+  - Remaining floats: Cut coefficients (water values, inflow coefficients, etc.)
 
 # Fields
-- `cut_id::Int`: Cut identification number
-- `stage::Int`: Stage number
-- `scenario::Int`: Scenario number
-- `intercept::Float64`: Cut intercept value
-- `coefficients::Dict{Int, Float64}`: Subsystem => coefficient mapping
+- `indice_corte::Int32`: Cut index (1-based, linked list structure)
+- `iteracao_construcao::Int32`: Construction iteration number
+- `indice_forward::Int32`: Forward pass index
+- `iteracao_desativacao::Int32`: Deactivation iteration (0 if active)
+- `rhs::Float64`: RHS value (independent term of the cut)
+- `coeficientes::Vector{Float64}`: Cut coefficients vector
+
+# Coefficient Interpretation
+The coefficient vector contains (in order):
+1. Water values (pi_varm_uhe or pi_earm_ree)
+2. Inflow coefficients (pi_qafl_uhe or pi_ena_ree) with lags
+3. GNL thermal coefficients (pi_gnl_sbm) by submarket, load level, and lag
+
+Exact structure depends on configuration (REE aggregated vs UHE individualized mode).
 """
 Base.@kwdef struct FCFCut
-    cut_id::Int
-    stage::Int
-    scenario::Int
-    intercept::Float64
-    coefficients::Dict{Int,Float64} = Dict{Int,Float64}()
+    indice_corte::Int32
+    iteracao_construcao::Int32
+    indice_forward::Int32
+    iteracao_desativacao::Int32
+    rhs::Float64
+    coeficientes::Vector{Float64} = Float64[]
+end
+
+"""
+    FCFCutsData
+
+Container for all FCF (Future Cost Function) cuts from cortdeco.rv2 binary file.
+
+This structure holds the complete set of Benders cuts that represent the marginal
+water values and future costs for the hydrothermal optimization.
+
+# Fields
+- `cortes::Vector{FCFCut}`: All parsed cuts in order
+- `tamanho_registro::Int`: Record size in bytes (typically 1664)
+- `numero_total_cortes::Int`: Total number of cuts read
+- `codigos_rees::Vector{Int}`: REE (equivalent reservoir) codes (aggregated mode)
+- `codigos_uhes::Vector{Int}`: UHE (hydro plant) codes (individualized mode)
+- `codigos_submercados::Vector{Int}`: Submarket codes (typically [1,2,3,4])
+- `ordem_maxima_parp::Int`: Maximum PAR(p) order for inflow modeling
+- `numero_patamares_carga::Int`: Number of load levels (typically 3)
+- `lag_maximo_gnl::Int`: Maximum lag for GNL thermal generation
+
+# Notes
+The cut structure and coefficient interpretation depends on whether the cuts are:
+- **REE aggregated**: Uses pi_earm_ree (energy stored) and pi_ena_ree (inflow)
+- **UHE individualized**: Uses pi_varm_uhe (volume) and pi_qafl_uhe (inflow)
+"""
+Base.@kwdef struct FCFCutsData
+    cortes::Vector{FCFCut} = FCFCut[]
+    tamanho_registro::Int = 1664
+    numero_total_cortes::Int = 0
+    codigos_rees::Vector{Int} = Int[]
+    codigos_uhes::Vector{Int} = Int[]
+    codigos_submercados::Vector{Int} = Int[]
+    ordem_maxima_parp::Int = 12
+    numero_patamares_carga::Int = 3
+    lag_maximo_gnl::Int = 2
 end
 
 """
     DecompCut
 
-DECOMP cut information.
+DECOMP cut information container for DessemCase.
+
+This is a high-level container that combines:
+- Binary FCF cuts from cortdeco.rv2 (parsed into FCFCutsData)
+- Cut mapping from mapcut.rv2 (if available)
+- Cut metadata from infofcf.dat (text file with configuration)
 
 # Fields
-- `cuts::Vector{FCFCut}`: All FCF cuts
-- `cut_map::Union{String, Nothing}`: Cut map file path (MAPCUT.RV0)
-- `cut_info::Union{String, Nothing}`: Cut information file path (INFOFCF.DAT)
+- `fcf_cuts::Union{FCFCutsData, Nothing}`: Parsed FCF cuts from cortdeco.rv2
+- `cut_map_file::Union{String, Nothing}`: Cut map file path (mapcut.rv2)
+- `cut_info_file::Union{String, Nothing}`: Cut info file path (infofcf.dat)
+
+# Legacy Compatibility
+For backward compatibility with older code:
+- `cuts::Vector{FCFCut}` accessor redirects to `fcf_cuts.cortes`
+- `cut_map` and `cut_info` accessors redirect to the file path fields
 """
 Base.@kwdef struct DecompCut
-    cuts::Vector{FCFCut} = FCFCut[]
-    cut_map::Union{String,Nothing} = nothing
-    cut_info::Union{String,Nothing} = nothing
+    fcf_cuts::Union{FCFCutsData,Nothing} = nothing
+    cut_map_file::Union{String,Nothing} = nothing
+    cut_info_file::Union{String,Nothing} = nothing
 end
+
+# Backward compatibility accessors
+Base.getproperty(d::DecompCut, s::Symbol) = begin
+    if s === :cuts
+        fc = getfield(d, :fcf_cuts)
+        return fc === nothing ? FCFCut[] : fc.cortes
+    elseif s === :cut_map
+        return getfield(d, :cut_map_file)
+    elseif s === :cut_info
+        return getfield(d, :cut_info_file)
+    else
+        return getfield(d, s)
+    end
+end
+
+# Complete backward compatibility
+Base.propertynames(d::DecompCut) =
+    (:fcf_cuts, :cut_map_file, :cut_info_file, :cuts, :cut_map, :cut_info)
 
 # ============================================================================
 # SYSTEM CONFIGURATION (DESSOPC.DAT, MLT.DAT, CURVTVIAG.DAT, COTASR11.DAT, etc.)

@@ -907,12 +907,43 @@ $ Get-Content mlt.dat -Encoding Byte -TotalCount 100
 Integration files from DECOMP containing Future Cost Function (FCF) cuts.
 
 **IDESEM Status:**
-Only stores filename references (`RegistroInfofcf`, `RegistroMapfcf`, `RegistroCortfcf`). No binary parsers exist.
+Only stores filename references (`RegistroInfofcf`, `RegistroMapfcf`, `RegistroCortfcf`). No binary parsers exist for these .DEC files.
 
 **Implementation:**
 - `parse_infofcf()`, `parse_mapcut()`, `parse_cortes()` read raw bytes
 - Data stored in `InfofcfRecord`, `MapcutRecord`, `CortesRecord` structs
 - Suitable for passthrough to tools that understand the format
+
+### cortdeco.rv2, mapcut.rv2 - DESSEM FCF Cut Files
+
+**Status**: ✅ **cortdeco.rv2 parser implemented** (Feb 2026)
+
+**File Naming**:
+- `cortdeco.rv0` / `cortdeco.rv2` - FCF Benders cuts (CORTFCF mnemonic in dessem.arq)
+- `mapcut.rv0` / `mapcut.rv2` - Cut mapping header (MAPFCF mnemonic)
+- `.rv0`, `.rv2` = Revision numbers (Revision 0, Revision 2, etc.)
+
+**Binary Format** (based on inewave implementation):
+```
+Header (16 bytes): 4×Int32 (indice_corte, iteracao_construcao, indice_forward, iteracao_desativacao)
+Coefficients: 1×Float64 (RHS) + N×Float64 (cut coefficients)
+Standard record size: 1664 bytes = 16 + 8×206
+```
+
+**Linked List Structure**: Cuts stored in backward-pointing linked list, read from last cut, reverse for chronological order.
+
+**Example Usage**:
+```julia
+cuts = parse_cortdeco("cortdeco.rv2", codigos_uhes=[1, 2, 4, 6])
+wv = get_water_value(cuts, 6)  # Water value for plant 6
+active = get_active_cuts(cuts)  # Filter active cuts
+```
+
+**Documentation**: See [docs/parsers/CORTDECO_IMPLEMENTATION.md](../parsers/CORTDECO_IMPLEMENTATION.md) for complete guide.
+
+**Test Coverage**: 51/51 tests passing ✅
+
+**mapcut.rv2 Status**: Format analysis pending, to be implemented if needed.
 
 ### MODIF.DAT - Unknown Text Format
 

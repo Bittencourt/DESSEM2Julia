@@ -363,7 +363,11 @@ For detailed status, see:
 - **Placeholders**: `bateria.dat`, `ilstri.dat`, `tolperd.dat`, `metas.dat`
 
 **Binary/Proprietary Placeholders (6)**:
-- `mlt.dat` (binary FPHA), `modif.dat`, `infofcf.dec`, `mapcut.dec`, `cortes.dec`
+- `mlt.dat` (binary FPHA), `modif.dat`
+- DECOMP integration files (placeholder/binary parsers):
+  - `infofcf.dec`, `mapcut.dec`, `cortes.dec` - Binary placeholders
+  - ✅ `cortdeco.rv2` / `cortdeco.rv0` - **FCF cuts binary parser** (51 tests ✅)
+  - `mapcut.rv2` / `mapcut.rv0` - Cut mapping (pending research)
 
 ---
 
