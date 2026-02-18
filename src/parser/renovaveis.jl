@@ -38,7 +38,7 @@ using ..DESSEM2Julia:
     RenovaveisBusRecord,
     RenovaveisGenerationRecord,
     RenovaveisData
-using ..ParserCommon: is_comment_line, is_blank
+using ..ParserCommon: is_comment_line, is_blank, ParserError
 
 """
     parse_renovaveis_record(line, filename, line_num) -> RenovaveisRecord
@@ -79,15 +79,13 @@ function parse_renovaveis_record(
 
     # Should have at least 7 parts (record type + 5 fields + trailing empty)
     if length(parts) < 6
-        error(
-            "Line $line_num in $filename: Expected at least 6 semicolon-separated fields, got $(length(parts))",
-        )
+        throw(ParserError("Expected at least 6 semicolon-separated fields, got $(length(parts))", filename, line_num, line))
     end
 
     # Extract and parse fields
     record_type = strip(parts[1])
     if record_type != "EOLICA"
-        error("Line $line_num in $filename: Expected 'EOLICA', got '$record_type'")
+        throw(ParserError("Expected 'EOLICA', got '$record_type'", filename, line_num, line))
     end
 
     # Plant code (field 2)
@@ -144,9 +142,7 @@ function parse_renovaveis_subsystem_record(
     parts = split(line, ';')
 
     if length(parts) < 3
-        error(
-            "Line $line_num in $filename: Expected at least 3 fields for EOLICASUBM, got $(length(parts))",
-        )
+        throw(ParserError("Expected at least 3 fields for EOLICASUBM, got $(length(parts))", filename, line_num, line))
     end
 
     plant_code = parse(Int, strip(parts[2]))
@@ -181,9 +177,7 @@ function parse_renovaveis_bus_record(
     parts = split(line, ';')
 
     if length(parts) < 3
-        error(
-            "Line $line_num in $filename: Expected at least 3 fields for EOLICABARRA, got $(length(parts))",
-        )
+        throw(ParserError("Expected at least 3 fields for EOLICABARRA, got $(length(parts))", filename, line_num, line))
     end
 
     plant_code = parse(Int, strip(parts[2]))
@@ -224,9 +218,7 @@ function parse_renovaveis_generation_record(
     parts = split(line, ';')
 
     if length(parts) < 9
-        error(
-            "Line $line_num in $filename: Expected at least 9 fields for EOLICA-GERACAO, got $(length(parts))",
-        )
+        throw(ParserError("Expected at least 9 fields for EOLICA-GERACAO, got $(length(parts))", filename, line_num, line))
     end
 
     plant_code = parse(Int, strip(parts[2]))
