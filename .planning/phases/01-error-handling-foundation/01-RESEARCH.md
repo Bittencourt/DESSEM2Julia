@@ -16,13 +16,15 @@ These external repositories serve as reference implementations and dependencies:
 
 | Repository | Purpose | URL |
 |------------|---------|-----|
-| **idessem** | Reference implementation for DESSEM file parsing in Julia | https://github.com/renan-iod/idessem |
-| **inewave** | Reference implementation for NEWAVE file parsing (related ecosystem) | https://github.com/renan-iod/inewave |
-| **pwf.jl** | Dependency for reading PWF (Power World Format) network files | https://github.com/renan-iod/pwf.jl |
+| **idessem** | Reference implementation for DESSEM file parsing in Julia | https://github.com/rjmalves/idessem |
+| **inewave** | Reference implementation for NEWAVE file parsing (related ecosystem) | https://github.com/rjmalves/inewave |
+| **PWF.jl** | Dependency for reading PWF (Power World Format) network files | https://github.com/Bittencourt/PWF.jl |
+| **sintetizador-dessem** | Synthetic data generator for DESSEM (test data reference) | https://github.com/rjmalves/sintetizador-dessem |
 
 **Usage notes:**
-- `pwf.jl` is a direct dependency used by `src/parser/pwf.jl` for parsing network topology files
+- `PWF.jl` is a direct dependency used by `src/parser/pwf.jl` for parsing network topology files
 - `idessem` and `inewave` provide patterns for error handling, validation, and parser structure
+- `sintetizador-dessem` provides synthetic test data generation patterns
 - When making changes, verify alignment with these reference implementations
 
 ## Standard Stack

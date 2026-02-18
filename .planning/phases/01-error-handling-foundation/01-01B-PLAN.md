@@ -54,8 +54,9 @@ Output: 3 parser files using ParserError consistently.
 @.planning/phases/01-error-handling-foundation/01-RESEARCH.md
 
 # Reference Implementations
-# - idessem: https://github.com/renan-iod/idessem (DESSEM parsing reference)
-# - inewave: https://github.com/renan-iod/inewave (NEWAVE parsing reference, related ecosystem)
+# - idessem: https://github.com/rjmalves/idessem (DESSEM parsing reference)
+# - inewave: https://github.com/rjmalves/inewave (NEWAVE parsing reference, related ecosystem)
+# - sintetizador-dessem: https://github.com/rjmalves/sintetizador-dessem (synthetic data generator)
 #
 # These provide patterns for error handling and parser structure.
 # When modifying parsers, verify alignment with idessem/inewave patterns.
