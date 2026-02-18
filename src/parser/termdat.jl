@@ -70,10 +70,10 @@ function parse_cadusit(line::AbstractString, file::String, line_num::Int)
     if data.record_type != "CADUSIT"
         throw(
             ParserError(
+                "Expected CADUSIT record, got $(data.record_type)",
                 file,
                 line_num,
                 line,
-                "Expected CADUSIT record, got $(data.record_type)",
             ),
         )
     end
@@ -185,10 +185,10 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     if data.record_type != "CADUNIDT"
         throw(
             ParserError(
+                "Expected CADUNIDT record, got $(data.record_type)",
                 file,
                 line_num,
                 line,
-                "Expected CADUNIDT record, got $(data.record_type)",
             ),
         )
     end
@@ -204,10 +204,10 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     if data.min_generation > data.unit_capacity
         throw(
             ParserError(
+                "Minimum generation ($(data.min_generation) MW) exceeds unit capacity ($(data.unit_capacity) MW)",
                 file,
                 line_num,
                 line,
-                "Minimum generation ($(data.min_generation) MW) exceeds unit capacity ($(data.unit_capacity) MW)",
             ),
         )
     end
@@ -293,10 +293,10 @@ function parse_curvacomb(line::AbstractString, file::String, line_num::Int)
     if data.record_type != "CURVACOMB"
         throw(
             ParserError(
+                "Expected CURVACOMB record, got $(data.record_type)",
                 file,
                 line_num,
                 line,
-                "Expected CURVACOMB record, got $(data.record_type)",
             ),
         )
     end
@@ -326,7 +326,7 @@ function parse_cadconf(line::AbstractString, file::String, line_num::Int)
     parts = split(line)
 
     if isempty(parts)
-        throw(ParserError(file, line_num, line, "Empty CADCONF record"))
+        throw(ParserError("Empty CADCONF record", file, line_num, line))
     end
 
     record_type = parts[1]
@@ -334,10 +334,10 @@ function parse_cadconf(line::AbstractString, file::String, line_num::Int)
     if record_type != "CADCONF"
         throw(
             ParserError(
+                "Expected CADCONF record, got $(record_type)",
                 file,
                 line_num,
                 line,
-                "Expected CADCONF record, got $(record_type)",
             ),
         )
     end
@@ -345,10 +345,10 @@ function parse_cadconf(line::AbstractString, file::String, line_num::Int)
     if length(parts) < 4
         throw(
             ParserError(
+                "CADCONF record must include plant, configuration, and unit identifiers",
                 file,
                 line_num,
                 line,
-                "CADCONF record must include plant, configuration, and unit identifiers",
             ),
         )
     end
@@ -358,10 +358,10 @@ function parse_cadconf(line::AbstractString, file::String, line_num::Int)
     catch err
         throw(
             ParserError(
+                "Invalid plant number in CADCONF record: $(parts[2])",
                 file,
                 line_num,
                 line,
-                "Invalid plant number in CADCONF record: $(parts[2])",
             ),
         )
     end
@@ -371,10 +371,10 @@ function parse_cadconf(line::AbstractString, file::String, line_num::Int)
     catch err
         throw(
             ParserError(
+                "Invalid configuration number in CADCONF record: $(parts[3])",
                 file,
                 line_num,
                 line,
-                "Invalid configuration number in CADCONF record: $(parts[3])",
             ),
         )
     end
@@ -384,10 +384,10 @@ function parse_cadconf(line::AbstractString, file::String, line_num::Int)
     catch err
         throw(
             ParserError(
+                "Invalid unit number in CADCONF record: $(parts[4])",
                 file,
                 line_num,
                 line,
-                "Invalid unit number in CADCONF record: $(parts[4])",
             ),
         )
     end
@@ -412,24 +412,24 @@ function parse_cadmin(line::AbstractString, file::String, line_num::Int)
     parts = split(line)
 
     if isempty(parts)
-        throw(ParserError(file, line_num, line, "Empty CADMIN record"))
+        throw(ParserError("Empty CADMIN record", file, line_num, line))
     end
 
     record_type = parts[1]
 
     if record_type != "CADMIN"
         throw(
-            ParserError(file, line_num, line, "Expected CADMIN record, got $(record_type)"),
+            ParserError("Expected CADMIN record, got $(record_type)", file, line_num, line),
         )
     end
 
     if length(parts) < 4
         throw(
             ParserError(
+                "CADMIN record must include plant, configuration, and unit identifiers",
                 file,
                 line_num,
                 line,
-                "CADMIN record must include plant, configuration, and unit identifiers",
             ),
         )
     end
@@ -439,10 +439,10 @@ function parse_cadmin(line::AbstractString, file::String, line_num::Int)
     catch err
         throw(
             ParserError(
+                "Invalid plant number in CADMIN record: $(parts[2])",
                 file,
                 line_num,
                 line,
-                "Invalid plant number in CADMIN record: $(parts[2])",
             ),
         )
     end
@@ -452,10 +452,10 @@ function parse_cadmin(line::AbstractString, file::String, line_num::Int)
     catch err
         throw(
             ParserError(
+                "Invalid configuration number in CADMIN record: $(parts[3])",
                 file,
                 line_num,
                 line,
-                "Invalid configuration number in CADMIN record: $(parts[3])",
             ),
         )
     end
@@ -465,10 +465,10 @@ function parse_cadmin(line::AbstractString, file::String, line_num::Int)
     catch err
         throw(
             ParserError(
+                "Invalid unit number in CADMIN record: $(parts[4])",
                 file,
                 line_num,
                 line,
-                "Invalid unit number in CADMIN record: $(parts[4])",
             ),
         )
     end
@@ -541,10 +541,10 @@ function parse_termdat(filepath::AbstractString)
                 # Wrap other errors with context
                 throw(
                     ParserError(
+                        "Error parsing $record_type record: $(sprint(showerror, e))",
                         filename,
                         line_num,
                         line,
-                        "Error parsing $record_type record: $(sprint(showerror, e))",
                     ),
                 )
             end
