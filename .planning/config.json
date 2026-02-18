@@ -1,0 +1,41 @@
+{
+  "mode": "yolo",
+  "depth": "comprehensive",
+  "parallelization": true,
+  "commit_docs": true,
+  "model_profile": "quality",
+  "profiles": {
+    "active_profile": "quality",
+    "presets": {
+      "quality": {
+        "planning": "opencode/glm-5",
+        "execution": "opencode/glm-5",
+        "verification": "opencode/glm-5"
+      },
+      "balanced": {
+        "planning": "opencode/glm-4.7-free",
+        "execution": "opencode/minimax-m2.1-free",
+        "verification": "opencode/glm-4.7-free"
+      },
+      "budget": {
+        "planning": "opencode/minimax-m2.1-free",
+        "execution": "opencode/grok-code",
+        "verification": "opencode/minimax-m2.1-free"
+      }
+    },
+    "custom_overrides": {
+      "quality": {
+        "planning": "opencode/glm-5",
+        "execution": "opencode/glm-5",
+        "verification": "opencode/glm-5"
+      },
+      "balanced": {},
+      "budget": {}
+    }
+  },
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true
+  }
+}
