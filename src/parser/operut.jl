@@ -7,22 +7,11 @@
 module OperutParser
 
 using ..DESSEM2Julia: INITRecord, OPERRecord, OperutData
+using ..ParserCommon: parse_int, parse_float, extract_field
 
 export parse_operut, parse_init_record, parse_oper_record
 
-# Helper functions from common.jl
-function parse_int(s::AbstractString)
-    s_clean = strip(s)
-    isempty(s_clean) && error("Cannot parse empty string as Int")
-    return parse(Int, s_clean)
-end
-
-function parse_float(s::AbstractString)
-    s_clean = strip(s)
-    isempty(s_clean) && error("Cannot parse empty string as Float64")
-    return parse(Float64, s_clean)
-end
-
+# Try-parse helpers for optional fields
 function tryparse_int(s::AbstractString)
     s_clean = strip(s)
     isempty(s_clean) && return nothing
@@ -33,14 +22,6 @@ function tryparse_float(s::AbstractString)
     s_clean = strip(s)
     isempty(s_clean) && return nothing
     return tryparse(Float64, s_clean)
-end
-
-function extract_field(line::AbstractString, start_pos::Int, end_pos::Int)
-    """Extract substring from 1-indexed positions (Julia convention)"""
-    if end_pos > length(line)
-        return ""
-    end
-    return line[start_pos:end_pos]
 end
 
 """
