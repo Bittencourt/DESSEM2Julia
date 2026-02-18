@@ -252,9 +252,9 @@ for plant in thermal_plants
     bus = find_bus_for_plant(plant.plant_name, buses)
 
     if bus !== nothing
-        # Get capacity from units if available
-        total_capacity =
-            sum(u.max_capacity for u in plant.units if u.max_capacity !== nothing)
+        # Get capacity from termdat_data.units for this plant
+        plant_units = filter(u -> u.plant_num == plant.plant_num, termdat_data.units)
+        total_capacity = sum(u.unit_capacity for u in plant_units if u.unit_capacity !== nothing)
         push!(
             bus_generators[bus.bus_number],
             (
@@ -282,14 +282,13 @@ if !isempty(renewable_plants)
 
     for plant in renewable_plants
         # Find bus mapping for this plant
-        bus_mapping =
-            findfirst(m -> m.plant_code == plant.plant_code, renov_data.bus_mappings)
+        bus_mappings_for_plant = filter(m -> m.plant_code == plant.plant_code, renov_data.bus_mappings)
 
-        if bus_mapping !== nothing
-            bus_num = bus_mapping.bus_code
+        if !isempty(bus_mappings_for_plant)
+            bus_num = first(bus_mappings_for_plant).bus_code
             if haskey(bus_generators, bus_num)
                 capacity =
-                    plant.installed_capacity !== nothing ? plant.installed_capacity : 0.0
+                    plant.pmax !== nothing ? plant.pmax : 0.0
                 push!(
                     bus_generators[bus_num],
                     (
@@ -338,8 +337,9 @@ sorted_buses =
 # Statistics
 buses_with_generators = count(b -> !isempty(bus_generators[b.bus_number]), buses)
 total_capacity = sum(
-    sum(g.capacity for g in bus_generators[b.bus_number] if g.capacity !== nothing) for
-    b in buses
+    sum(g.capacity for g in bus_generators[b.bus_number] if g.capacity !== nothing; init=0.0) for
+    b in buses;
+    init=0.0
 )
 
 println("📊 STATISTICS:")
@@ -360,12 +360,12 @@ println(" BUSES WITH CONNECTED GENERATORS")
 println("═"^100)
 println()
 
-display_count = 0
+global display_count = 0
 for bus in sorted_buses
     generators = bus_generators[bus.bus_number]
 
     if !isempty(generators)
-        display_count += 1
+        global display_count += 1
 
         if display_count > MAX_BUSES_TO_SHOW && !SHOW_ALL_BUSES
             remaining = count(
@@ -508,7 +508,8 @@ for bus in buses
         buses_with_gen = data.buses_with_gen +
                          (isempty(bus_generators[bus.bus_number]) ? 0 : 1),
         total_capacity = data.total_capacity + sum(
-            g.capacity for g in bus_generators[bus.bus_number] if g.capacity !== nothing
+            g.capacity for g in bus_generators[bus.bus_number] if g.capacity !== nothing;
+            init=0.0
         ),
         total_load = data.total_load + (bus.load_mw !== nothing ? bus.load_mw : 0.0),
         total_gen = data.total_gen +
