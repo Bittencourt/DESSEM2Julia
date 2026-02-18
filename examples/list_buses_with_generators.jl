@@ -157,7 +157,8 @@ println("⚡ Parsing generator data...")
 hidr_file = joinpath(SAMPLE_DIR, "hidr.dat")
 if isfile(hidr_file)
     hidr_data = parse_hidr(hidr_file)
-    hydro_plants = hidr_data.plants
+    # Handle both BinaryHidrData (records) and text format (plants)
+    hydro_plants = hasfield(typeof(hidr_data), :plants) ? hidr_data.plants : hidr_data.records
     println("  ✓ HIDR.DAT: $(length(hydro_plants)) hydro plants")
 else
     println("  ⚠ HIDR.DAT not found - skipping hydro plants")
