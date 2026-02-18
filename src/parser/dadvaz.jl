@@ -7,7 +7,7 @@ module DadvazParser
 
 using Dates
 using ..Types: DadvazHeader, DadvazInflowRecord, DadvazData
-using ..ParserCommon: extract_field, parse_int, parse_float, is_comment_line, is_blank
+using ..ParserCommon: extract_field, parse_int, parse_float, is_comment_line, is_blank, ParserError
 
 export parse_dadvaz
 
@@ -29,7 +29,7 @@ end
 _parse_optional_int(token::AbstractString) = parse_int(token; allow_blank = true)
 
 """Parse a single inflow record line."""
-function _parse_inflow_line(line::AbstractString)
+function _parse_inflow_line(line::AbstractString, filename::AbstractString, line_num::Int)
     # Check for end-of-file markers
     line_clean = strip(line)
     if line_clean == "FIM" || line_clean == "9999" || isempty(line_clean)
@@ -54,8 +54,8 @@ function _parse_inflow_line(line::AbstractString)
     flow_value = parse_float(extract_field(line, 45, 53))
 
     # Ensure required day markers are present
-    start_day === nothing && error("Missing start day in DADVAZ record")
-    end_day === nothing && error("Missing end day in DADVAZ record")
+    start_day === nothing && throw(ParserError("Missing start day in DADVAZ record", filename, line_num, line))
+    end_day === nothing && throw(ParserError("Missing end day in DADVAZ record", filename, line_num, line))
 
     return DadvazInflowRecord(
         plant_num = plant_num,
@@ -116,7 +116,7 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
 
         if startswith(stripped, "NUMERO DE USINAS")
             idx += 2
-            idx > total && error("Unexpected end of file while reading plant count")
+            idx > total && throw(ParserError("Unexpected end of file while reading plant count", filepath, idx, ""))
             plant_count = parse(Int, strip(lines[idx]))
             idx += 1
             continue
@@ -135,9 +135,9 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
             continue
         elseif startswith(stripped, "Hr")
             idx += 2
-            idx > total && error("Unexpected end of file while reading study start")
+            idx > total && throw(ParserError("Unexpected end of file while reading study start", filepath, idx, ""))
             parts = split(strip(lines[idx]))
-            length(parts) < 4 && error("Invalid study start line in DADVAZ header")
+            length(parts) < 4 && throw(ParserError("Invalid study start line in DADVAZ header", filepath, idx, lines[idx]))
             hour = parse(Int, parts[1])
             day = parse(Int, parts[2])
             month = parse(Int, parts[3])
@@ -147,9 +147,9 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
             continue
         elseif startswith(stripped, "Dia inic")
             idx += 2
-            idx > total && error("Unexpected end of file while reading study parameters")
+            idx > total && throw(ParserError("Unexpected end of file while reading study parameters", filepath, idx, ""))
             parts = split(strip(lines[idx]))
-            length(parts) < 4 && error("Invalid study parameter line in DADVAZ header")
+            length(parts) < 4 && throw(ParserError("Invalid study parameter line in DADVAZ header", filepath, idx, lines[idx]))
             initial_day_code = parse(Int, parts[1])
             fcf_week_index = parse(Int, parts[2])
             study_weeks = parse(Int, parts[3])
@@ -168,7 +168,7 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
             idx += 1
             continue
         elseif in_record_section
-            record = _parse_inflow_line(raw_line)
+            record = _parse_inflow_line(raw_line, filepath, idx)
             if !isnothing(record)
                 push!(inflow_records, record)
             end
@@ -179,12 +179,12 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
         end
     end
 
-    plant_count === nothing && error("Missing plant count in DADVAZ header")
-    study_start === nothing && error("Missing study start in DADVAZ header")
-    initial_day_code === nothing && error("Missing study parameters in DADVAZ header")
-    fcf_week_index === nothing && error("Missing FCF week index in DADVAZ header")
-    study_weeks === nothing && error("Missing study weeks in DADVAZ header")
-    simulation_flag === nothing && error("Missing simulation flag in DADVAZ header")
+    plant_count === nothing && throw(ParserError("Missing plant count in DADVAZ header", filepath, 0, ""))
+    study_start === nothing && throw(ParserError("Missing study start in DADVAZ header", filepath, 0, ""))
+    initial_day_code === nothing && throw(ParserError("Missing study parameters in DADVAZ header", filepath, 0, ""))
+    fcf_week_index === nothing && throw(ParserError("Missing FCF week index in DADVAZ header", filepath, 0, ""))
+    study_weeks === nothing && throw(ParserError("Missing study weeks in DADVAZ header", filepath, 0, ""))
+    simulation_flag === nothing && throw(ParserError("Missing simulation flag in DADVAZ header", filepath, 0, ""))
 
     if length(plant_numbers) >= 2 * plant_count
         expected = collect(1:plant_count)
@@ -196,9 +196,12 @@ function parse_dadvaz(filepath::AbstractString)::DadvazData
     if length(plant_numbers) > plant_count
         plant_numbers = plant_numbers[1:plant_count]
     elseif length(plant_numbers) < plant_count
-        error(
+        throw(ParserError(
             "Incomplete plant number list in DADVAZ header: expected $plant_count entries, found $(length(plant_numbers))",
-        )
+            filepath,
+            0,
+            "",
+        ))
     end
 
     header = DadvazHeader(
