@@ -1,7 +1,7 @@
 name = "DESSEM2Julia"
 uuid = "5b3a2f8f-9ef8-4a52-9f7b-2a6d29f86e1c"
-authors = ["Pedro"]
 version = "0.1.0"
+authors = ["Pedro"]
 description = "Parser for DESSEM (Brazilian power system model) data files"
 
 [deps]
@@ -11,6 +11,7 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 GraphPlot = "a2cc645c-3eea-5389-862e-a155d0052231"
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+PWF = "0f4c3beb-4231-4c4d-93e1-709cb40a89e6"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
@@ -19,13 +20,14 @@ Compose = "0.9"
 GraphPlot = "0.5, 0.6"
 Graphs = "1.8, 1.9, 1.10, 1.11"
 JLD2 = "0.4, 0.5"
+PWF = "0.0.1"
 julia = "1.6, 1.7, 1.8, 1.9, 1.10, 1.11"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
-[targets]
-test = ["Test"]
-
 [repo]
 url = "https://github.com/Bittencourt/DESSEM2Julia.jl"
+
+[targets]
+test = ["Test"]
