@@ -84,7 +84,7 @@ for subsys in entdados.subsystems
             println("    ├─ $name")
         end
         println("    ├─ ... ($(length(plant_names) - 5) more)")
-        for name in plant_names[end-1:end]
+        for name in plant_names[(end-1):end]
             println("    ├─ $name")
         end
     end

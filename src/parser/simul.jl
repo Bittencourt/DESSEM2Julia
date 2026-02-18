@@ -69,7 +69,14 @@ function parse_simul_header(line::AbstractString, filename::AbstractString, line
         if isa(e, ParserError)
             rethrow(e)
         else
-            throw(ParserError("Error parsing SIMUL header: $(sprint(showerror, e))", filename, line_num, line))
+            throw(
+                ParserError(
+                    "Error parsing SIMUL header: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
         end
     end
 end
@@ -113,7 +120,14 @@ function parse_disc_record(line::AbstractString, filename::AbstractString, line_
         if isa(e, ParserError)
             rethrow(e)
         else
-            throw(ParserError("Error parsing DISC record: $(sprint(showerror, e))", filename, line_num, line))
+            throw(
+                ParserError(
+                    "Error parsing DISC record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
         end
     end
 end
@@ -143,7 +157,14 @@ function parse_voli_record(line::AbstractString, filename::AbstractString, line_
         if isa(e, ParserError)
             rethrow(e)
         else
-            throw(ParserError("Error parsing VOLI record: $(sprint(showerror, e))", filename, line_num, line))
+            throw(
+                ParserError(
+                    "Error parsing VOLI record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
         end
     end
 end
@@ -230,7 +251,14 @@ function parse_oper_record(line::AbstractString, filename::AbstractString, line_
         if isa(e, ParserError)
             rethrow(e)
         else
-            throw(ParserError("Error parsing OPER record: $(sprint(showerror, e))", filename, line_num, line))
+            throw(
+                ParserError(
+                    "Error parsing OPER record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
         end
     end
 end
@@ -312,7 +340,14 @@ function parse_simul(io::IO, filename::AbstractString)
     end
 
     if header === nothing
-        throw(ParserError("SIMUL file does not contain a valid header (Record 3)", filename, 0, ""))
+        throw(
+            ParserError(
+                "SIMUL file does not contain a valid header (Record 3)",
+                filename,
+                0,
+                "",
+            ),
+        )
     end
 
     return SimulData(

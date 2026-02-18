@@ -79,13 +79,22 @@ function parse_renovaveis_record(
 
     # Should have at least 7 parts (record type + 5 fields + trailing empty)
     if length(parts) < 6
-        throw(ParserError("Expected at least 6 semicolon-separated fields, got $(length(parts))", filename, line_num, line))
+        throw(
+            ParserError(
+                "Expected at least 6 semicolon-separated fields, got $(length(parts))",
+                filename,
+                line_num,
+                line,
+            ),
+        )
     end
 
     # Extract and parse fields
     record_type = strip(parts[1])
     if record_type != "EOLICA"
-        throw(ParserError("Expected 'EOLICA', got '$record_type'", filename, line_num, line))
+        throw(
+            ParserError("Expected 'EOLICA', got '$record_type'", filename, line_num, line),
+        )
     end
 
     try
@@ -119,7 +128,14 @@ function parse_renovaveis_record(
         if isa(e, ParserError)
             rethrow(e)
         else
-            throw(ParserError("Error parsing EOLICA record: $(sprint(showerror, e))", filename, line_num, line))
+            throw(
+                ParserError(
+                    "Error parsing EOLICA record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
         end
     end
 end
@@ -150,7 +166,14 @@ function parse_renovaveis_subsystem_record(
     parts = split(line, ';')
 
     if length(parts) < 3
-        throw(ParserError("Expected at least 3 fields for EOLICASUBM, got $(length(parts))", filename, line_num, line))
+        throw(
+            ParserError(
+                "Expected at least 3 fields for EOLICASUBM, got $(length(parts))",
+                filename,
+                line_num,
+                line,
+            ),
+        )
     end
 
     plant_code = parse(Int, strip(parts[2]))
@@ -185,7 +208,14 @@ function parse_renovaveis_bus_record(
     parts = split(line, ';')
 
     if length(parts) < 3
-        throw(ParserError("Expected at least 3 fields for EOLICABARRA, got $(length(parts))", filename, line_num, line))
+        throw(
+            ParserError(
+                "Expected at least 3 fields for EOLICABARRA, got $(length(parts))",
+                filename,
+                line_num,
+                line,
+            ),
+        )
     end
 
     plant_code = parse(Int, strip(parts[2]))
@@ -226,7 +256,14 @@ function parse_renovaveis_generation_record(
     parts = split(line, ';')
 
     if length(parts) < 9
-        throw(ParserError("Expected at least 9 fields for EOLICA-GERACAO, got $(length(parts))", filename, line_num, line))
+        throw(
+            ParserError(
+                "Expected at least 9 fields for EOLICA-GERACAO, got $(length(parts))",
+                filename,
+                line_num,
+                line,
+            ),
+        )
     end
 
     plant_code = parse(Int, strip(parts[2]))

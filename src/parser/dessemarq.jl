@@ -138,7 +138,7 @@ function parse_dessemarq(filepath::String)::DessemArq
 
                     isempty(filename) && continue
 
-                    description = length(parts) > 2 ? join(parts[2:end-1], " ") : ""
+                    description = length(parts) > 2 ? join(parts[2:(end-1)], " ") : ""
                     mnemonic = lowercase(mnemonic_token)
                     files[Symbol(mnemonic)] = filename
 

@@ -175,8 +175,8 @@ using DESSEM2Julia
                 record_16_17 = findfirst(
                     r ->
                         r.upstream_plant == 16 &&
-                            r.downstream_element == 17 &&
-                            r.initial_day == 8,
+                        r.downstream_element == 17 &&
+                        r.initial_day == 8,
                     result.records,
                 )
                 @test !isnothing(record_16_17)
@@ -189,8 +189,8 @@ using DESSEM2Julia
                 record_46_66 = findfirst(
                     r ->
                         r.upstream_plant == 46 &&
-                            r.downstream_element == 66 &&
-                            r.flow > 4000,
+                        r.downstream_element == 66 &&
+                        r.flow > 4000,
                     result.records,
                 )
                 @test !isnothing(record_46_66)

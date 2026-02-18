@@ -58,7 +58,7 @@ for i in 1:min(5, length(sorted_numbers))
 end
 
 println("\n5 Largest Plants:")
-for i in max(1, length(sorted_numbers) - 4):length(sorted_numbers)
+for i in max(1, length(sorted_numbers)-4):length(sorted_numbers)
     plant = thermal_plants[sorted_indices[i]]
     println(
         "  Plant $(sorted_numbers[i]) ($(plant.plant_name)): $(sorted_capacities[i]) MW",

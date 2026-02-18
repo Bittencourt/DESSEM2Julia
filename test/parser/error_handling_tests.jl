@@ -15,12 +15,13 @@ using Test
 using DESSEM2Julia
 using DESSEM2Julia.ParserCommon
 using DESSEM2Julia.TermdatParser: parse_cadunidt, parse_curvacomb
-using DESSEM2Julia.OperuhParser: parse_rest_record, parse_elem_record, parse_lim_record, parse_var_record
-using DESSEM2Julia.SimulParser: parse_simul_header, parse_disc_record, parse_voli_record, parse_oper_record
+using DESSEM2Julia.OperuhParser:
+    parse_rest_record, parse_elem_record, parse_lim_record, parse_var_record
+using DESSEM2Julia.SimulParser:
+    parse_simul_header, parse_disc_record, parse_voli_record, parse_oper_record
 using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
 @testset "Error Handling - Phase 1" begin
-    
     @testset "ParserError Structure" begin
         @testset "Contains required fields" begin
             err = ParserError("Test message", "test.dat", 42, "test line content")
@@ -29,7 +30,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
             @test err.line == 42
             @test err.content == "test line content"
         end
-        
+
         @testset "Formatted output includes context" begin
             err = ParserError("Test error", "test.dat", 42, "problematic line")
             io = IOBuffer()
@@ -41,7 +42,12 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         end
 
         @testset "Error message is descriptive" begin
-            err = ParserError("Field 'capacity' must be positive, got -5", "TERM.DAT", 10, "CADUNIDT   1  1 2025 01 01 00 0      -5.000     10.000     0     0")
+            err = ParserError(
+                "Field 'capacity' must be positive, got -5",
+                "TERM.DAT",
+                10,
+                "CADUNIDT   1  1 2025 01 01 00 0      -5.000     10.000     0     0",
+            )
             io = IOBuffer()
             showerror(io, err)
             msg = String(take!(io))
@@ -49,24 +55,24 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
             @test occursin("TERM.DAT", msg)
         end
     end
-    
+
     @testset "ERR-01: All parsers use ParserError" begin
         @testset "No generic ArgumentError for invalid format" begin
             # Missing required field should throw ParserError, not ArgumentError
             line_missing_required = "CADUSIT"  # Too short - missing required fields
-            
+
             @test_throws ParserError extract_fields(
                 line_missing_required,
-                [FieldSpec(:plant_num, 9, 11, Int; required=true)],
-                file="test.dat",
-                line_num=1
+                [FieldSpec(:plant_num, 9, 11, Int; required = true)],
+                file = "test.dat",
+                line_num = 1,
             )
         end
 
         @testset "Type conversion failures throw ParserError" begin
             # Invalid integer should be wrapped in ParserError
             line = "CADUNIDT ABC 0012024 01 01 00 0       100.0      200.0"
-            
+
             try
                 parse_cadunidt(line, "test.dat", 1)
                 @test false  # Should not reach here
@@ -77,18 +83,18 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
             end
         end
     end
-    
+
     @testset "ERR-02: Capacity Validation" begin
         @testset "min_generation > capacity throws ParserError" begin
             # Create test data where min (200.0) > capacity (100.0)
             invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
-            
+
             @test_throws ParserError parse_cadunidt(invalid_line, "test.dat", 1)
         end
 
         @testset "Capacity validation error includes file and line" begin
             invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
-            
+
             try
                 parse_cadunidt(invalid_line, "custom.dat", 42)
             catch e
@@ -103,7 +109,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Does NOT throw MethodError for capacity validation" begin
             invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
-            
+
             try
                 parse_cadunidt(invalid_line, "test.dat", 1)
                 @test false  # Should not reach here
@@ -127,7 +133,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
             @test result.min_generation == 100.0
         end
     end
-    
+
     @testset "ERR-03: Heat Rate Validation" begin
         @testset "Zero heat_rate throws ParserError" begin
             zero_heat_line = "CURVACOMB 001 001    0      100.0"
@@ -141,7 +147,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Heat rate validation error includes context" begin
             zero_heat_line = "CURVACOMB 001 001    0      100.0"
-            
+
             try
                 parse_curvacomb(zero_heat_line, "heat.dat", 42)
             catch e
@@ -159,12 +165,12 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
             @test result.generation == 100.0
         end
     end
-    
+
     @testset "ERR-04: Silent Failures Eliminated (operuh.jl)" begin
         @testset "Invalid REST record throws ParserError not silently returns nothing" begin
             # Malformed REST record - should throw ParserError
             invalid_rest = "OPERUH REST   XXXXX  L     RHQ"
-            
+
             try
                 parse_rest_record(invalid_rest, "test.dat", 1)
                 @test false  # Should not reach here
@@ -178,7 +184,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Invalid ELEM record throws ParserError" begin
             invalid_elem = "OPERUH ELEM   00066  XX  INVALID        ABC"
-            
+
             try
                 parse_elem_record(invalid_elem, "test.dat", 5)
                 @test false  # Should not reach here
@@ -192,7 +198,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         @testset "Invalid LIM record throws ParserError" begin
             # Invalid constraint_id (non-numeric)
             invalid_lim = "OPERUH LIM    XXXXX  I       F                         600.00"
-            
+
             try
                 parse_lim_record(invalid_lim, "test.dat", 10)
                 @test false  # Should not reach here
@@ -205,7 +211,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Invalid VAR record throws ParserError" begin
             invalid_var = "OPERUH VAR    XXXXX I       F                                          600.00"
-            
+
             try
                 parse_var_record(invalid_var, "test.dat", 15)
                 @test false  # Should not reach here
@@ -234,7 +240,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
             @test result.constraint_id == 3111
         end
     end
-    
+
     @testset "Parser Error Context - All Fields Present" begin
         @testset "File path included in error" begin
             err = ParserError("msg", "/path/to/TERM.DAT", 1, "content")
@@ -243,7 +249,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Line number included in error" begin
             invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
-            
+
             try
                 parse_cadunidt(invalid_line, "test.dat", 999)
             catch e
@@ -253,7 +259,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Line content included in error" begin
             invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
-            
+
             try
                 parse_cadunidt(invalid_line, "test.dat", 1)
             catch e
@@ -263,7 +269,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Error message is informative" begin
             invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
-            
+
             try
                 parse_cadunidt(invalid_line, "test.dat", 1)
             catch e
@@ -275,29 +281,63 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
     @testset "Validation Helpers Throw ParserError" begin
         @testset "validate_range throws ParserError" begin
-            @test_throws ParserError validate_range(0, 1, 10, "test", file="f.dat", line_num=5)
-            @test_throws ParserError validate_range(11, 1, 10, "test", file="f.dat", line_num=5)
+            @test_throws ParserError validate_range(
+                0,
+                1,
+                10,
+                "test",
+                file = "f.dat",
+                line_num = 5,
+            )
+            @test_throws ParserError validate_range(
+                11,
+                1,
+                10,
+                "test",
+                file = "f.dat",
+                line_num = 5,
+            )
         end
 
         @testset "validate_positive throws ParserError" begin
-            @test_throws ParserError validate_positive(0, "test", file="f.dat", line_num=5)
-            @test_throws ParserError validate_positive(-1, "test", file="f.dat", line_num=5)
+            @test_throws ParserError validate_positive(
+                0,
+                "test",
+                file = "f.dat",
+                line_num = 5,
+            )
+            @test_throws ParserError validate_positive(
+                -1,
+                "test",
+                file = "f.dat",
+                line_num = 5,
+            )
         end
 
         @testset "validate_nonnegative throws ParserError" begin
-            @test_throws ParserError validate_nonnegative(-1, "test", file="f.dat", line_num=5)
-            @test_throws ParserError validate_nonnegative(-0.001, "test", file="f.dat", line_num=5)
+            @test_throws ParserError validate_nonnegative(
+                -1,
+                "test",
+                file = "f.dat",
+                line_num = 5,
+            )
+            @test_throws ParserError validate_nonnegative(
+                -0.001,
+                "test",
+                file = "f.dat",
+                line_num = 5,
+            )
         end
     end
 
     @testset "simul.jl Error Handling" begin
         # Note: SIMUL is legacy/deprecated but we test error handling for completeness
         # Format: Col 5-6 (day), 8-9 (hour), 11 (half-hour), etc.
-        
+
         @testset "Invalid header throws ParserError" begin
             # Non-numeric day field at columns 5-6
             invalid_header = "    XX  00 0  01 2024 1"
-            
+
             try
                 parse_simul_header(invalid_header, "simul.dat", 1)
                 @test false  # Should not reach here
@@ -311,7 +351,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         @testset "Invalid DISC record throws ParserError" begin
             # Non-numeric day field at columns 5-6
             invalid_disc = "    XX  00 0    1.0 1"
-            
+
             try
                 parse_disc_record(invalid_disc, "simul.dat", 5)
                 @test false  # Should not reach here
@@ -325,7 +365,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         @testset "Invalid VOLI record throws ParserError" begin
             # Non-numeric plant number at columns 5-7
             invalid_voli = "    XXXXXXXXXXX    50.0"
-            
+
             try
                 parse_voli_record(invalid_voli, "simul.dat", 10)
                 @test false  # Should not reach here
@@ -339,7 +379,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         @testset "Invalid OPER record throws ParserError" begin
             # Non-numeric plant number at columns 5-7
             invalid_oper = "    XXXXXXXXXXX"
-            
+
             try
                 parse_oper_record(invalid_oper, "simul.dat", 15)
                 @test false  # Should not reach here
@@ -369,7 +409,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         @testset "Invalid record type throws ParserError" begin
             # Wrong record type
             invalid_record = "WRONG;1;Plant Name;100.0;0.5;0;"
-            
+
             try
                 parse_renovaveis_record(invalid_record, "renovaveis.dat", 1)
                 @test false  # Should not reach here
@@ -384,7 +424,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         @testset "Too few fields throws ParserError" begin
             # Only 3 fields instead of required 6
             insufficient_fields = "EOLICA;1;Plant Name;"
-            
+
             try
                 parse_renovaveis_record(insufficient_fields, "renovaveis.dat", 5)
                 @test false  # Should not reach here
@@ -397,7 +437,7 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
 
         @testset "Non-numeric plant code throws ParserError" begin
             invalid_plant_code = "EOLICA;ABC;Plant Name;100.0;0.5;0;"
-            
+
             try
                 parse_renovaveis_record(invalid_plant_code, "renovaveis.dat", 10)
                 @test false  # Should not reach here
@@ -426,7 +466,8 @@ using DESSEM2Julia.RenovaveisParser: parse_renovaveis_record
         end
 
         @testset "Very long line content preserved" begin
-            long_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0" * repeat(" ", 100)
+            long_line =
+                "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0" * repeat(" ", 100)
             try
                 parse_cadunidt(long_line, "test.dat", 1)
             catch e

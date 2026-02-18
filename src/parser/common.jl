@@ -124,7 +124,7 @@ function strip_comments(s::AbstractString; comment_chars = ["*", "#", ";"])
         if idx !== nothing
             # findfirst returns a range for strings, get the first index
             pos = first(idx)
-            str = str[1:pos-1]
+            str = str[1:(pos-1)]
         end
     end
     return strip(str)

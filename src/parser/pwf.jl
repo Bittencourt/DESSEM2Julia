@@ -101,7 +101,14 @@ function parse_pwf(filepath::AbstractString)::Dict{String,Any}
         if isa(e, ParserError)
             rethrow(e)
         else
-            throw(ParserError("Failed to parse PWF file: $(sprint(showerror, e))", filepath, 0, ""))
+            throw(
+                ParserError(
+                    "Failed to parse PWF file: $(sprint(showerror, e))",
+                    filepath,
+                    0,
+                    "",
+                ),
+            )
         end
     end
 end
@@ -203,7 +210,14 @@ function parse_pwf_to_topology(filepath::AbstractString; kwargs...)::NetworkTopo
                 if isa(e, ParserError)
                     rethrow(e)
                 else
-                    throw(ParserError("Failed to convert bus data: $(sprint(showerror, e))", filepath, 0, string(bus_data)))
+                    throw(
+                        ParserError(
+                            "Failed to convert bus data: $(sprint(showerror, e))",
+                            filepath,
+                            0,
+                            string(bus_data),
+                        ),
+                    )
                 end
             end
         end
@@ -222,7 +236,14 @@ function parse_pwf_to_topology(filepath::AbstractString; kwargs...)::NetworkTopo
                 if isa(e, ParserError)
                     rethrow(e)
                 else
-                    throw(ParserError("Failed to convert branch data: $(sprint(showerror, e))", filepath, 0, string(branch_data)))
+                    throw(
+                        ParserError(
+                            "Failed to convert branch data: $(sprint(showerror, e))",
+                            filepath,
+                            0,
+                            string(branch_data),
+                        ),
+                    )
                 end
             end
         end
@@ -276,7 +297,8 @@ function convert_pwfbus_to_networkbus(pwf_bus::Dict)
             break
         end
     end
-    bus_num === nothing && throw(ParserError("Bus number not found in PWF bus data", "", 0, ""))
+    bus_num === nothing &&
+        throw(ParserError("Bus number not found in PWF bus data", "", 0, ""))
 
     # Extract bus name
     name = ""
@@ -370,7 +392,8 @@ function convert_pwfbranch_to_networkline(pwf_branch::Dict)
             break
         end
     end
-    from_bus === nothing && throw(ParserError("From bus not found in PWF branch data", "", 0, ""))
+    from_bus === nothing &&
+        throw(ParserError("From bus not found in PWF branch data", "", 0, ""))
 
     # Extract to bus
     to_bus = nothing
@@ -380,7 +403,8 @@ function convert_pwfbranch_to_networkline(pwf_branch::Dict)
             break
         end
     end
-        to_bus === nothing && throw(ParserError("To bus not found in PWF branch data", "", 0, ""))
+    to_bus === nothing &&
+        throw(ParserError("To bus not found in PWF branch data", "", 0, ""))
 
     # Extract circuit
     circuit = 1
