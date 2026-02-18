@@ -3,8 +3,8 @@ Pkg.activate(".")
 using DESSEM2Julia
 using Printf
 
-# Path to the ONS sample HIDR.DAT (Binary)
-const HIDR_PATH = joinpath("docs", "Sample", "DS_ONS_102025_RV2D11", "HIDR.DAT")
+# Path to the ONS sample hidr.dat (Binary) - use lowercase for Linux compatibility
+const HIDR_PATH = joinpath("docs", "Sample", "DS_ONS_102025_RV2D11", "hidr.dat")
 
 function calculate_capacity(plant)
     total_mw = 0.0

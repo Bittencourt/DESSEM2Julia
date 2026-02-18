@@ -17,7 +17,16 @@ using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
 
 using DESSEM2Julia
-using Plots
+
+# Check if Plots is available
+PLOTS_AVAILABLE = false
+try
+    using Plots
+    global PLOTS_AVAILABLE = true
+catch e
+    println("Note: Plots.jl not installed. Install with: ] add Plots")
+    println("Will print data summary only (no plot)...")
+end
 
 # Path to the ONS sample case
 sample_dir = joinpath(@__DIR__, "..", "docs", "Sample", "DS_ONS_102025_RV2D11")
@@ -66,36 +75,41 @@ for i in max(1, length(sorted_numbers)-4):length(sorted_numbers)
 end
 
 # Create the plot
-println("\nGenerating plot...")
-p = plot(
-    1:length(sorted_capacities),
-    sorted_capacities,
-    seriestype = :bar,
-    title = "Thermal Power Plant Maximum Generation Capacity (Ordered)",
-    xlabel = "Plant Index (sorted by capacity)",
-    ylabel = "Maximum Generation (MW)",
-    legend = false,
-    color = :steelblue,
-    size = (1000, 600),
-    margin = 5Plots.mm,
-)
+if PLOTS_AVAILABLE
+    println("\nGenerating plot...")
+    p = plot(
+        1:length(sorted_capacities),
+        sorted_capacities,
+        seriestype = :bar,
+        title = "Thermal Power Plant Maximum Generation Capacity (Ordered)",
+        xlabel = "Plant Index (sorted by capacity)",
+        ylabel = "Maximum Generation (MW)",
+        legend = false,
+        color = :steelblue,
+        size = (1000, 600),
+        margin = 5Plots.mm,
+    )
 
-# Add horizontal line for average capacity
-hline!(
-    p,
-    [sum(max_generation) / length(max_generation)],
-    color = :red,
-    linestyle = :dash,
-    linewidth = 2,
-    label = "Average Capacity",
-)
+    # Add horizontal line for average capacity
+    hline!(
+        p,
+        [sum(max_generation) / length(max_generation)],
+        color = :red,
+        linestyle = :dash,
+        linewidth = 2,
+        label = "Average Capacity",
+    )
 
-# Save the plot
-output_file = joinpath(@__DIR__, "thermal_costs.png")
-savefig(p, output_file)
-println("Plot saved to: $output_file")
+    # Save the plot
+    output_file = joinpath(@__DIR__, "thermal_costs.png")
+    savefig(p, output_file)
+    println("Plot saved to: $output_file")
 
-# Display the plot (if running in interactive environment)
-display(p)
+    # Display the plot (if running in interactive environment)
+    display(p)
+else
+    println("\nSkipping plot generation (Plots.jl not available)")
+    println("To enable plotting, run: using Pkg; Pkg.add(\"Plots\")")
+end
 
 println("\n✅ Done!")

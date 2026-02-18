@@ -37,6 +37,7 @@ try
     using Colors
     using Colors: @colorant_str  # Make sure colorant macro is available
     using Plots
+    using Compose  # Required for saving plots to file
     global PLOTTING_AVAILABLE = true
 catch e
     # Plotting libraries not available
@@ -457,8 +458,7 @@ function plot_network_diagram(
     # Save to file
     println("Saving to: $output_file")
 
-    # Use Compose to save
-    using Compose
+    # Use Compose to save (imported at top level)
     draw(PNG(output_file, fig_width * 100, fig_height * 100), p)
 
     println("✓ Network diagram saved!")

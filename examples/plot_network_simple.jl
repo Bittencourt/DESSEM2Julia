@@ -180,7 +180,22 @@ function plot_electrical_network(
 
     # Save
     println("💾 Saving to: $output_file")
-    draw(PNG(output_file, fig_width * 100, fig_height * 100), p)
+    try
+        draw(PNG(output_file, fig_width * 100, fig_height * 100), p)
+    catch e
+        if occursin("Cairo and Fontconfig", string(e))
+            println()
+            println("❌ ERROR: Cairo and Fontconfig packages required for PNG output")
+            println("\nPlease install and import them:")
+            println("  julia> using Pkg")
+            println("  julia> Pkg.add([\"Cairo\", \"Fontconfig\"])")
+            println("  julia> import Cairo, Fontconfig")
+            println("\nThen run this example again.")
+            return nothing
+        else
+            rethrow(e)
+        end
+    end
 
     println()
     println("="^70)
@@ -256,17 +271,13 @@ if !isinteractive()
     end
 
     # Create diagram
-    try
-        plot_electrical_network(
-            case_dir,
-            stage = stage,
-            output_file = "electrical_network.png",
-            max_buses = 500,
-        )
-    catch e
-        println("❌ ERROR: Failed to create diagram")
-        println("   $e")
-        showerror(stdout, e, catch_backtrace())
-        exit(1)
+    result = plot_electrical_network(
+        case_dir,
+        stage = stage,
+        output_file = "electrical_network.png",
+        max_buses = 500,
+    )
+    if result === nothing
+        exit(0)  # Exit cleanly with helpful message already printed
     end
 end

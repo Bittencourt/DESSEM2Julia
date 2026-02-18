@@ -47,9 +47,12 @@ entdados = parse_entdados(entdados_file)
 termdat = parse_termdat(termdat_file)
 hidr = parse_hidr(hidr_file)
 
+# Handle both binary (BinaryHidrData with `records`) and text format (with `plants`)
+hidr_records = hasproperty(hidr, :records) ? hidr.records : hidr.plants
+
 println("✓ ENTDADOS: $(length(entdados.subsystems)) subsystems")
 println("✓ TERMDAT:  $(length(termdat.plants)) thermal plants")
-println("✓ HIDR:     $(length(hidr.plants)) hydro plants")
+println("✓ HIDR:     $(length(hidr_records)) hydro plants")
 println()
 
 # Check network configuration from time periods
@@ -148,28 +151,44 @@ println()
 
 # Group hydro plants
 hydro_by_subsystem = Dict{Int,Vector{Any}}()
-for plant in hidr.plants
-    if plant.plant_num <= 0  # Skip invalid/padding records
+for plant in hidr_records
+    # Handle both BinaryHidrRecord (Portuguese fields) and text format (English fields)
+    plant_num = hasproperty(plant, :posto) ? plant.posto : plant.plant_num
+    if plant_num <= 0  # Skip invalid/padding records
         continue
     end
 
-    subsys = plant.subsystem
+    subsys = hasproperty(plant, :subsistema) ? plant.subsistema : plant.subsystem
     if !haskey(hydro_by_subsystem, subsys)
         hydro_by_subsystem[subsys] = []
     end
 
-    capacity = plant.installed_capacity !== nothing ? plant.installed_capacity : 0.0
+    # Get capacity from either potef_conjunto (binary) or installed_capacity (text)
+    if hasproperty(plant, :potef_conjunto)
+        capacity = sum(plant.numero_maquinas_conjunto[i] * plant.potef_conjunto[i] for i in 1:5)
+    else
+        capacity = plant.installed_capacity !== nothing ? plant.installed_capacity : 0.0
+    end
+
+    # Get plant name
+    plant_name = hasproperty(plant, :nome) ? plant.nome : plant.plant_name
+
+    # Get volume range
+    if hasproperty(plant, :volume_minimo)
+        min_vol = plant.volume_minimo
+        max_vol = plant.volume_maximo
+    else
+        min_vol = plant.min_volume !== nothing ? plant.min_volume : 0.0
+        max_vol = plant.max_volume !== nothing ? plant.max_volume : 0.0
+    end
 
     push!(
         hydro_by_subsystem[subsys],
         (
-            plant_num = plant.plant_num,
-            name = strip(plant.plant_name),
+            plant_num = plant_num,
+            name = strip(plant_name),
             capacity = capacity,
-            volume = (
-                plant.min_volume !== nothing ? plant.min_volume : 0.0,
-                plant.max_volume !== nothing ? plant.max_volume : 0.0,
-            ),
+            volume = (min_vol, max_vol),
         ),
     )
 end

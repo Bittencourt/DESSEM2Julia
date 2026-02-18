@@ -16,8 +16,8 @@ println("DESSEM2Julia - Sample Data Parsing Demonstration")
 println("="^80)
 println()
 
-# Sample data directory
-sample_dir = joinpath(@__DIR__, "..", "docs", "Sample", "DS_CCEE_102025_SEMREDE_RV0D28")
+# Sample data directory - use ONS sample which has more complete data
+sample_dir = joinpath(@__DIR__, "..", "docs", "Sample", "DS_ONS_102025_RV2D11")
 println("📁 Sample directory: $sample_dir")
 println()
 
