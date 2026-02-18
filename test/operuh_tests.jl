@@ -10,7 +10,7 @@ using DESSEM2Julia
         # Test basic REST record with all fields
         # Note: variation_type field may be optional even when other fields present
         line = "OPERUH REST   00066  L     RHQ               489.00      15.00"
-        record = DESSEM2Julia.OperuhParser.parse_rest_record(line)
+        record = DESSEM2Julia.OperuhParser.parse_rest_record(line, "test.dat", 1)
 
         @test !isnothing(record)
         @test record.constraint_id == 66
@@ -22,7 +22,7 @@ using DESSEM2Julia
 
         # Test REST with minimal fields
         line2 = "OPERUH REST   00067  V     RHQ"
-        record2 = DESSEM2Julia.OperuhParser.parse_rest_record(line2)
+        record2 = DESSEM2Julia.OperuhParser.parse_rest_record(line2, "test.dat", 2)
         @test !isnothing(record2)
         @test record2.constraint_id == 67
         @test record2.initial_value === nothing
@@ -30,7 +30,7 @@ using DESSEM2Julia
 
         # Test REST with dot as placeholder (should parse as nothing)
         line3 = "OPERUH REST   99212  V     RHQ                  ."
-        record3 = DESSEM2Julia.OperuhParser.parse_rest_record(line3)
+        record3 = DESSEM2Julia.OperuhParser.parse_rest_record(line3, "test.dat", 3)
         @test !isnothing(record3)
         @test record3.constraint_id == 99212
         @test record3.initial_value === nothing
@@ -39,7 +39,7 @@ using DESSEM2Julia
     @testset "ELEM Record Parsing" begin
         # Test basic ELEM record
         line = "OPERUH ELEM   00066  14  CACONDE         6   1.0"
-        record = DESSEM2Julia.OperuhParser.parse_elem_record(line)
+        record = DESSEM2Julia.OperuhParser.parse_elem_record(line, "test.dat", 1)
 
         @test !isnothing(record)
         @test record.constraint_id == 66
@@ -50,7 +50,7 @@ using DESSEM2Julia
 
         # Test with different coefficient
         line2 = "OPERUH ELEM   00070  25  NOVA PONTE      3   2.5"
-        record2 = DESSEM2Julia.OperuhParser.parse_elem_record(line2)
+        record2 = DESSEM2Julia.OperuhParser.parse_elem_record(line2, "test.dat", 2)
         @test !isnothing(record2)
         @test record2.coefficient == 2.5
     end
@@ -58,7 +58,7 @@ using DESSEM2Julia
     @testset "LIM Record Parsing" begin
         # Test basic LIM record with special day characters
         line = "OPERUH LIM    00066  I       F                         600.00"
-        record = DESSEM2Julia.OperuhParser.parse_lim_record(line)
+        record = DESSEM2Julia.OperuhParser.parse_lim_record(line, "test.dat", 1)
 
         @test !isnothing(record)
         @test record.constraint_id == 66
@@ -73,7 +73,7 @@ using DESSEM2Julia
 
         # Test LIM with both limits and numeric days
         line2 = "OPERUH LIM    00070 11 01 0 11 07 1     100.00     200.00"
-        record2 = DESSEM2Julia.OperuhParser.parse_lim_record(line2)
+        record2 = DESSEM2Julia.OperuhParser.parse_lim_record(line2, "test.dat", 2)
         @test !isnothing(record2)
         @test record2.start_day == 11
         @test record2.start_hour == 1
@@ -85,7 +85,7 @@ using DESSEM2Julia
     @testset "VAR Record Parsing" begin
         # Test VAR record with single ramp value (most common)
         line = "OPERUH VAR    03111 I       F                                          600.00"
-        record = DESSEM2Julia.OperuhParser.parse_var_record(line)
+        record = DESSEM2Julia.OperuhParser.parse_var_record(line, "test.dat", 1)
 
         @test !isnothing(record)
         @test record.constraint_id == 3111
@@ -98,7 +98,7 @@ using DESSEM2Julia
 
         # Test VAR with all four ramp values (less common)
         line2 = "OPERUH VAR    0746011 00 0 11 01 0     10.00     20.00     30.00     50.00"
-        record2 = DESSEM2Julia.OperuhParser.parse_var_record(line2)
+        record2 = DESSEM2Julia.OperuhParser.parse_var_record(line2, "test.dat", 2)
         @test !isnothing(record2)
         @test record2.start_day == 11
         @test record2.start_hour == 0
@@ -179,13 +179,13 @@ using DESSEM2Julia
     @testset "Edge Cases" begin
         # Test empty optional fields
         line_rest = "OPERUH REST   00100  L     RHQ"
-        record = DESSEM2Julia.OperuhParser.parse_rest_record(line_rest)
+        record = DESSEM2Julia.OperuhParser.parse_rest_record(line_rest, "test.dat", 1)
         @test !isnothing(record)
         @test record.initial_value === nothing
 
         # Test with special day characters (I = Initial, F = Final)
         line_lim = "OPERUH LIM    00200  F       I                         500.00"
-        record_lim = DESSEM2Julia.OperuhParser.parse_lim_record(line_lim)
+        record_lim = DESSEM2Julia.OperuhParser.parse_lim_record(line_lim, "test.dat", 2)
         @test !isnothing(record_lim)
         @test record_lim.start_day == "F"
         @test record_lim.end_day == "I"
