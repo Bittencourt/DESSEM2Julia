@@ -9,10 +9,10 @@ Requirements for v1.0 release. Each maps to roadmap phases.
 
 ### Error Handling
 
-- [ ] **ERR-01**: All parsers throw ParserError consistently (no `error()`, no `@warn` + return nothing)
-- [ ] **ERR-02**: Capacity validation throws ParserError instead of MethodError when min_generation > capacity
-- [ ] **ERR-03**: Heat rate validation throws ParserError for invalid values (zero, negative)
-- [ ] **ERR-04**: Silent failure patterns replaced with explicit errors (operuh.jl, hidr.jl, pwf.jl)
+- [x] **ERR-01**: All parsers throw ParserError consistently (no `error()`, no `@warn` + return nothing)
+- [x] **ERR-02**: Capacity validation throws ParserError instead of MethodError when min_generation > capacity
+- [x] **ERR-03**: Heat rate validation throws ParserError for invalid values (zero, negative)
+- [x] **ERR-04**: Silent failure patterns replaced with explicit errors (operuh.jl, hidr.jl, pwf.jl)
 
 ### Data Validation
 
@@ -37,7 +37,7 @@ Requirements for v1.0 release. Each maps to roadmap phases.
 - [ ] **DEBT-05**: Deprecated SIMUL parser removed or documented
 - [ ] **DEBT-06**: Manual cleanup files removed from project root
 - [ ] **DEBT-07**: Commented-out tests resolved (fixed or documented as known limitation)
-- [ ] **DEBT-08**: Test coverage for error paths added
+- [x] **DEBT-08**: Test coverage for error paths added
 
 ## v2 Requirements
 
@@ -77,10 +77,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ERR-01 | Phase 1 | Pending |
-| ERR-02 | Phase 1 | Pending |
-| ERR-03 | Phase 1 | Pending |
-| ERR-04 | Phase 1 | Pending |
+| ERR-01 | Phase 1 | Complete |
+| ERR-02 | Phase 1 | Complete |
+| ERR-03 | Phase 1 | Complete |
+| ERR-04 | Phase 1 | Complete |
 | VAL-01 | Phase 5 | Pending |
 | VAL-02 | Phase 5 | Pending |
 | VAL-03 | Phase 5 | Pending |
@@ -96,7 +96,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEBT-05 | Phase 6 | Pending |
 | DEBT-06 | Phase 3 | Pending |
 | DEBT-07 | Phase 2 | Pending |
-| DEBT-08 | Phase 1 | Pending |
+| DEBT-08 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 20 total
@@ -105,4 +105,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after Phase 1 completion*

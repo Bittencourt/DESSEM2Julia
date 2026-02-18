@@ -12,7 +12,7 @@ Transform a functional parser library into a v1.0 release quality package by sta
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Error Handling Foundation** - Standardize all parsers on ParserError
+- [x] **Phase 1: Error Handling Foundation** - Standardize all parsers on ParserError ✓
 - [ ] **Phase 2: Test Infrastructure** - Expand CI and resolve disabled tests
 - [ ] **Phase 3: Code Organization** - Split large files and clean project root
 - [ ] **Phase 4: Binary File Support** - Complete binary type definitions
@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ## Phase Details
 
-### Phase 1: Error Handling Foundation
+### Phase 1: Error Handling Foundation ✓
 **Goal**: All parsers fail predictably with ParserError containing file/line context
 **Depends on**: Nothing (first phase)
 **Requirements**: ERR-01, ERR-02, ERR-03, ERR-04, DEBT-08
@@ -32,14 +32,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. No parser returns nothing after logging a warning — all failures throw
   4. Error path tests pass for capacity validation, heat rate validation, and silent failure patterns
 **Plans**: 6 plans in 2 waves
+**Completed**: 2026-02-18
 
 Plans:
-- [ ] 01-01A-PLAN.md — Replace error() calls in simul.jl, renovaveis.jl, operut.jl (Wave 1)
-- [ ] 01-01B-PLAN.md — Replace error() calls in dadvaz.jl, desselet.jl, cortdeco.jl (Wave 1)
-- [ ] 01-01C-PLAN.md — Replace error() calls in hidr_binary.jl, pwf.jl (Wave 1)
-- [ ] 01-02-PLAN.md — Fix ParserError argument order in termdat.jl + validation tests (Wave 1)
-- [ ] 01-03-PLAN.md — Replace silent failures in operuh.jl with explicit errors (Wave 1)
-- [ ] 01-04-PLAN.md — Create comprehensive error path tests (Wave 2, depends on all Wave 1 plans)
+- [x] 01-01A-PLAN.md — Replace error() calls in simul.jl, renovaveis.jl, operut.jl (Wave 1)
+- [x] 01-01B-PLAN.md — Replace error() calls in dadvaz.jl, desselet.jl, cortdeco.jl (Wave 1)
+- [x] 01-01C-PLAN.md — Replace error() calls in hidr_binary.jl, pwf.jl (Wave 1)
+- [x] 01-02-PLAN.md — Fix ParserError argument order in termdat.jl + validation tests (Wave 1)
+- [x] 01-03-PLAN.md — Replace silent failures in operuh.jl with explicit errors (Wave 1)
+- [x] 01-04-PLAN.md — Create comprehensive error path tests (Wave 2, depends on all Wave 1 plans)
 
 **Note on ERR-04 (hidr.jl):** The @warn at line 635 for unknown record types is considered acceptable - it logs non-critical information about unknown types without blocking parsing, unlike the silent failures in operuh.jl that swallow errors.
 
@@ -145,7 +146,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Error Handling Foundation | 0/6 | Planned | - |
+| 1. Error Handling Foundation | 6/6 | Complete | 2026-02-18 |
 | 2. Test Infrastructure | 0/2 | Not started | - |
 | 3. Code Organization | 0/3 | Not started | - |
 | 4. Binary File Support | 0/3 | Not started | - |
