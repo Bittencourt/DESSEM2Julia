@@ -46,4 +46,17 @@ skipped: 0
 
 ## Gaps
 
-[none]
+- truth: "All record types in entdados.dat parse without unknown type warnings"
+  status: gap_plan_created
+  reason: "User discovered: Unknown record type in entdados.dat line 5398: R (R11 reservoir elevation record)"
+  severity: minor
+  test: N/A
+  root_cause: "R## record types not implemented in entdados.jl parser"
+  artifacts:
+    - path: "src/parser/entdados.jl"
+      issue: "R## pattern not handled in record type dispatch"
+  missing:
+    - "Add R## record detection and parsing"
+    - "Create ReservoirElevation struct"
+    - "Add tests for R## records"
+  fix_plan: "01-05-PLAN.md"
