@@ -47,6 +47,7 @@ module PWFParser
 
 using PWF
 using ..Types: NetworkBus, NetworkLine, NetworkTopology
+using ..ParserCommon: ParserError
 
 export parse_pwf, parse_pwf_to_topology
 
@@ -97,7 +98,11 @@ function parse_pwf(filepath::AbstractString)::Dict{String,Any}
 
         return pwf_data
     catch e
-        error("Failed to parse PWF file '$filepath': $e")
+        if isa(e, ParserError)
+            rethrow(e)
+        else
+            throw(ParserError("Failed to parse PWF file: $(sprint(showerror, e))", filepath, 0, ""))
+        end
     end
 end
 
@@ -195,7 +200,11 @@ function parse_pwf_to_topology(filepath::AbstractString; kwargs...)::NetworkTopo
                 bus = convert_pwfbus_to_networkbus(bus_data)
                 push!(buses, bus)
             catch e
-                @warn "Failed to convert bus data" bus_data exception = e
+                if isa(e, ParserError)
+                    rethrow(e)
+                else
+                    throw(ParserError("Failed to convert bus data: $(sprint(showerror, e))", filepath, 0, string(bus_data)))
+                end
             end
         end
     end
@@ -210,7 +219,11 @@ function parse_pwf_to_topology(filepath::AbstractString; kwargs...)::NetworkTopo
                 line = convert_pwfbranch_to_networkline(branch_data)
                 push!(lines, line)
             catch e
-                @warn "Failed to convert branch data" branch_data exception = e
+                if isa(e, ParserError)
+                    rethrow(e)
+                else
+                    throw(ParserError("Failed to convert branch data: $(sprint(showerror, e))", filepath, 0, string(branch_data)))
+                end
             end
         end
     end
@@ -263,7 +276,7 @@ function convert_pwfbus_to_networkbus(pwf_bus::Dict)
             break
         end
     end
-    bus_num === nothing && error("Bus number not found in PWF bus data")
+    bus_num === nothing && throw(ParserError("Bus number not found in PWF bus data", "", 0, ""))
 
     # Extract bus name
     name = ""
@@ -357,7 +370,7 @@ function convert_pwfbranch_to_networkline(pwf_branch::Dict)
             break
         end
     end
-    from_bus === nothing && error("From bus not found in PWF branch data")
+    from_bus === nothing && throw(ParserError("From bus not found in PWF branch data", "", 0, ""))
 
     # Extract to bus
     to_bus = nothing
@@ -367,7 +380,7 @@ function convert_pwfbranch_to_networkline(pwf_branch::Dict)
             break
         end
     end
-    to_bus === nothing && error("To bus not found in PWF branch data")
+        to_bus === nothing && throw(ParserError("To bus not found in PWF branch data", "", 0, ""))
 
     # Extract circuit
     circuit = 1
