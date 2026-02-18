@@ -88,32 +88,40 @@ function parse_renovaveis_record(
         throw(ParserError("Expected 'EOLICA', got '$record_type'", filename, line_num, line))
     end
 
-    # Plant code (field 2)
-    plant_code_str = strip(parts[2])
-    plant_code = parse(Int, plant_code_str)
+    try
+        # Plant code (field 2)
+        plant_code_str = strip(parts[2])
+        plant_code = parse(Int, plant_code_str)
 
-    # Plant name (field 3) - keep original spacing
-    plant_name = strip(parts[3])
+        # Plant name (field 3) - keep original spacing
+        plant_name = strip(parts[3])
 
-    # Maximum power (field 4)
-    pmax_str = strip(parts[4])
-    pmax = parse(Float64, pmax_str)
+        # Maximum power (field 4)
+        pmax_str = strip(parts[4])
+        pmax = parse(Float64, pmax_str)
 
-    # Capacity factor (field 5)
-    fcap_str = strip(parts[5])
-    fcap = parse(Float64, fcap_str)
+        # Capacity factor (field 5)
+        fcap_str = strip(parts[5])
+        fcap = parse(Float64, fcap_str)
 
-    # Cadastro flag (field 6)
-    cadastro_str = strip(parts[6])
-    cadastro = parse(Int, cadastro_str)
+        # Cadastro flag (field 6)
+        cadastro_str = strip(parts[6])
+        cadastro = parse(Int, cadastro_str)
 
-    return RenovaveisRecord(
-        plant_code = plant_code,
-        plant_name = plant_name,
-        pmax = pmax,
-        fcap = fcap,
-        cadastro = cadastro,
-    )
+        return RenovaveisRecord(
+            plant_code = plant_code,
+            plant_name = plant_name,
+            pmax = pmax,
+            fcap = fcap,
+            cadastro = cadastro,
+        )
+    catch e
+        if isa(e, ParserError)
+            rethrow(e)
+        else
+            throw(ParserError("Error parsing EOLICA record: $(sprint(showerror, e))", filename, line_num, line))
+        end
+    end
 end
 
 """

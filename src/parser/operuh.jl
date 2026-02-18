@@ -25,7 +25,7 @@ References:
 module OperuhParser
 
 using ..ParserCommon:
-    extract_field, parse_int, parse_float, parse_string, is_blank, is_comment_line
+    extract_field, parse_int, parse_float, parse_string, is_blank, is_comment_line, ParserError
 using ..Types:
     HydroConstraintREST,
     HydroConstraintELEM,
