@@ -31,13 +31,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. ParserError message includes file path and line number where the failure occurred
   3. No parser returns nothing after logging a warning — all failures throw
   4. Error path tests pass for capacity validation, heat rate validation, and silent failure patterns
-**Plans**: TBD
+**Plans**: 4 plans in 2 waves
 
 Plans:
-- [ ] 01-01: Standardize ParserError usage across all parsers
-- [ ] 01-02: Fix capacity and heat rate validation to throw ParserError
-- [ ] 01-03: Replace silent failures with explicit errors
-- [ ] 01-04: Add error path tests
+- [ ] 01-01-PLAN.md — Replace error() calls with ParserError across 8 parser files (Wave 1)
+- [ ] 01-02-PLAN.md — Fix ParserError argument order in termdat.jl + validation tests (Wave 1)
+- [ ] 01-03-PLAN.md — Replace silent failures in operuh.jl with explicit errors (Wave 1)
+- [ ] 01-04-PLAN.md — Create comprehensive error path tests (Wave 2, depends on 01-01, 01-02, 01-03)
 
 ### Phase 2: Test Infrastructure
 **Goal**: CI validates all supported Julia versions and all tests run
@@ -141,7 +141,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Error Handling Foundation | 0/4 | Not started | - |
+| 1. Error Handling Foundation | 0/4 | Planned | - |
 | 2. Test Infrastructure | 0/2 | Not started | - |
 | 3. Code Organization | 0/3 | Not started | - |
 | 4. Binary File Support | 0/3 | Not started | - |
