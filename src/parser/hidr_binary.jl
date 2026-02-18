@@ -208,7 +208,7 @@ Binary format detection:
 function is_binary_hidr(filepath::String)::Bool
     # Check if file exists
     if !isfile(filepath)
-        error("File not found: $filepath")
+        throw(ParserError("File not found: $filepath", filepath, 0, ""))
     end
 
     # Get file size
