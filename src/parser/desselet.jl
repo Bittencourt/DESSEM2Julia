@@ -12,7 +12,7 @@ module DesseletParser
 
 using Dates
 using ..Types: DesseletBaseCase, DesseletPatamar, DesseletData
-using ..ParserCommon: is_comment_line, is_blank
+using ..ParserCommon: is_comment_line, is_blank, ParserError
 
 export parse_desselet
 
@@ -35,7 +35,7 @@ function parse_base_case_record(
 )
     parts = split(strip(String(line)))
     length(parts) >= 3 ||
-        error("Invalid base case line at $line_num: requires at least 3 fields")
+        throw(ParserError("Invalid base case line: requires at least 3 fields", filename, line_num, line))
 
     base_id = parse(Int, parts[1])
     label = parts[2]
@@ -65,7 +65,7 @@ function parse_modification_record(
 )
     parts = split(strip(String(line)))
     length(parts) >= 8 ||
-        error("Invalid patamar line at $line_num: requires at least 8 fields")
+        throw(ParserError("Invalid patamar line: requires at least 8 fields", filename, line_num, line))
 
     patamar_id = parse(Int, parts[1])
     name = parts[2]
@@ -75,7 +75,7 @@ function parse_modification_record(
     date_val = try
         Date(date_str, dateformat"yyyymmdd")
     catch e
-        error("Invalid date format at line $line_num: '$date_str' - $e")
+        throw(ParserError("Invalid date format: '$date_str' - $e", filename, line_num, line))
     end
 
     hour = parse(Int, parts[4])
