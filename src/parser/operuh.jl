@@ -77,7 +77,11 @@ end
 # Record Parsers
 # ============================================================================
 
-function parse_rest_record(line::AbstractString)::Union{HydroConstraintREST,Nothing}
+function parse_rest_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)::HydroConstraintREST
     """
     Parse OPERUH REST record (constraint definition).
 
@@ -111,12 +115,26 @@ function parse_rest_record(line::AbstractString)::Union{HydroConstraintREST,Noth
             window_duration = window_duration,
         )
     catch e
-        @warn "Failed to parse OPERUH REST record" line exception = e
-        return nothing
+        if isa(e, ParserError)
+            rethrow(e)
+        else
+            throw(
+                ParserError(
+                    "Failed to parse OPERUH REST record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
+        end
     end
 end
 
-function parse_elem_record(line::AbstractString)::Union{HydroConstraintELEM,Nothing}
+function parse_elem_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)::HydroConstraintELEM
     """
     Parse OPERUH ELEM record (plant participation in constraint).
 
@@ -148,12 +166,26 @@ function parse_elem_record(line::AbstractString)::Union{HydroConstraintELEM,Noth
             coefficient = coefficient,
         )
     catch e
-        @warn "Failed to parse OPERUH ELEM record" line exception = e
-        return nothing
+        if isa(e, ParserError)
+            rethrow(e)
+        else
+            throw(
+                ParserError(
+                    "Failed to parse OPERUH ELEM record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
+        end
     end
 end
 
-function parse_lim_record(line::AbstractString)::Union{HydroConstraintLIM,Nothing}
+function parse_lim_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)::HydroConstraintLIM
     """
     Parse OPERUH LIM record (operational limits).
 
@@ -188,12 +220,26 @@ function parse_lim_record(line::AbstractString)::Union{HydroConstraintLIM,Nothin
             upper_limit = upper_limit,
         )
     catch e
-        @warn "Failed to parse OPERUH LIM record" line exception = e
-        return nothing
+        if isa(e, ParserError)
+            rethrow(e)
+        else
+            throw(
+                ParserError(
+                    "Failed to parse OPERUH LIM record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
+        end
     end
 end
 
-function parse_var_record(line::AbstractString)::Union{HydroConstraintVAR,Nothing}
+function parse_var_record(
+    line::AbstractString,
+    filename::AbstractString,
+    line_num::Int,
+)::HydroConstraintVAR
     """
     Parse OPERUH VAR record (variation/ramp constraints).
 
@@ -232,8 +278,18 @@ function parse_var_record(line::AbstractString)::Union{HydroConstraintVAR,Nothin
             ramp_up_2 = ramp_up_2,
         )
     catch e
-        @warn "Failed to parse OPERUH VAR record" line exception = e
-        return nothing
+        if isa(e, ParserError)
+            rethrow(e)
+        else
+            throw(
+                ParserError(
+                    "Failed to parse OPERUH VAR record: $(sprint(showerror, e))",
+                    filename,
+                    line_num,
+                    line,
+                ),
+            )
+        end
     end
 end
 
@@ -301,25 +357,13 @@ function parse_operuh(io::IO, filename::AbstractString = "operuh.dat")
         record_type = strip(extract_field(line, 8, 12))
 
         if record_type == "REST"
-            record = parse_rest_record(line)
-            if !isnothing(record)
-                push!(rest_records, record)
-            end
+            push!(rest_records, parse_rest_record(line, filename, line_num))
         elseif record_type == "ELEM"
-            record = parse_elem_record(line)
-            if !isnothing(record)
-                push!(elem_records, record)
-            end
+            push!(elem_records, parse_elem_record(line, filename, line_num))
         elseif record_type == "LIM"
-            record = parse_lim_record(line)
-            if !isnothing(record)
-                push!(lim_records, record)
-            end
+            push!(lim_records, parse_lim_record(line, filename, line_num))
         elseif record_type == "VAR"
-            record = parse_var_record(line)
-            if !isnothing(record)
-                push!(var_records, record)
-            end
+            push!(var_records, parse_var_record(line, filename, line_num))
         else
             @debug "Unknown OPERUH record type in $filename line $line_num: $record_type" line
         end
