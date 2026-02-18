@@ -77,31 +77,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ERR-01 | — | Pending |
-| ERR-02 | — | Pending |
-| ERR-03 | — | Pending |
-| ERR-04 | — | Pending |
-| VAL-01 | — | Pending |
-| VAL-02 | — | Pending |
-| VAL-03 | — | Pending |
-| VAL-04 | — | Pending |
-| VAL-05 | — | Pending |
-| API-01 | — | Pending |
-| API-02 | — | Pending |
-| API-03 | — | Pending |
-| DEBT-01 | — | Pending |
-| DEBT-02 | — | Pending |
-| DEBT-03 | — | Pending |
-| DEBT-04 | — | Pending |
-| DEBT-05 | — | Pending |
-| DEBT-06 | — | Pending |
-| DEBT-07 | — | Pending |
-| DEBT-08 | — | Pending |
+| ERR-01 | Phase 1 | Pending |
+| ERR-02 | Phase 1 | Pending |
+| ERR-03 | Phase 1 | Pending |
+| ERR-04 | Phase 1 | Pending |
+| VAL-01 | Phase 5 | Pending |
+| VAL-02 | Phase 5 | Pending |
+| VAL-03 | Phase 5 | Pending |
+| VAL-04 | Phase 5 | Pending |
+| VAL-05 | Phase 5 | Pending |
+| API-01 | Phase 6 | Pending |
+| API-02 | Phase 7 | Pending |
+| API-03 | Phase 7 | Pending |
+| DEBT-01 | Phase 4 | Pending |
+| DEBT-02 | Phase 3 | Pending |
+| DEBT-03 | Phase 2 | Pending |
+| DEBT-04 | Phase 6 | Pending |
+| DEBT-05 | Phase 6 | Pending |
+| DEBT-06 | Phase 3 | Pending |
+| DEBT-07 | Phase 2 | Pending |
+| DEBT-08 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20 ⚠️
+- Mapped to phases: 20
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-18*
