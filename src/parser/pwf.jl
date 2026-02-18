@@ -46,6 +46,7 @@ Dict{
 module PWFParser
 
 using PWF
+using Dates
 using ..Types: NetworkBus, NetworkLine, NetworkTopology
 using ..ParserCommon: ParserError
 
@@ -197,11 +198,10 @@ function parse_pwf_to_topology(filepath::AbstractString; kwargs...)::NetworkTopo
     buses = NetworkBus[]
     lines = NetworkLine[]
 
-    # Extract bus data from PWF structure
-    if haskey(pwf_data, "buses") || haskey(pwf_data, "bars")
-        bus_list = get(pwf_data, "buses", get(pwf_data, "bars", []))
-
-        for bus_data in bus_list
+    # Extract bus data from PWF structure (PowerModels format uses "bus" as Dict)
+    if haskey(pwf_data, "bus")
+        bus_dict = pwf_data["bus"]
+        for (bus_id, bus_data) in bus_dict
             try
                 # Convert PWF bus to NetworkBus
                 bus = convert_pwfbus_to_networkbus(bus_data)
@@ -221,15 +221,58 @@ function parse_pwf_to_topology(filepath::AbstractString; kwargs...)::NetworkTopo
                 end
             end
         end
+    elseif haskey(pwf_data, "buses") || haskey(pwf_data, "bars")
+        # Fallback for different naming conventions
+        bus_list = get(pwf_data, "buses", get(pwf_data, "bars", []))
+        for bus_data in bus_list
+            try
+                bus = convert_pwfbus_to_networkbus(bus_data)
+                push!(buses, bus)
+            catch e
+                if isa(e, ParserError)
+                    rethrow(e)
+                else
+                    throw(
+                        ParserError(
+                            "Failed to convert bus data: $(sprint(showerror, e))",
+                            filepath,
+                            0,
+                            string(bus_data),
+                        ),
+                    )
+                end
+            end
+        end
     end
 
-    # Extract branch/line data from PWF structure
-    if haskey(pwf_data, "branches") || haskey(pwf_data, "linhas")
-        branch_list = get(pwf_data, "branches", get(pwf_data, "linhas", []))
-
-        for branch_data in branch_list
+    # Extract branch/line data from PWF structure (PowerModels format uses "branch" as Dict)
+    if haskey(pwf_data, "branch")
+        branch_dict = pwf_data["branch"]
+        for (branch_id, branch_data) in branch_dict
             try
                 # Convert PWF branch to NetworkLine
+                line = convert_pwfbranch_to_networkline(branch_data)
+                push!(lines, line)
+            catch e
+                if isa(e, ParserError)
+                    rethrow(e)
+                else
+                    throw(
+                        ParserError(
+                            "Failed to convert branch data: $(sprint(showerror, e))",
+                            filepath,
+                            0,
+                            string(branch_data),
+                        ),
+                    )
+                end
+            end
+        end
+    elseif haskey(pwf_data, "branches") || haskey(pwf_data, "linhas")
+        # Fallback for different naming conventions
+        branch_list = get(pwf_data, "branches", get(pwf_data, "linhas", []))
+        for branch_data in branch_list
+            try
                 line = convert_pwfbranch_to_networkline(branch_data)
                 push!(lines, line)
             catch e
@@ -289,9 +332,9 @@ ANAREDE uses area codes that map to Brazilian subsystems:
 If area code not available, subsystem is left empty.
 """
 function convert_pwfbus_to_networkbus(pwf_bus::Dict)
-    # Extract bus number (may be named "codigo", "number", "bus_id", etc.)
+    # Extract bus number (may be named "bus_i", "codigo", "number", "bus_id", etc.)
     bus_num = nothing
-    for key in ["codigo", "number", "bus_id", "bus", "nb"]
+    for key in ["bus_i", "codigo", "number", "bus_id", "bus", "nb"]
         if haskey(pwf_bus, key)
             bus_num = pwf_bus[key]
             break
@@ -302,7 +345,7 @@ function convert_pwfbus_to_networkbus(pwf_bus::Dict)
 
     # Extract bus name
     name = ""
-    for key in ["nome", "name", "bus_name", "descricao"]
+    for key in ["name", "nome", "bus_name", "descricao"]
         if haskey(pwf_bus, key)
             name = String(pwf_bus[key])
             break
@@ -311,7 +354,7 @@ function convert_pwfbus_to_networkbus(pwf_bus::Dict)
 
     # Extract voltage
     voltage_kv = nothing
-    for key in ["vbase", "basekv", "voltage", "tensao", "kv"]
+    for key in ["base_kv", "vbase", "basekv", "voltage", "tensao", "kv"]
         if haskey(pwf_bus, key)
             voltage_kv = Float64(pwf_bus[key])
             break
@@ -384,9 +427,9 @@ Flow values in PWF files are typically base case or initial conditions.
 For actual DESSEM optimization results, use PDO output files.
 """
 function convert_pwfbranch_to_networkline(pwf_branch::Dict)
-    # Extract from bus
+    # Extract from bus (PowerModels uses "f_bus")
     from_bus = nothing
-    for key in ["de", "from", "bus_from", "nb1", "tap"]
+    for key in ["f_bus", "de", "from", "bus_from", "nb1"]
         if haskey(pwf_branch, key)
             from_bus = pwf_branch[key]
             break
@@ -395,9 +438,9 @@ function convert_pwfbranch_to_networkline(pwf_branch::Dict)
     from_bus === nothing &&
         throw(ParserError("From bus not found in PWF branch data", "", 0, ""))
 
-    # Extract to bus
+    # Extract to bus (PowerModels uses "t_bus")
     to_bus = nothing
-    for key in ["para", "to", "bus_to", "nb2"]
+    for key in ["t_bus", "para", "to", "bus_to", "nb2"]
         if haskey(pwf_branch, key)
             to_bus = pwf_branch[key]
             break
@@ -408,16 +451,16 @@ function convert_pwfbranch_to_networkline(pwf_branch::Dict)
 
     # Extract circuit
     circuit = 1
-    for key in ["circuito", "circuit", "ck", "tap"]
+    for key in ["circuito", "circuit", "ck", "index"]
         if haskey(pwf_branch, key)
             circuit = Int(pwf_branch[key])
             break
         end
     end
 
-    # Extract capacity/rating
+    # Extract capacity/rating (PowerModels uses "rate_a")
     capacity_mw = nothing
-    for key in ["rating", "capacidade", "fluxo_max", "limit"]
+    for key in ["rate_a", "rating", "capacidade", "fluxo_max", "limit"]
         if haskey(pwf_branch, key)
             capacity_mw = Float64(pwf_branch[key])
             break

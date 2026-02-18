@@ -241,7 +241,7 @@ using .InfofcfDatParser: parse_infofcf_dat
 # Optionally include PWF parser if PWF.jl is available
 # Check for PWF package before including to avoid module compilation warnings
 pwf_available = try
-    Base.require(Base.PkgId(Base.UUID("a8ba2b29-9f20-5e9c-a0e4-6cf9a9c686e9"), "PWF"))
+    Base.require(Base.PkgId(Base.UUID("0f4c3beb-4231-4c4d-93e1-709cb40a89e6"), "PWF"))
     true
 catch
     false
