@@ -317,3 +317,95 @@ end
     @test validate_nonnegative(result.min_volume, "min_volume") == 0.0
     @test validate_positive(result.max_volume, "max_volume") == 792.0
 end
+
+# Import termdat parser for validation tests
+import DESSEM2Julia.TermdatParser: parse_cadunidt, parse_curvacomb
+
+@testset "ERR-02: Capacity Validation" begin
+    @testset "Throws ParserError when min_generation > capacity" begin
+        # Create a properly formatted CADUNIDT line with min_generation (200.0) > unit_capacity (100.0)
+        # Format: CADUNIDT at 1-8, plant_num at 10-12, unit_num at 14-16,
+        # commission_year at 17-20, month at 22-23, day at 25-26, hour at 28-29,
+        # unit_class at 31, unit_capacity at 33-43, min_generation at 45-54
+        invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
+
+        @test_throws ParserError parse_cadunidt(invalid_line, "test.dat", 1)
+
+        # Verify error contains proper context
+        try
+            parse_cadunidt(invalid_line, "test.dat", 42)
+        catch e
+            @test isa(e, ParserError)
+            @test occursin("Minimum generation", e.msg)
+            @test occursin("exceeds unit capacity", e.msg)
+            @test e.file == "test.dat"
+            @test e.line == 42
+            @test e.content == invalid_line
+        end
+    end
+
+    @testset "Does NOT throw MethodError for capacity validation" begin
+        # Verify we get ParserError, not MethodError
+        invalid_line = "CADUNIDT 001 0012024 01 01 00 0       100.0      200.0"
+
+        try
+            parse_cadunidt(invalid_line, "test.dat", 1)
+            @test false  # Should not reach here
+        catch e
+            @test !isa(e, MethodError)
+            @test isa(e, ParserError)
+        end
+    end
+
+    @testset "Valid data passes capacity check" begin
+        # Valid line with min_generation < unit_capacity
+        valid_line = "CADUNIDT 001 0012024 01 01 00 0       200.0      100.0"
+
+        result = parse_cadunidt(valid_line, "test.dat", 1)
+        @test result.unit_capacity == 200.0
+        @test result.min_generation == 100.0
+    end
+end
+
+@testset "ERR-03: Heat Rate Validation" begin
+    @testset "Throws ParserError for zero heat_rate" begin
+        # Create a CURVACOMB line with heat_rate = 0
+        # Format: CURVACOMB at 1-9, plant_num at 11-13, unit_num at 15-17,
+        # heat_rate at 19-23, generation at 25-34
+        zero_heat_line = "CURVACOMB 001 001    0      100.0"
+
+        @test_throws ParserError parse_curvacomb(zero_heat_line, "test.dat", 1)
+    end
+
+    @testset "Throws ParserError for negative heat_rate" begin
+        # Create a CURVACOMB line with negative heat_rate
+        # Note: The parser uses Int for heat_rate, so negative should fail validation
+        # The validate_positive function is called after parsing
+        # First let's verify the format accepts negative integers
+        negative_heat_line = "CURVACOMB 001 001   -5      100.0"
+
+        @test_throws ParserError parse_curvacomb(negative_heat_line, "test.dat", 1)
+    end
+
+    @testset "Heat rate validation error includes context" begin
+        zero_heat_line = "CURVACOMB 001 001    0      100.0"
+
+        try
+            parse_curvacomb(zero_heat_line, "test.dat", 42)
+        catch e
+            @test isa(e, ParserError)
+            @test e.file == "test.dat"
+            @test e.line == 42
+            @test occursin("heat_rate", lowercase(e.msg))
+        end
+    end
+
+    @testset "Valid heat rate passes validation" begin
+        # Valid line with positive heat_rate
+        valid_line = "CURVACOMB 001 001 9000      100.0"
+
+        result = parse_curvacomb(valid_line, "test.dat", 1)
+        @test result.heat_rate == 9000
+        @test result.generation == 100.0
+    end
+end

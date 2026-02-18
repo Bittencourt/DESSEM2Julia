@@ -79,20 +79,20 @@ function parse_cadusit(line::AbstractString, file::String, line_num::Int)
     end
 
     # Validate plant number
-    validate_range(data.plant_num, 1, 999, "plant_num")
+    validate_range(data.plant_num, 1, 999, "plant_num", file = file, line_num = line_num)
 
     # Validate subsystem
-    validate_positive(data.subsystem, "subsystem")
+    validate_positive(data.subsystem, "subsystem", file = file, line_num = line_num)
 
     # Validate number of units
-    validate_range(data.num_units, 1, 120, "num_units")
+    validate_range(data.num_units, 1, 120, "num_units", file = file, line_num = line_num)
 
     # Validate optional fields
     if !isnothing(data.commission_month)
-        validate_range(data.commission_month, 1, 12, "commission_month")
+        validate_range(data.commission_month, 1, 12, "commission_month", file = file, line_num = line_num)
     end
     if !isnothing(data.commission_day)
-        validate_range(data.commission_day, 1, 31, "commission_day")
+        validate_range(data.commission_day, 1, 31, "commission_day", file = file, line_num = line_num)
     end
 
     # Validate optional numeric fields if present
@@ -100,9 +100,9 @@ function parse_cadusit(line::AbstractString, file::String, line_num::Int)
     fuel_cost = hasfield(typeof(data), :fuel_cost) ? data.fuel_cost : 0.0
 
     if heat_rate != 0.0
-        validate_positive(heat_rate, "heat_rate")
+        validate_positive(heat_rate, "heat_rate", file = file, line_num = line_num)
     end
-    validate_nonnegative(fuel_cost, "fuel_cost")
+    validate_nonnegative(fuel_cost, "fuel_cost", file = file, line_num = line_num)
 
     return CADUSIT(
         plant_num = data.plant_num,
@@ -194,12 +194,12 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     end
 
     # Validate plant and unit numbers
-    validate_range(data.plant_num, 1, 999, "plant_num")
-    validate_range(data.unit_num, 1, 120, "unit_num")
+    validate_range(data.plant_num, 1, 999, "plant_num", file = file, line_num = line_num)
+    validate_range(data.unit_num, 1, 120, "unit_num", file = file, line_num = line_num)
 
     # Validate capacity and generation
-    validate_positive(data.unit_capacity, "unit_capacity")
-    validate_nonnegative(data.min_generation, "min_generation")
+    validate_positive(data.unit_capacity, "unit_capacity", file = file, line_num = line_num)
+    validate_nonnegative(data.min_generation, "min_generation", file = file, line_num = line_num)
 
     if data.min_generation > data.unit_capacity
         throw(
@@ -213,18 +213,18 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     end
 
     # Validate time constraints
-    validate_nonnegative(data.min_on_time, "min_on_time")
-    validate_nonnegative(data.min_off_time, "min_off_time")
+    validate_nonnegative(data.min_on_time, "min_on_time", file = file, line_num = line_num)
+    validate_nonnegative(data.min_off_time, "min_off_time", file = file, line_num = line_num)
 
     # Validate optional fields if present
     if !isnothing(data.commission_month)
-        validate_range(data.commission_month, 1, 12, "commission_month")
+        validate_range(data.commission_month, 1, 12, "commission_month", file = file, line_num = line_num)
     end
     if !isnothing(data.commission_day)
-        validate_range(data.commission_day, 1, 31, "commission_day")
+        validate_range(data.commission_day, 1, 31, "commission_day", file = file, line_num = line_num)
     end
     if !isnothing(data.commission_hour)
-        validate_range(data.commission_hour, 0, 23, "commission_hour")
+        validate_range(data.commission_hour, 0, 23, "commission_hour", file = file, line_num = line_num)
     end
 
     # Extract optional fields with defaults if not present
@@ -237,16 +237,16 @@ function parse_cadunidt(line::AbstractString, file::String, line_num::Int)
     ramp_down_rate = hasfield(typeof(data), :ramp_down_rate) ? data.ramp_down_rate : Inf
 
     # Validate costs if present
-    validate_nonnegative(cold_startup_cost, "cold_startup_cost")
-    validate_nonnegative(hot_startup_cost, "hot_startup_cost")
-    validate_nonnegative(shutdown_cost, "shutdown_cost")
+    validate_nonnegative(cold_startup_cost, "cold_startup_cost", file = file, line_num = line_num)
+    validate_nonnegative(hot_startup_cost, "hot_startup_cost", file = file, line_num = line_num)
+    validate_nonnegative(shutdown_cost, "shutdown_cost", file = file, line_num = line_num)
 
     # Validate ramp rates if not infinite
     if !isinf(ramp_up_rate)
-        validate_nonnegative(ramp_up_rate, "ramp_up_rate")
+        validate_nonnegative(ramp_up_rate, "ramp_up_rate", file = file, line_num = line_num)
     end
     if !isinf(ramp_down_rate)
-        validate_nonnegative(ramp_down_rate, "ramp_down_rate")
+        validate_nonnegative(ramp_down_rate, "ramp_down_rate", file = file, line_num = line_num)
     end
 
     return CADUNIDT(
@@ -302,12 +302,12 @@ function parse_curvacomb(line::AbstractString, file::String, line_num::Int)
     end
 
     # Validate identifiers
-    validate_range(data.plant_num, 1, 999, "plant_num")
-    validate_range(data.unit_num, 1, 120, "unit_num")
+    validate_range(data.plant_num, 1, 999, "plant_num"; file = file, line_num = line_num, line = line)
+    validate_range(data.unit_num, 1, 120, "unit_num"; file = file, line_num = line_num, line = line)
 
     # Validate heat rate and generation
-    validate_positive(data.heat_rate, "heat_rate")
-    validate_nonnegative(data.generation, "generation")
+    validate_positive(data.heat_rate, "heat_rate"; file = file, line_num = line_num, line = line)
+    validate_nonnegative(data.generation, "generation"; file = file, line_num = line_num, line = line)
 
     return CURVACOMB(
         plant_num = data.plant_num,
