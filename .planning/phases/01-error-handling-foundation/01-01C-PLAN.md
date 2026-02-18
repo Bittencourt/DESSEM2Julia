@@ -49,6 +49,14 @@ Output: 2 parser files using ParserError consistently.
 @.planning/STATE.md
 @.planning/phases/01-error-handling-foundation/01-RESEARCH.md
 
+# Reference Implementations
+# - idessem: https://github.com/renan-iod/idessem (DESSEM parsing reference)
+# - inewave: https://github.com/renan-iod/inewave (NEWAVE parsing reference, related ecosystem)
+# - pwf.jl: https://github.com/renan-iod/pwf.jl (PWF network file parser - direct dependency)
+#
+# When modifying pwf.jl error handling, verify alignment with pwf.jl library patterns.
+# The pwf.jl dependency provides the core PWF parsing functionality.
+
 # ParserError struct definition (correct argument order)
 # struct ParserError <: Exception
 #     msg::String      # FIRST: Error message

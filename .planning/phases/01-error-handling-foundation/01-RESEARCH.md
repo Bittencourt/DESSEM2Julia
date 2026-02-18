@@ -10,6 +10,21 @@ This research investigates the current state of error handling in the DESSEM2Jul
 
 **Primary recommendation:** Replace all `error()` calls and `@warn` + `return nothing` patterns with `throw(ParserError(...))` using the existing validation helpers (`validate_positive`, `validate_nonnegative`, `validate_range`) from `ParserCommon`.
 
+## Reference Implementations
+
+These external repositories serve as reference implementations and dependencies:
+
+| Repository | Purpose | URL |
+|------------|---------|-----|
+| **idessem** | Reference implementation for DESSEM file parsing in Julia | https://github.com/renan-iod/idessem |
+| **inewave** | Reference implementation for NEWAVE file parsing (related ecosystem) | https://github.com/renan-iod/inewave |
+| **pwf.jl** | Dependency for reading PWF (Power World Format) network files | https://github.com/renan-iod/pwf.jl |
+
+**Usage notes:**
+- `pwf.jl` is a direct dependency used by `src/parser/pwf.jl` for parsing network topology files
+- `idessem` and `inewave` provide patterns for error handling, validation, and parser structure
+- When making changes, verify alignment with these reference implementations
+
 ## Standard Stack
 
 ### Core

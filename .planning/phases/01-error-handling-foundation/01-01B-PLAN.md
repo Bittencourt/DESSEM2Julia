@@ -53,6 +53,13 @@ Output: 3 parser files using ParserError consistently.
 @.planning/STATE.md
 @.planning/phases/01-error-handling-foundation/01-RESEARCH.md
 
+# Reference Implementations
+# - idessem: https://github.com/renan-iod/idessem (DESSEM parsing reference)
+# - inewave: https://github.com/renan-iod/inewave (NEWAVE parsing reference, related ecosystem)
+#
+# These provide patterns for error handling and parser structure.
+# When modifying parsers, verify alignment with idessem/inewave patterns.
+
 # ParserError struct definition (correct argument order)
 # struct ParserError <: Exception
 #     msg::String      # FIRST: Error message
