@@ -41,6 +41,7 @@ Plans:
 - [x] 01-02-PLAN.md — Fix ParserError argument order in termdat.jl + validation tests (Wave 1)
 - [x] 01-03-PLAN.md — Replace silent failures in operuh.jl with explicit errors (Wave 1)
 - [x] 01-04-PLAN.md — Create comprehensive error path tests (Wave 2, depends on all Wave 1 plans)
+- [ ] 01-05-PLAN.md — Add R## (reservoir elevation) record parsing [gap closure]
 
 **Note on ERR-04 (hidr.jl):** The @warn at line 635 for unknown record types is considered acceptable - it logs non-critical information about unknown types without blocking parsing, unlike the silent failures in operuh.jl that swallow errors.
 
@@ -52,11 +53,11 @@ Plans:
   1. CI runs tests on Julia 1.6, 1.10, and 1.11
   2. All previously commented-out tests are uncommented and passing
   3. Test suite runs green on all three tested Julia versions
-**Plans**: TBD
+**Plans**: 2 plans in 1 wave
 
 Plans:
-- [ ] 02-01: Expand CI matrix to Julia 1.6, 1.10, 1.11
-- [ ] 02-02: Resolve commented-out tests (fix or document)
+- [ ] 02-01-PLAN.md — Expand CI matrix to Julia 1.6, 1.10, 1.11 (Wave 1)
+- [ ] 02-02-PLAN.md — Resolve commented-out tests (fix or document) (Wave 1)
 
 ### Phase 3: Code Organization
 **Goal**: Codebase is maintainable with reasonably-sized files
