@@ -43,6 +43,7 @@ Cuts are stored in a linked list via `indice_corte` field:
 module CortdecoParser
 
 using ..DESSEM2Julia: FCFCut, FCFCutsData
+using ..ParserCommon: ParserError
 
 export parse_cortdeco
 
@@ -131,9 +132,12 @@ function parse_cortdeco(
     numero_coeficientes = (tamanho_registro - bytes_header) ÷ 8
 
     if numero_coeficientes <= 0
-        error(
+        throw(ParserError(
             "Invalid record size $tamanho_registro: must be at least 24 bytes (16 header + 8 for RHS)",
-        )
+            filepath,
+            0,
+            "",
+        ))
     end
 
     # Pre-allocate vector for cuts
@@ -306,20 +310,23 @@ optimization problem, indicating the marginal cost of water usage.
 """
 function get_water_value(cuts::FCFCutsData, uhe_code::Int)
     if isempty(cuts.codigos_uhes)
-        error(
+        throw(ParserError(
             "Water value lookup requires individualized mode (codigos_uhes must be non-empty)",
-        )
+            "",
+            0,
+            "",
+        ))
     end
 
     # Find index of this UHE in the list
     uhe_idx = findfirst(==(uhe_code), cuts.codigos_uhes)
 
     if uhe_idx === nothing
-        error("UHE code $uhe_code not found in FCF cuts. Available: $(cuts.codigos_uhes)")
+        throw(ParserError("UHE code $uhe_code not found in FCF cuts. Available: $(cuts.codigos_uhes)", "", 0, ""))
     end
 
     if isempty(cuts.cortes)
-        error("No cuts available for water value calculation")
+        throw(ParserError("No cuts available for water value calculation", "", 0, ""))
     end
 
     # In individualized mode, coefficient structure is:
