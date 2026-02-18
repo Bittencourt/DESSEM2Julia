@@ -209,20 +209,27 @@ unmatched_generators = []
 
 # Match hydro plants
 for plant in hydro_plants
-    if plant.plant_num <= 0 || isempty(strip(plant.plant_name))
+    if plant.posto <= 0 || isempty(strip(plant.nome))
         continue  # Skip invalid records
     end
 
-    bus = find_bus_for_plant(plant.plant_name, buses)
+    bus = find_bus_for_plant(plant.nome, buses)
+
+    # Calculate installed capacity from machine sets (MW)
+    # potef_conjunto is power per machine in MW, numero_maquinas_conjunto is machines per set
+    installed_capacity = 0.0
+    for i in 1:plant.numero_conjuntos_maquinas
+        installed_capacity += plant.numero_maquinas_conjunto[i] * plant.potef_conjunto[i]
+    end
 
     if bus !== nothing
         push!(
             bus_generators[bus.bus_number],
             (
                 type = "Hydro",
-                id = plant.plant_num,
-                name = plant.plant_name,
-                capacity = plant.installed_capacity,
+                id = plant.posto,
+                name = plant.nome,
+                capacity = installed_capacity,
             ),
         )
         matched_stats["hydro"] += 1
@@ -230,7 +237,7 @@ for plant in hydro_plants
         if SHOW_UNMATCHED_GENERATORS
             push!(
                 unmatched_generators,
-                (type = "Hydro", id = plant.plant_num, name = plant.plant_name),
+                (type = "Hydro", id = plant.posto, name = plant.nome),
             )
         end
     end
