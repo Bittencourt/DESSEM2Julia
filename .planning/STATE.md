@@ -72,6 +72,14 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-18T15:20:21Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-02-19T10:40:47Z
+Stopped at: Completed quick-001 (FCF cuts example)
 Resume file: None
+
+## Quick Tasks
+
+Completed quick tasks (not tracked in phase progress):
+
+| Task | Description | Date | Commit |
+|------|-------------|------|--------|
+| quick-001 | FCF cuts reading example | 2026-02-19 | f659082 |
