@@ -37,7 +37,7 @@ export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, FCFCutsData, DecompCut
 export InfofcfRecord, InfofcfData
-export MapcutRecord, MapcutData
+export MapcutHeader, MapcutRecord, MapcutData
 export CortesRecord, CortesData
 export MltData
 
@@ -814,23 +814,75 @@ Base.@kwdef struct InfofcfData
 end
 
 """
+    MapcutHeader
+
+Header structure from MAPCUT.DEC binary file (DECOMP cut mapping).
+
+The header contains metadata about the cut structure in the file,
+including the number of stages, REEs (or UHEs in individualized mode),
+and how many cuts exist per stage.
+
+# Binary Format
+- `num_estagios::Int32`: Number of stages (4 bytes)
+- `num_rees::Int32`: Number of REEs or UHEs (4 bytes)
+- `cortes_por_estagio::Vector{Int32}`: Cuts per stage (num_estagios × 4 bytes)
+
+# Fields
+- `num_estagios::Int32`: Number of optimization stages
+- `num_rees::Int32`: Number of REEs (aggregated mode) or UHEs (individualized mode)
+- `cortes_por_estagio::Vector{Int32}`: Number of cuts for each stage
+"""
+Base.@kwdef struct MapcutHeader
+    num_estagios::Int32
+    num_rees::Int32
+    cortes_por_estagio::Vector{Int32} = Int32[]
+end
+
+"""
     MapcutRecord
 
-Record from MAPCUT.DEC (Binary).
-Placeholder for now.
+Single cut record from MAPCUT.DEC binary file (DECOMP cut mapping).
+
+Each record maps a specific Benders cut to its corresponding stage,
+REE/UHE, and cut index within that stage.
+
+# Binary Format (after header)
+Each record contains:
+- Stage index (Int32): 1-based stage number
+- REE/UHE index (Int32): 1-based REE or UHE number
+- Cut index (Int32): 1-based cut index within stage
+- Coefficients (N × Float64): Cut coefficient array
+
+# Fields
+- `stage_idx::Int32`: Stage index (1-based)
+- `ree_idx::Int32`: REE/UHE index (1-based)
+- `cut_idx::Int32`: Cut index within the stage (1-based)
+- `coeficientes::Vector{Float64}`: Cut coefficient array
 """
-struct MapcutRecord
-    # TODO: Define fields based on binary spec
-    raw_data::Vector{UInt8}
+Base.@kwdef struct MapcutRecord
+    stage_idx::Int32
+    ree_idx::Int32
+    cut_idx::Int32
+    coeficientes::Vector{Float64} = Float64[]
 end
 
 """
     MapcutData
 
-Container for MAPCUT.DEC data.
+Container for MAPCUT.DEC binary file data (DECOMP cut mapping).
+
+Holds the complete parsed content from a MAPCUT file, including
+the header metadata and all cut records.
+
+# Fields
+- `header::MapcutHeader`: File header with stage/REE counts
+- `records::Vector{MapcutRecord}`: All cut records in the file
+- `total_cuts::Int`: Total number of cuts (sum of cortes_por_estagio)
 """
 Base.@kwdef struct MapcutData
+    header::MapcutHeader = MapcutHeader(Int32(0), Int32(0), Int32[])
     records::Vector{MapcutRecord} = MapcutRecord[]
+    total_cuts::Int = 0
 end
 
 """
