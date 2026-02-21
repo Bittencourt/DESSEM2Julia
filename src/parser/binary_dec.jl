@@ -28,7 +28,8 @@ to extract structured data (cut coefficients, RHS values, entity mappings, etc.)
 module BinaryDecParser
 
 using ..DESSEM2Julia:
-    InfofcfRecord, InfofcfData, MapcutRecord, MapcutData, CortesRecord, CortesData
+    InfofcfRecord, InfofcfData, MapcutHeader, MapcutRecord, MapcutData, CortesRecord, CortesData
+using ..ParserCommon: ParserError
 
 """
     parse_infofcf(io::IO) -> InfofcfData
@@ -50,12 +51,110 @@ parse_infofcf(filename::AbstractString) = open(parse_infofcf, filename)
 
 Parse MAPCUT.DEC binary file (DECOMP cut mapping header).
 
-Stores raw binary content as the format specification is not publicly available.
+Parses the complete binary structure including header and all cut records.
+
+# Binary Format
+
+## Header (8 + num_estagios × 4 bytes)
+- `num_estagios::Int32`: Number of stages (4 bytes)
+- `num_rees::Int32`: Number of REEs or UHEs (4 bytes)
+- `cortes_por_estagio::Vector{Int32}`: Cuts per stage (num_estagios × 4 bytes)
+
+## Records (after header)
+Each record contains:
+- `stage_idx::Int32`: Stage index (1-based)
+- `ree_idx::Int32`: REE/UHE index (1-based)
+- `cut_idx::Int32`: Cut index within stage (1-based)
+- `coeficientes::Vector{Float64}`: Cut coefficients (size depends on num_rees)
+
+# Returns
+- `MapcutData`: Container with header and all parsed records
+
+# Example
+```julia
+data = parse_mapcut("mapcut.rv3")
+println("Stages: \$(data.header.num_estagios)")
+println("REEs: \$(data.header.num_rees)")
+println("Total cuts: \$(data.total_cuts)")
+```
 """
 function parse_mapcut(io::IO)
-    raw = read(io)
-    record = MapcutRecord(raw)
-    return MapcutData(records = [record])
+    # Read header
+    try
+        num_estagios = read(io, Int32)
+        num_rees = read(io, Int32)
+
+        # Read cortes_por_estagio array
+        cortes_por_estagio = Int32[]
+        for _ in 1:num_estagios
+            push!(cortes_por_estagio, read(io, Int32))
+        end
+
+        header = MapcutHeader(
+            num_estagios = num_estagios,
+            num_rees = num_rees,
+            cortes_por_estagio = cortes_por_estagio,
+        )
+
+        # Calculate total cuts
+        total_cuts = sum(cortes_por_estagio)
+
+        # Read records
+        records = MapcutRecord[]
+
+        # Calculate coefficient size for each record
+        # Based on cortdeco pattern, coefficients include RHS + other terms
+        # For mapcut, the size depends on num_rees (number of coefficient terms)
+        # Each coefficient is Float64 (8 bytes)
+        num_coef = num_rees  # At minimum, one coefficient per REE/UHE
+
+        for _ in 1:total_cuts
+            try
+                stage_idx = read(io, Int32)
+                ree_idx = read(io, Int32)
+                cut_idx = read(io, Int32)
+
+                # Read coefficients (num_rees Float64 values)
+                coeficientes = Float64[]
+                for _ in 1:num_coef
+                    push!(coeficientes, read(io, Float64))
+                end
+
+                record = MapcutRecord(
+                    stage_idx = stage_idx,
+                    ree_idx = ree_idx,
+                    cut_idx = cut_idx,
+                    coeficientes = coeficientes,
+                )
+                push!(records, record)
+            catch e
+                if e isa EOFError
+                    @warn "Unexpected end of file while reading MAPCUT records"
+                    break
+                else
+                    rethrow(e)
+                end
+            end
+        end
+
+        return MapcutData(
+            header = header,
+            records = records,
+            total_cuts = length(records),
+        )
+
+    catch e
+        if e isa EOFError
+            @warn "Empty or truncated MAPCUT file"
+            return MapcutData(
+                header = MapcutHeader(Int32(0), Int32(0), Int32[]),
+                records = MapcutRecord[],
+                total_cuts = 0,
+            )
+        else
+            rethrow(e)
+        end
+    end
 end
 
 parse_mapcut(filename::AbstractString) = open(parse_mapcut, filename)
