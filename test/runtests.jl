@@ -40,6 +40,8 @@ include("infofcf_tests.jl")
 include("mlt_tests.jl")
 include("modif_tests.jl")
 include("binary_dec_tests.jl")
+include("cortdeco_tests.jl")
+include("fcf_tests.jl")
 
 # Integration tests with real ONS sample data
 include("ons_integration_tests.jl")
