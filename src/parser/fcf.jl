@@ -172,10 +172,7 @@ Build a structured FCFData from raw FCFCutsData and reservoir ID mapping.
 # Returns
 - `FCFData`: Structured FCF with BendersCut objects containing reservoir ID mappings
 """
-function build_fcf_from_cuts(
-    cuts_data::FCFCutsData,
-    reservoir_ids::Vector{Int},
-)
+function build_fcf_from_cuts(cuts_data::FCFCutsData, reservoir_ids::Vector{Int})
     benders_cuts = BendersCut[]
 
     for (i, cut) in enumerate(cuts_data.cortes)
@@ -193,7 +190,7 @@ function build_fcf_from_cuts(
         # Remaining coefficients after reservoir values are travel-time and GNL
         n_res = length(reservoir_ids)
         remaining = if n_res < length(cut.coeficientes)
-            cut.coeficientes[n_res+1:end]
+            cut.coeficientes[(n_res+1):end]
         else
             Float64[]
         end
@@ -245,11 +242,7 @@ fcf = parse_fcf("mapcut.rv2", "cortdeco.rv2")
 cost, active = evaluate_fcf(fcf, Dict(1 => 50.0, 2 => 30.0))
 ```
 """
-function parse_fcf(
-    mapcut_path::String,
-    cortdeco_path::String;
-    kwargs...,
-)
+function parse_fcf(mapcut_path::String, cortdeco_path::String; kwargs...)
     # Import the parsers we need
     # parse_cortdeco is imported at module level from CortdecoParser
 

@@ -28,7 +28,13 @@ to extract structured data (cut coefficients, RHS values, entity mappings, etc.)
 module BinaryDecParser
 
 using ..DESSEM2Julia:
-    InfofcfRecord, InfofcfData, MapcutHeader, MapcutRecord, MapcutData, CortesRecord, CortesData
+    InfofcfRecord,
+    InfofcfData,
+    MapcutHeader,
+    MapcutRecord,
+    MapcutData,
+    CortesRecord,
+    CortesData
 using ..ParserCommon: ParserError
 
 """
@@ -137,11 +143,7 @@ function parse_mapcut(io::IO)
             end
         end
 
-        return MapcutData(
-            header = header,
-            records = records,
-            total_cuts = length(records),
-        )
+        return MapcutData(header = header, records = records, total_cuts = length(records))
 
     catch e
         if e isa EOFError

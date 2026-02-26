@@ -78,7 +78,18 @@ using DESSEM2Julia
             numero_submercados = Int32(4),
             numero_uhes = Int32(156),
             numero_cenarios = Int32(10),
-            registro_ultimo_corte_no = Int32[100, 110, 120, 130, 140, 150, 160, 170, 180, 190],
+            registro_ultimo_corte_no = Int32[
+                100,
+                110,
+                120,
+                130,
+                140,
+                150,
+                160,
+                170,
+                180,
+                190,
+            ],
         )
 
         @test gd.numero_iteracoes == 50
@@ -129,8 +140,16 @@ using DESSEM2Julia
         # Cut 1: α₀ = 100, π₁ = 2, π₂ = 3
         # Cut 2: α₀ = 50,  π₁ = 5, π₂ = 1
         cuts = [
-            BendersCut(id = 1, rhs = 100.0, reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0)),
-            BendersCut(id = 2, rhs = 50.0, reservoir_coefficients = Dict(1 => 5.0, 2 => 1.0)),
+            BendersCut(
+                id = 1,
+                rhs = 100.0,
+                reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0),
+            ),
+            BendersCut(
+                id = 2,
+                rhs = 50.0,
+                reservoir_coefficients = Dict(1 => 5.0, 2 => 1.0),
+            ),
         ]
         fcf = FCFData(cuts = cuts, reservoir_ids = [1, 2], n_cuts = 2)
 
@@ -161,7 +180,11 @@ using DESSEM2Julia
     @testset "evaluate_fcf Missing Volumes" begin
         # When a reservoir volume is not provided, it defaults to 0.0
         cuts = [
-            BendersCut(id = 1, rhs = 100.0, reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0)),
+            BendersCut(
+                id = 1,
+                rhs = 100.0,
+                reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0),
+            ),
         ]
         fcf = FCFData(cuts = cuts, reservoir_ids = [1, 2], n_cuts = 1)
 
@@ -172,9 +195,7 @@ using DESSEM2Julia
     end
 
     @testset "evaluate_fcf Single Cut" begin
-        cuts = [
-            BendersCut(id = 1, rhs = 500.0, reservoir_coefficients = Dict(1 => -1.5)),
-        ]
+        cuts = [BendersCut(id = 1, rhs = 500.0, reservoir_coefficients = Dict(1 => -1.5))]
         fcf = FCFData(cuts = cuts, reservoir_ids = [1], n_cuts = 1)
 
         cost, active = evaluate_fcf(fcf, Dict(1 => 100.0))
@@ -185,8 +206,16 @@ using DESSEM2Julia
     @testset "evaluate_fcf Negative Coefficients" begin
         # Water values are typically negative (more water → lower future cost)
         cuts = [
-            BendersCut(id = 1, rhs = 10000.0, reservoir_coefficients = Dict(1 => -50.0, 2 => -30.0)),
-            BendersCut(id = 2, rhs = 8000.0, reservoir_coefficients = Dict(1 => -20.0, 2 => -10.0)),
+            BendersCut(
+                id = 1,
+                rhs = 10000.0,
+                reservoir_coefficients = Dict(1 => -50.0, 2 => -30.0),
+            ),
+            BendersCut(
+                id = 2,
+                rhs = 8000.0,
+                reservoir_coefficients = Dict(1 => -20.0, 2 => -10.0),
+            ),
         ]
         fcf = FCFData(cuts = cuts, reservoir_ids = [1, 2], n_cuts = 2)
 
@@ -203,8 +232,16 @@ using DESSEM2Julia
     # ====================================================================
     @testset "water_value Basic" begin
         cuts = [
-            BendersCut(id = 1, rhs = 100.0, reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0)),
-            BendersCut(id = 2, rhs = 50.0, reservoir_coefficients = Dict(1 => 5.0, 2 => 1.0)),
+            BendersCut(
+                id = 1,
+                rhs = 100.0,
+                reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0),
+            ),
+            BendersCut(
+                id = 2,
+                rhs = 50.0,
+                reservoir_coefficients = Dict(1 => 5.0, 2 => 1.0),
+            ),
         ]
         fcf = FCFData(cuts = cuts, reservoir_ids = [1, 2], n_cuts = 2)
 
@@ -224,9 +261,7 @@ using DESSEM2Julia
     end
 
     @testset "water_value Missing Reservoir" begin
-        cuts = [
-            BendersCut(id = 1, rhs = 100.0, reservoir_coefficients = Dict(1 => 2.0)),
-        ]
+        cuts = [BendersCut(id = 1, rhs = 100.0, reservoir_coefficients = Dict(1 => 2.0))]
         fcf = FCFData(cuts = cuts, reservoir_ids = [1], n_cuts = 1)
 
         # Reservoir 999 doesn't exist → returns 0.0
@@ -245,8 +280,16 @@ using DESSEM2Julia
     # ====================================================================
     @testset "water_values Basic" begin
         cuts = [
-            BendersCut(id = 1, rhs = 100.0, reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0)),
-            BendersCut(id = 2, rhs = 50.0, reservoir_coefficients = Dict(1 => 5.0, 2 => 1.0)),
+            BendersCut(
+                id = 1,
+                rhs = 100.0,
+                reservoir_coefficients = Dict(1 => 2.0, 2 => 3.0),
+            ),
+            BendersCut(
+                id = 2,
+                rhs = 50.0,
+                reservoir_coefficients = Dict(1 => 5.0, 2 => 1.0),
+            ),
         ]
         fcf = FCFData(cuts = cuts, reservoir_ids = [1, 2], n_cuts = 2)
 
@@ -547,9 +590,7 @@ using DESSEM2Julia
     end
 
     @testset "evaluate_fcf All Zeros" begin
-        cuts = [
-            BendersCut(id = 1, rhs = 0.0, reservoir_coefficients = Dict{Int,Float64}()),
-        ]
+        cuts = [BendersCut(id = 1, rhs = 0.0, reservoir_coefficients = Dict{Int,Float64}())]
         fcf = FCFData(cuts = cuts, reservoir_ids = Int[], n_cuts = 1)
 
         cost, active = evaluate_fcf(fcf, Dict(1 => 100.0))
@@ -573,5 +614,4 @@ using DESSEM2Julia
         wv_high = water_value(fcf, Dict(1 => 80.0), 1)
         @test wv_high ≈ -2.0
     end
-
 end

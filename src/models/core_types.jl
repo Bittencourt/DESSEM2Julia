@@ -38,7 +38,8 @@ export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, FCFCutsData, DecompCut
 export BendersCut, FCFData
 export InfofcfRecord, InfofcfData
-export MapcutHeader, MapcutRecord, MapcutData, MapcutGeneralData, MapcutCaseData, MapcutStageData
+export MapcutHeader,
+    MapcutRecord, MapcutData, MapcutGeneralData, MapcutCaseData, MapcutStageData
 export CortesRecord, CortesData
 export MltData
 

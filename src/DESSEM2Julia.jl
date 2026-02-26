@@ -242,7 +242,13 @@ using .RivarParser: parse_rivar
 include("parser/infofcf.jl")
 using .InfofcfDatParser: parse_infofcf_dat
 include("parser/fcf.jl")
-using .FCFModule: parse_fcf, evaluate_fcf, water_value, water_values, build_fcf_from_cuts, parse_mapcut_enhanced
+using .FCFModule:
+    parse_fcf,
+    evaluate_fcf,
+    water_value,
+    water_values,
+    build_fcf_from_cuts,
+    parse_mapcut_enhanced
 
 # Optionally include PWF parser if PWF.jl is available
 # Check for PWF package before including to avoid module compilation warnings

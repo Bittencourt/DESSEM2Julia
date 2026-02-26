@@ -1,6 +1,5 @@
 using Test
 using DESSEM2Julia
-const ParserError = DESSEM2Julia.ParserCommon.ParserError
 
 @testset "Cortdeco Binary Parser Tests" begin
     @testset "Synthetic Binary File Parsing" begin
@@ -127,7 +126,7 @@ const ParserError = DESSEM2Julia.ParserCommon.ParserError
             @test wv3 ≈ 35.0
 
             # Test error for non-existent plant
-            @test_throws ParserError get_water_value(cuts, 999)
+            @test_throws DESSEM2Julia.ParserCommon.ParserError get_water_value(cuts, 999)
         end
     end
 
