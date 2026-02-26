@@ -60,6 +60,8 @@ export MetasData, parse_metas
 export RivarData, parse_rivar
 export InfofcfDatTviag,
     InfofcfDatSisgnl, InfofcfDatDurpat, InfofcfDatFix, InfofcfDatData, parse_infofcf_dat
+export parse_fcf, evaluate_fcf, water_value, water_values
+export build_fcf_from_cuts, parse_mapcut_enhanced
 
 # Core type system (comprehensive data model)
 export DessemCase, FileRegistry
@@ -71,6 +73,8 @@ export OperationalConstraints, RampConstraint, LPPConstraint, TableConstraint
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, FCFCutsData, DecompCut
+export BendersCut, FCFData
+export MapcutGeneralData, MapcutCaseData, MapcutStageData
 export ExecutionOptions
 
 include("types.jl")
@@ -237,6 +241,14 @@ include("parser/rivar.jl")
 using .RivarParser: parse_rivar
 include("parser/infofcf.jl")
 using .InfofcfDatParser: parse_infofcf_dat
+include("parser/fcf.jl")
+using .FCFModule:
+    parse_fcf,
+    evaluate_fcf,
+    water_value,
+    water_values,
+    build_fcf_from_cuts,
+    parse_mapcut_enhanced
 
 # Optionally include PWF parser if PWF.jl is available
 # Check for PWF package before including to avoid module compilation warnings

@@ -1,7 +1,13 @@
 using Test
 using DESSEM2Julia
 using DESSEM2Julia:
-    parse_infofcf, parse_mapcut, parse_cortes, InfofcfData, MapcutData, CortesData, MapcutHeader
+    parse_infofcf,
+    parse_mapcut,
+    parse_cortes,
+    InfofcfData,
+    MapcutData,
+    CortesData,
+    MapcutHeader
 
 @testset "Binary DEC Parsers Tests" begin
 

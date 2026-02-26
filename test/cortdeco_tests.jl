@@ -126,7 +126,7 @@ using DESSEM2Julia
             @test wv3 ≈ 35.0
 
             # Test error for non-existent plant
-            @test_throws ErrorException get_water_value(cuts, 999)
+            @test_throws DESSEM2Julia.ParserCommon.ParserError get_water_value(cuts, 999)
         end
     end
 

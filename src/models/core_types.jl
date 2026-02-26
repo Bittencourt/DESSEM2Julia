@@ -36,8 +36,10 @@ export MltData
 export RenewableSystem, WindPlant, SolarPlant
 export TimeDiscretization, TimePeriod
 export CutInfo, FCFCut, FCFCutsData, DecompCut
+export BendersCut, FCFData
 export InfofcfRecord, InfofcfData
-export MapcutHeader, MapcutRecord, MapcutData
+export MapcutHeader,
+    MapcutRecord, MapcutData, MapcutGeneralData, MapcutCaseData, MapcutStageData
 export CortesRecord, CortesData
 export MltData
 
@@ -883,6 +885,125 @@ Base.@kwdef struct MapcutData
     header::MapcutHeader = MapcutHeader(Int32(0), Int32(0), Int32[])
     records::Vector{MapcutRecord} = MapcutRecord[]
     total_cuts::Int = 0
+end
+
+"""
+    MapcutGeneralData
+
+General data from the first record of MAPCUT binary file (DECOMP).
+
+Based on IDESEM reference: idecomp/decomp/modelos/mapcut.py
+
+# Fields
+- `numero_iteracoes::Int32`: Number of iterations
+- `numero_cortes::Int32`: Total number of Benders cuts
+- `numero_submercados::Int32`: Number of submarkets
+- `numero_uhes::Int32`: Number of hydro plants (UHEs)
+- `numero_cenarios::Int32`: Number of scenarios
+- `registro_ultimo_corte_no::Vector{Int32}`: Last cut index for each scenario node
+"""
+Base.@kwdef struct MapcutGeneralData
+    numero_iteracoes::Int32 = Int32(0)
+    numero_cortes::Int32 = Int32(0)
+    numero_submercados::Int32 = Int32(0)
+    numero_uhes::Int32 = Int32(0)
+    numero_cenarios::Int32 = Int32(0)
+    registro_ultimo_corte_no::Vector{Int32} = Int32[]
+end
+
+"""
+    MapcutCaseData
+
+Case-specific data from MAPCUT binary file (DECOMP).
+
+# Fields
+- `tamanho_corte::Int32`: Cut record size in bytes
+- `dia_inicio::Int32`: Start day
+- `mes_inicio::Int32`: Start month
+- `ano_inicio::Int32`: Start year
+"""
+Base.@kwdef struct MapcutCaseData
+    tamanho_corte::Int32 = Int32(0)
+    dia_inicio::Int32 = Int32(0)
+    mes_inicio::Int32 = Int32(0)
+    ano_inicio::Int32 = Int32(0)
+end
+
+"""
+    MapcutStageData
+
+Stage-specific data from MAPCUT binary file (DECOMP).
+
+# Fields
+- `numero_estagios::Int32`: Number of stages
+- `numero_semanas::Int32`: Number of weeks
+- `numero_uhes_tempo_viagem::Int32`: Number of UHEs with travel time
+- `maximo_lag_tempo_viagem::Int32`: Maximum lag for travel time
+- `indice_primeiro_no_estagio::Vector{Int32}`: First scenario node index per stage
+- `patamares_por_estagio::Vector{Int32}`: Load levels per stage
+"""
+Base.@kwdef struct MapcutStageData
+    numero_estagios::Int32 = Int32(0)
+    numero_semanas::Int32 = Int32(0)
+    numero_uhes_tempo_viagem::Int32 = Int32(0)
+    maximo_lag_tempo_viagem::Int32 = Int32(0)
+    indice_primeiro_no_estagio::Vector{Int32} = Int32[]
+    patamares_por_estagio::Vector{Int32} = Int32[]
+end
+
+"""
+    BendersCut
+
+Structured representation of a single Benders cut from the FCF.
+
+Represents one hyperplane: α ≤ α₀ + Σᵢ πᵢ · Vᵢ
+
+# Fields
+- `id::Int`: Cut identifier
+- `stage::Int`: DECOMP stage this cut belongs to
+- `rhs::Float64`: α₀ constant (RHS of the cut)
+- `reservoir_coefficients::Dict{Int, Float64}`: Maps reservoir_id → πᵢ (R\$/hm³)
+- `travel_time_coefficients::Vector{Float64}`: Travel-time variable coefficients
+- `gnl_coefficients::Vector{Float64}`: GNL thermal variable coefficients
+"""
+Base.@kwdef struct BendersCut
+    id::Int = 0
+    stage::Int = 0
+    rhs::Float64 = 0.0
+    reservoir_coefficients::Dict{Int,Float64} = Dict{Int,Float64}()
+    travel_time_coefficients::Vector{Float64} = Float64[]
+    gnl_coefficients::Vector{Float64} = Float64[]
+end
+
+"""
+    FCFData
+
+Complete Future Cost Function (Função de Custo Futuro) data container.
+
+Combines structured Benders cuts with metadata from mapcut and infofcf files.
+
+# Fields
+- `cuts::Vector{BendersCut}`: All Benders cuts
+- `reservoir_ids::Vector{Int}`: Ordered list of reservoir (UHE) codes
+- `n_stages::Int`: Number of stages
+- `n_cuts::Int`: Total number of cuts
+- `record_length::Int`: Byte length of each record in cortdeco
+- `source_model::Symbol`: Source model (:decomp or :newave)
+
+# Usage
+```julia
+fcf = parse_fcf(mapcut_path, cortdeco_path)
+cost, active = evaluate_fcf(fcf, Dict(1 => 50.0, 2 => 30.0))
+wv = water_value(fcf, Dict(1 => 50.0, 2 => 30.0), 1)
+```
+"""
+Base.@kwdef struct FCFData
+    cuts::Vector{BendersCut} = BendersCut[]
+    reservoir_ids::Vector{Int} = Int[]
+    n_stages::Int = 0
+    n_cuts::Int = 0
+    record_length::Int = 0
+    source_model::Symbol = :decomp
 end
 
 """
