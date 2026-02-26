@@ -192,7 +192,11 @@ function build_fcf_from_cuts(
 
         # Remaining coefficients after reservoir values are travel-time and GNL
         n_res = length(reservoir_ids)
-        remaining = cut.coeficientes[min(n_res + 1, length(cut.coeficientes) + 1):end]
+        remaining = if n_res < length(cut.coeficientes)
+            cut.coeficientes[n_res+1:end]
+        else
+            Float64[]
+        end
 
         bc = BendersCut(
             id = i,
